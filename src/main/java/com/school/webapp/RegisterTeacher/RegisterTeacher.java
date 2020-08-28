@@ -2,13 +2,17 @@ package com.school.webapp.RegisterTeacher;
 
 import com.school.webapp.JDBC.JDBCConnection;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 
 public class RegisterTeacher {
-
+    private int a;
     public String Registerteacher(RegisterTeacherRequestEntity registerTeacherRequestEntity){
         System.out.println(registerTeacherRequestEntity.getFirstname());
         System.out.println(registerTeacherRequestEntity.getLastname());
@@ -29,7 +33,7 @@ public class RegisterTeacher {
 
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String Query="insert into TeacherInformation(FirstName,LastName,MiddleName,Class,SubjectOne,SubjectTwo,SubjectThree,SubjectFour,Email,Address,EntryYear,Gender,PhoneNo,SchoolAttended,Course,MaritalStatus) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String Query="insert into TeacherInformation(FirstName,LastName,MiddleName,Class,SubjectOne,SubjectTwo,SubjectThree,SubjectFour,Email,Address,EntryYear,Gender,PhoneNo,SchoolAttended,Course,MaritalStatus,Picture) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement preparedStatement= null;
             try {
                 preparedStatement = connection.prepareStatement(Query);
@@ -49,21 +53,40 @@ public class RegisterTeacher {
                 preparedStatement.setString(14,registerTeacherRequestEntity.getSchoolattended());
                 preparedStatement.setString(15,registerTeacherRequestEntity.getCourse());
                 preparedStatement.setString(16,registerTeacherRequestEntity.getMaritalstatus());
-                int a=preparedStatement.executeUpdate();
-            } catch (SQLException e) {
+                Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
+                if (Files.exists(path)){
+
+                }else {
+                    Files.createDirectories(path);
+                }
+                //temporarily saving the file
+                File teacherimage=new File(path+"/teacher");
+                FileOutputStream outputStream=new FileOutputStream(teacherimage);
+                outputStream.write(registerTeacherRequestEntity.getFile());
+                //preparing to save to database
+                FileInputStream inputStream=new FileInputStream(teacherimage);
+                preparedStatement.setBinaryStream(17,inputStream,(int) teacherimage.length());
+                a=preparedStatement.executeUpdate();
+            } catch (SQLException | FileNotFoundException e) {
                 e.printStackTrace();
-                return "FAILED TO REGISTER TEACHER";
-            }finally {
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            } finally {
                 try {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
-            return "TEACHER REGISTER SUCCESSFULLY";
         }else {
-            return "FAILED TO REGISTER TEACHER";
+            return null;
         }
-
+        if (a==1){
+            return "SUCCESS";
+        }else {
+            return null;
+        }
     }
 }

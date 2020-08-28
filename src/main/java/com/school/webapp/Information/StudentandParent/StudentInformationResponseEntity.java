@@ -1,5 +1,6 @@
 package com.school.webapp.Information.StudentandParent;
 
+
 public class StudentInformationResponseEntity {
     private String studentname;
     private int age;
@@ -16,7 +17,9 @@ public class StudentInformationResponseEntity {
     private String rolemodel;
     private String futureambition;
     private String gender;
-
+    private byte[] student;
+    private byte[] father;
+    private byte[] mother;
     public StudentInformationResponseEntity() {
     }
 
@@ -156,5 +159,29 @@ public class StudentInformationResponseEntity {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public byte[] getStudent() {
+        return student;
+    }
+
+    public void setStudent(byte[] student) {
+        this.student = student;
+    }
+
+    public byte[] getFather() {
+        return father;
+    }
+
+    public void setFather(byte[] father) {
+        this.father = father;
+    }
+
+    public byte[] getMother() {
+        return mother;
+    }
+
+    public void setMother(byte[] mother) {
+        this.mother = mother;
     }
 }

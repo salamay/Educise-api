@@ -18,22 +18,6 @@ public class Scores {
     public Scores() {
     }
 
-    public Scores(String subject, double firstca, double secondca, double thirdca, double fourthca, double fifthca, double sixthca, double seventhca, double eightca, double ninthca, double tenthca, double exam, double cumulative) {
-        this.subject = subject;
-        this.firstca = firstca;
-        this.secondca = secondca;
-        this.thirdca = thirdca;
-        this.fourthca = fourthca;
-        this.fifthca = fifthca;
-        this.sixthca = sixthca;
-        this.seventhca = seventhca;
-        this.eightca = eightca;
-        this.ninthca = ninthca;
-        this.tenthca = tenthca;
-        this.exam = exam;
-        this.cumulative = cumulative;
-    }
-
     public String getSubject() {
         return subject;
     }

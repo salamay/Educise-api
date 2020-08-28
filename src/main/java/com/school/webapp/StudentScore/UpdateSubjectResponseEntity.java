@@ -1,12 +1,12 @@
 package com.school.webapp.StudentScore;
 
-public class InsertSubjectResponseEntity {
+public class UpdateSubjectResponseEntity {
     private String response;
 
-    public InsertSubjectResponseEntity() {
+    public UpdateSubjectResponseEntity() {
     }
 
-    public InsertSubjectResponseEntity(String response) {
+    public UpdateSubjectResponseEntity(String response) {
         this.response = response;
     }
 

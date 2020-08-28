@@ -2,34 +2,34 @@ package com.school.webapp.StudentScore;
 
 import com.school.webapp.JDBC.JDBCConnection;
 
-import javax.management.Query;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class InsertSubject {
+public class DeleteSubject {
     private int i;
-    public String insertSubject(String subject,String session,String studentname){
+    public boolean deleteSubject(String subject, String session, String studentname) {
+        System.out.println("[DeleteSubject]-->Deleting Subject");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="insert into "+session+" (Subject,Studentname) values(?,?)";
+            String QUERY="delete from "+session+" where Studentname=? and Subject=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
-                preparedStatement.setString(1,subject);
-                preparedStatement.setString(2,studentname);
+                preparedStatement.setString(1,studentname);
+                preparedStatement.setString(2,subject);
                 i=preparedStatement.executeUpdate();
+                System.out.println("[DeleteSubject]-->Deleting Subject: QUERY result: "+i);
             } catch (SQLException e) {
                 e.printStackTrace();
-                return null;
+                return false;
             }
         }else {
-            return  null;
+            return false;
         }
         if (i==1){
-            System.out.println("[WebService]-->Subject Inserted");
-            return "SUCCESS";
+            return true;
         }else {
-            return null;
+            return false;
         }
     }
 }

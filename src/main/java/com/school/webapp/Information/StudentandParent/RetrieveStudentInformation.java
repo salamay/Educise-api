@@ -2,26 +2,26 @@ package com.school.webapp.Information.StudentandParent;
 
 import com.school.webapp.JDBC.JDBCConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class RetrieveStudentInformation {
-    private ResultSet resultSet;
     private StudentInformationResponseEntity studentInformationResponseEntity;
+    public static Blob studentblob;
+    public static Blob fatherblob;
+    public static Blob motherblob;
 
 
-    public StudentInformationResponseEntity retrieveStudentInformation(StudentInformationRequestEntity studentInformationRequestEntity){
-        System.out.println(studentInformationRequestEntity.getClas());
-        System.out.println(studentInformationRequestEntity.getName());
+    public StudentInformationResponseEntity retrieveStudentInformation(String name,String classselected){
+        System.out.println(name);
+        System.out.println(classselected);
+        ResultSet resultSet;
         Connection connection= JDBCConnection.connector();
-        String Query="Select * from "+studentInformationRequestEntity.getClas()+" where studentname=?";
+        String Query="Select * from "+classselected+" where StudentName=?";
         if (connection!=null){
             studentInformationResponseEntity=new StudentInformationResponseEntity();
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(Query);
-                preparedStatement.setString(1,studentInformationRequestEntity.getName());
+                preparedStatement.setString(1,name);
                 resultSet=preparedStatement.executeQuery();
                 while (resultSet.next()) {
                     studentInformationResponseEntity.setStudentname(resultSet.getString("StudentName"));
@@ -40,14 +40,29 @@ public class RetrieveStudentInformation {
                     studentInformationResponseEntity.setFutureambition(resultSet.getString("futureambition"));
                     studentInformationResponseEntity.setTurnon(resultSet.getString("turnon"));
                     studentInformationResponseEntity.setTurnoff(resultSet.getString("turnoff"));
+                    studentblob = resultSet.getBlob("Picture");
+                    fatherblob = resultSet.getBlob("Fatherpicture");
+                    motherblob = resultSet.getBlob("Motherpicture");
+                    studentInformationResponseEntity.setStudent(studentblob.getBytes(1,(int) studentblob.length()));
+                    studentInformationResponseEntity.setFather(fatherblob.getBytes(1,(int) fatherblob.length()));
+                    studentInformationResponseEntity.setMother(motherblob.getBytes(1,(int) motherblob.length()));
                 }
+                System.out.println(studentblob);
+
+
         }catch (SQLException e){
+                System.out.println("[RetrieveStudentInformation]:Information is empty");
                 e.printStackTrace();
+                return null;
+
             }
-        }
-        if (resultSet!=null){
-            return studentInformationResponseEntity;
         }else {
+            return null;
+        }
+        if(resultSet==null){
+            return null;
+        }else {
+            System.out.println("[RetrieveStudentInformation]:Information retrieved");
             return studentInformationResponseEntity;
         }
     }

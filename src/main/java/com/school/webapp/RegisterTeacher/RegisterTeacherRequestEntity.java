@@ -17,6 +17,7 @@ public class RegisterTeacherRequestEntity {
     private String phoneno;
     private String schoolattended;
     private String course;
+    private byte[] file;
 
     public RegisterTeacherRequestEntity() {
     }
@@ -166,5 +167,13 @@ public class RegisterTeacherRequestEntity {
 
     public void setCourse(String course) {
         this.course = course;
+    }
+
+    public byte[] getFile() {
+        return file;
+    }
+
+    public void setFile(byte[] file) {
+        this.file = file;
     }
 }

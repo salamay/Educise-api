@@ -471,7 +471,7 @@ public class CreateSession {
                 int f = preparedStatement23.executeUpdate();
                 System.out.println("[CreatingSessionThread]: SessionScoreQuery 6 executed");
                 System.out.println("[CreatingSessionThread]: " + f);
-
+                return "SUCESS";
             } catch (SQLException e) {
                 e.printStackTrace();
                 try {
@@ -479,10 +479,11 @@ public class CreateSession {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
-                return "FAILED TO CREATE SESSION";
+                return null;
             }
 
+        }else {
+            return null;
         }
-        return "SESSION SUCCESS";
     }
 }

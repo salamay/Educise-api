@@ -72,6 +72,7 @@ public class WebService {
 
     ////////////////////////////Register Teacher////////////////////////////////////////////
     public String registerTeacher(RegisterTeacherRequestEntity registerTeacherRequestEntity){
+        System.out.println("[WebService]-->Proceeding to Database");
         return  new RegisterTeacher().Registerteacher(registerTeacherRequestEntity);
     }
     ////////////////////////////CREATING SESSION END/////////////////////////////////////////
@@ -79,7 +80,7 @@ public class WebService {
 
     //////////////////////////This method get the Scores////////////////////////////////////////////////////////
     public ArrayList<Scores> getScores(getStudentScoreRequestEntity getStudentScoreRequestEntity){
-        System.out.println("[WebService]-->Proceeding to Database");
+        System.out.println("[WebService] getting student score--> Proceeding to Database");
         System.out.println("[WebService]-->name:"+getStudentScoreRequestEntity.getName());
         System.out.println("[WebService]--> table:"+getStudentScoreRequestEntity.getTable());
         System.out.println("[WebService]--> term:"+getStudentScoreRequestEntity.getTerm());
@@ -87,6 +88,7 @@ public class WebService {
     }
     //update Subject
     public String updateSubject(UpdateSubjectRequestEntity updateSubjectRequestEntity){
+        System.out.println("[WebService] inserting subject--> Proceeding to Database");
         return new UpdateSubject().InsertSubject(updateSubjectRequestEntity);
     }
 
@@ -102,6 +104,7 @@ public class WebService {
     ////////////////////////////update student score/////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     public String UpdateScore(UpdateScoreRequestEntity updateScoreRequestEntity){
+        System.out.println("[WebService] updating score--> proceeding to Database");
         if (updateScoreRequestEntity.getCa()!=null&&updateScoreRequestEntity.getTable()!=null&&updateScoreRequestEntity.getName()!=null&&updateScoreRequestEntity.getSubject()!=null&&updateScoreRequestEntity.getScore()!=null){
             return new UpdateScore().updateScore(updateScoreRequestEntity);
         }
@@ -123,6 +126,7 @@ public class WebService {
     //this method retrive Student information,this take in request entity instance and pass it to the Query class
     ///////////////////////////////////////////////////////////////////////////////////////////////
     public StudentInformationResponseEntity retrieveStudentinfo(String name, String classselected){
+        System.out.println("[WebService] Retrieving student information--> Proceeding to Database");
         retrieveStudentInformation=new RetrieveStudentInformation();
         StudentInformationResponseEntity studentInformationResponseEntity=retrieveStudentInformation.retrieveStudentInformation(name,classselected);
         return studentInformationResponseEntity;
@@ -160,6 +164,7 @@ public class WebService {
     ///This method receive information sessions
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<String> retrieve(){
+        System.out.println("[WebService] Retrieving information session--> Proceeding to Database");
         ArrayList<String> sessionList=new RetrieveSession().retrieve();
         if (sessionList!=null){
             System.out.println("[Retrieving session]: session retrieved");
@@ -176,6 +181,7 @@ public class WebService {
     ////////////////////This method Retrieve score session/////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<String> retrieveScoreSession(){
+        System.out.println("[WebService] Retrieving score session--> Proceeding to Database");
         ArrayList<String> sessionList=new RetrieveScoreSession().retrieve();
         if (sessionList!=null){
             System.out.println("[RetrievingScore session]: session retrieved");
@@ -193,6 +199,7 @@ public class WebService {
     ///THis method Retrieve List of names from class
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<RetrieveNameResponse> RetrieveName( String classname){
+        System.out.println("[WebService] Retrieving student names--> Proceeding to Database");
         ArrayList<RetrieveNameResponse> list=new RetrieveName().retrieveName(classname);
         if (list!=null){
             return list;
@@ -205,6 +212,7 @@ public class WebService {
 ////////////////////////This method retrieve Parent name/////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<RetrieveParentNameResponse> retrieveParentname( String session){
+        System.out.println("[WebService] Retrieving parent names--> Proceeding to Database");
         System.out.println("[WebService]-->Retrieving parent names: "+session);
         ArrayList<RetrieveParentNameResponse> list=new RetrieveParentName().getParentNames(session);
         if (list!=null){
@@ -215,6 +223,7 @@ public class WebService {
     }
     ///////////////////////////////////END//////////////////////////////////////////////////////////////////////
     public RetrieveParentInformationResponseEntity getParentInfo(String session,String parentname){
+        System.out.println("[WebService] getting parent information--> Proceeding to Database");
         RetrieveParentInformationResponseEntity retrieveParentInformationResponseEntity=new RetrieveParentInformationResponseEntity();
         System.out.println("[WebService]-->Retrieving parent Information");
         retrieveParentInformationResponseEntity=new RetrieveParentInformation().retrieveParentInfo(session,parentname);
@@ -310,11 +319,11 @@ public class WebService {
         System.out.println("[WebService]:getting book sold history -->Proceeding to database");
         return new getBookSoldHistory().getHistories(session,term,date);
     }
-    //deleting booksold history
-    public boolean deleteBookHistory(String id) {
-        System.out.println("[WebService]:deleting book sold history -->Proceeding to database");
-        return new DeleteBookHistory().deleteHistory(id);
-    }
+//    //deleting booksold history
+//    public boolean deleteBookHistory(String id) {
+//        System.out.println("[WebService]:deleting book sold history -->Proceeding to database");
+//        return new DeleteBookHistory().deleteHistory(id);
+//    }
 
     //Edit book
     public boolean editBook(EditBookRequest editBookRequest) {

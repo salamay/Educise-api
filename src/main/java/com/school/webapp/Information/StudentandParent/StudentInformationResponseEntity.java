@@ -23,6 +23,7 @@ public class StudentInformationResponseEntity {
     private byte[] mother;
     private String clas;
     private String tag;
+
     public StudentInformationResponseEntity() {
     }
 

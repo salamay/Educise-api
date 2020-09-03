@@ -8,8 +8,10 @@ import java.sql.SQLException;
 
 public class EditInformation {
     private boolean result;
+    private boolean result2;
     public boolean edit(String newValue, String id, String column, String session) {
         Connection connection= JDBCConnection.connector();
+        //Two Query are going tobe executed here,the normal Query and the qchanges its going to make in the school fee database
         if (connection!=null){
             String QUERY="update "+session+" set "+column+"=? where id=?";
             try {
@@ -23,16 +25,8 @@ public class EditInformation {
                     PreparedStatement preparedStatement1=connection.prepareStatement(QUERY2);
                     preparedStatement1.setString(1,newValue);
                     preparedStatement1.setString(2,id);
-                    int i=preparedStatement1.executeUpdate();
-                    System.out.println("[EditInformation]: EditingstudentInformation-->Result2: "+i);
-                }
-                if (column.equals("Studentclass")){
-                    String QUERY3="update schoolfee set class=? where id=?";
-                    PreparedStatement preparedStatement2=connection.prepareStatement(QUERY3);
-                    preparedStatement2.setString(1,newValue);
-                    preparedStatement2.setString(2,id);
-                    int i=preparedStatement2.executeUpdate();
-                    System.out.println("[EditInformation]: EditingstudentInformation-->Result2: "+i);
+                    result2=preparedStatement1.execute();
+                    System.out.println("[EditInformation]: EditingstudentInformation-->Result2: "+result2);
                 }
 
             } catch (SQLException e) {
@@ -51,8 +45,7 @@ public class EditInformation {
                 }
             }
 
-            if (!result){
-
+            if (!result||!result2){
                 return true;
             }else {
                 return false;

@@ -10,11 +10,14 @@ import com.school.webapp.RequestModel.AuthenticateRequest;
 import com.school.webapp.ResponseModel.JwtResponse;
 import com.school.webapp.ResponseModel.JwtUtils;
 import com.school.webapp.RetrieveParentInformation.RetrieveParentInformationResponseEntity;
+import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
+import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFeeRequestEntity;
 import com.school.webapp.Session.SessionRequestEntity;
 import com.school.webapp.Session.SessionResponseEntity;
 import com.school.webapp.StudentScore.*;
 import com.school.webapp.WebAppService.WebService;
 import com.school.webapp.security.MyUserDetailsService;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,6 +29,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.websocket.server.PathParam;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -95,7 +100,6 @@ public class ApiController {
                 builder.serializeNulls();
                 Gson gson=builder.create();
                 System.out.println("[Registering]: "+"preparing json object file");
-                registrationModel=new RegistrationModel();
                 registrationModel=gson.fromJson(jsonstring,RegistrationModel.class);
                 System.out.println("[Registering]: "+"Finished preparing json object");
             } catch (IOException e) {
@@ -451,4 +455,185 @@ public class ApiController {
     }
     /////////////////////End////////////////////////////////////////////
 
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////SCHOOL FEE SESSION//////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    /////////////////////////////////////////////Save School fee////////////////////////////////////////////////////
+    /////////////This takes in a json Entity that contains the school fee data//////////////////////////////////////
+    @RequestMapping(value = "saveschoolfee",method = RequestMethod.POST)
+    public ResponseEntity<?> saveSchoolFee(@RequestBody SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity){
+        System.out.println("[Controller]:Saving School fee-->"+saveSchoolFeeRequestEntity);
+        if (saveSchoolFeeRequestEntity!=null){
+            System.out.println("[Controller]:Saving School fee-->");
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getStudentname());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getClas());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getTerm());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getYear());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getDate());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getDepositorname());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getId());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getModeofpayment());
+            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getAmount());
+            boolean result=webService.saveSchoolFee(saveSchoolFeeRequestEntity);
+            if (result){
+                System.out.println("[Controller]:School fee saved successfully");
+                return ResponseEntity.accepted().build();
+            }else {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            System.out.println("[Controller]:Saving School fee-->Bad request");
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    ///////////////////////////////////SAVE SCHOOL FEE END//////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////Getting school fee/////////////////////////////////////////////////////////
+    @RequestMapping(value = "getschoolfee/{clas}/{term}/{year}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSchoolFee(@PathVariable String clas,@PathVariable String term,@PathVariable String year){
+        System.out.println("[Controller]:getting School fee-->\r\n class: "+clas+"\r\n term: "+term+" \r\n year: "+year);
+        if (clas!=null&&term!=null&&year!=null){
+            ArrayList<getSchoolFeeResponseEntity> schoolFees=webService.getSchoolFees(clas,term,year);
+            HttpHeaders headers;
+            if (schoolFees!=null||schoolFees.isEmpty()){
+                headers=new HttpHeaders();
+                headers.add("Content-Type","application/json; charset=UTF-8");
+                System.out.println("[Controller]:getting School fee-->Response sent");
+                return ResponseEntity.ok().headers(headers).body(schoolFees);
+            }else {
+                System.out.println("[Controller]:getting School fee-->Could not get School fees:Result is null");
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            System.out.println("[Controller]:getting School fee-->Could not get School fees");
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    ///////////////////////////////////////Getting School Fee END/////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////Getting school fee without term/////////////////////////////////////////////////////////
+    @RequestMapping(value = "getschoolfeewithoutterm/{clas}/{session}/{tag}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSchoolFeeWithoutTerm(@PathVariable String clas,@PathVariable String session,@PathVariable String tag){
+        System.out.println("[Controller]:getting School fee without term-->\r\n class: "+clas+"\r\n session: "+session+"\r\n tag: "+tag);
+        if (clas!=null&&session!=null&&tag!=null){
+            ArrayList<getSchoolFeeResponseEntity> schoolFees=webService.getSchoolFeesWithoutTerm(clas,session,tag);
+            HttpHeaders headers;
+            if (schoolFees!=null||schoolFees.isEmpty()){
+                headers=new HttpHeaders();
+                headers.add("Content-Type","application/json; charset=UTF-8");
+                System.out.println("[Controller]:getting School fee without term -->Response sent");
+                return ResponseEntity.ok().headers(headers).body(schoolFees);
+            }else {
+                System.out.println("[Controller]:getting School fee without term--->Could not get School fees:Result is null");
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            System.out.println("[Controller]:getting School fee without term--->Could not get School fees");
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    ///////////////////////////////////////Getting School Fee without END/////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////saving term school fee/////////////////////////////////////////////////////////
+    ///////This method add the term into the school fee table when the student paid
+
+    @RequestMapping (value = "saveterm/{term}/{studentname}/{clas}/{session}/{tag}",method = RequestMethod.GET)
+    public ResponseEntity<?> saveTerm(@PathVariable String studentname,@PathVariable String clas,
+                                      @PathVariable String session,@PathVariable String tag,
+                                      @PathVariable String term){
+        System.out.println("[Controller]:Saving term-->\r\n class: "+clas+"\r\n session: "+session+"\r\n term: "+term+"\r\n name: "+studentname+"\r\n tag: "+tag);
+        if (studentname!=null &&clas!=null &&session!=null&&tag!=null&&term!=null){
+            boolean result=webService.saveterm(studentname,clas,session,tag,term);
+            if (result){
+                System.out.println("[Controller]: Result:"+result);
+                return ResponseEntity.accepted().build();
+            }else {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            System.out.println("[Controller]: Bad request returning response");
+            return ResponseEntity.badRequest().build();
+        }
+    }
+///////////////////////////////////////SAVING TERM END/////////////////////////////////////////////////////
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////saving data to school fee table/////////////////////////////////////////////////////////
+    ///////This method save data to schoolfee table with respect to the student name
+
+    @RequestMapping (value = "savedatatoschoolfeetable/{term}/{studentname}/{clas}/{session}/{tag}/{column}/{entity}",method = RequestMethod.GET)
+    public ResponseEntity<?> saveDataToSchoolFeeTable(@PathVariable String studentname,@PathVariable String clas,
+                                      @PathVariable String session,@PathVariable String tag,
+                                      @PathVariable String term,@PathVariable String column,@PathVariable String entity){
+        System.out.println("[Controller]:Saving data to schoolfee table-->\r\n class: "+clas+"\r\n session: "+session+"\r\n term: "+term+"\r\n name: "+studentname+"\r\n tag: "+tag+"\r\n column: "+column+"\r\n entity: "+entity);
+        if (studentname!=null &&clas!=null &&session!=null&&tag!=null&&term!=null&&entity!=null){
+            boolean result=webService.saveDataToSchoolFeeTable(studentname,clas,session,tag,term,column,entity);
+            if (result){
+                System.out.println("[Controller]: Result:"+result);
+                return ResponseEntity.accepted().build();
+            }else {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            System.out.println("[Controller]: Bad request returning response");
+            return ResponseEntity.badRequest().build();
+        }
+    }
+///////////////////////////////////////SAVING TERM END/////////////////////////////////////////////////////
+
+
+@RequestMapping(value = "deleteschoolfee/{clas}/{session}/{term}/{studentname}",method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteSchoolFee(@PathVariable String clas, @PathVariable String session, @PathVariable String term, @PathVariable String studentname){
+    System.out.println("[Controller]:Saving data to schoolfee table-->\r\n class: "+clas+"\r\n session: "+session+"\r\n term: "+term+"\r\n name: "+studentname);
+    if (clas!=null&&session!=null&&term!=null&&studentname!=null){
+       boolean result= webService.deleteSchoolFee(clas,session,term,studentname);
+       if (result){
+           System.out.println("[Controller]: Result is OK");
+           return ResponseEntity.ok().build();
+       }else {
+           System.out.println("[Controller]: Result is not OK");
+           return ResponseEntity.unprocessableEntity().build();
+       }
+    }else {
+        return ResponseEntity.badRequest().build();
+    }
+}
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////Getting debtors/////////////////////////////////////////////////////////
+//    @RequestMapping(value = "getdebtors/{clas}/{term}/{year}",method = RequestMethod.GET)
+//    public ResponseEntity<?> getDebtors(@PathVariable String clas,@PathVariable String term,@PathVariable String year){
+//        if (clas!=null&& term!=null &&year!=null){
+//            //This also return list of getSchoolfeeResponseEntity because we are gretting the same data as getting school fee
+//            ArrayList<getSchoolFeeResponseEntity> debtors=webService.getDebtors(clas,term,year);
+//        }else {
+//            System.out.println("[Controller]:getting School fee-->Could not get debtors");
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//    }
+
+    ///////////////////////////////////////Getting debtors END/////////////////////////////////////////////////////
+
+
+
+    ////////////////////////////////////////////////SCHOOL FEE SESSION END////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

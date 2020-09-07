@@ -1,5 +1,6 @@
 package com.school.webapp.WebAppService;
 
+import com.school.webapp.DeleteSchoolFee.DeleteSchoolFee;
 import com.school.webapp.Information.StudentandParent.RetrieveStudentInformation;
 import com.school.webapp.Information.StudentandParent.StudentInformationResponseEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacher;
@@ -13,12 +14,20 @@ import com.school.webapp.RetrieveParentInformation.RetrieveParentInformationResp
 import com.school.webapp.RetrieveParentNames.RetrieveParentName;
 import com.school.webapp.RetrieveSession.RetrieveScoreSession;
 import com.school.webapp.RetrieveSession.RetrieveSession;
+import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.GetSchoolFee;
+import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
+import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolfeeWithoutTerm;
+import com.school.webapp.SchoolFee.SaveSchoolFee.SaveDataSchoolFeeTable;
+import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFee;
+import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFeeRequestEntity;
+import com.school.webapp.SchoolFee.SaveSchoolFee.Term.SaveTerm;
 import com.school.webapp.Session.CreateSession;
 import com.school.webapp.Session.SessionRequestEntity;
 import com.school.webapp.StudentScore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -171,4 +180,58 @@ public class WebService {
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////SCHOOL FEE SESSION//////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    /////////////////////////////////////////////Save School fee////////////////////////////////////////////////////
+
+    public boolean saveSchoolFee(SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity) {
+        System.out.println("[Webservice]:Saving School fee-->Proceeding to database");
+        return new SaveSchoolFee().SaveSchoolFee(saveSchoolFeeRequestEntity);
+    }
+
+    ///////////////////////////////////SAVE SCHOOL FEE END///////////////////////////////////////////////////////////
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////Getting school fee///////////////////////////////////////////////////////////
+    public ArrayList<getSchoolFeeResponseEntity> getSchoolFees(String clas, String term, String year) {
+        System.out.println("[Webservice]:getting school fee-->Proceeding to database");
+        return new GetSchoolFee().getFee(clas,term,year);
+    }
+
+    public ArrayList<getSchoolFeeResponseEntity> getSchoolFeesWithoutTerm(String clas, String session,String tag) {
+        System.out.println("[Webservice]:getting school fee without term-->Proceeding to database");
+        return new getSchoolfeeWithoutTerm().getSchoolFeeWithoutTermFiltering(clas,session,tag);
+    }
+
+    /////////////////////////////////////////////Save term to schoolfee table////////////////////////////////////////////////////
+    public boolean saveterm(String studentname, String clas, String session, String tag, String term) {
+        System.out.println("[Webservice]:Saving term-->Proceeding to database");
+        return new SaveTerm().Save(studentname,clas,session,tag,term);
+    }
+
+    public boolean saveDataToSchoolFeeTable(String studentname, String clas, String session, String tag, String term, String column, String entity) {
+        System.out.println("[Webservice]:Saving data to schoolfee table-->Proceeding to database");
+        return new SaveDataSchoolFeeTable().saveDataToTable(studentname,clas,session,tag,term,column,entity);
+    }
+
+    public boolean deleteSchoolFee(String clas, String session, String term, String studentname) {
+        System.out.println("[Webservice]:Deleting schoolfee from schoolfee table-->Proceeding to database");
+        return new DeleteSchoolFee().deleteSchoolFee(clas,session,term,studentname);
+    }
+    ///////////////////////////////////SAVE TERM TO SCHOOLFEE TABLE END///////////////////////////////////////////////////////////
+
+//
+//    public ArrayList<getSchoolFeeResponseEntity> getDebtors(String clas, String term, String year) {
+//        System.out.println("[Webservice]:getting debtors-->Proceeding to database");
+//        return new getDebtors().getDebtorsList(clas,term,year);
+//    }
+    //////////////////////////////////////Getting school fee end/////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////SCHOOL FEE SESSION END////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

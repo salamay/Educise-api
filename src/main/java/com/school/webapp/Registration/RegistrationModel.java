@@ -7,6 +7,7 @@ import java.sql.Blob;
 public class RegistrationModel {
 
     private String studentname;
+    private String clas;
     private int age;
     private String fathername;
     private String mothername;
@@ -21,6 +22,7 @@ public class RegistrationModel {
     private String rolemodel;
     private String futureambition;
     private String gender;
+    private String tag;
     //file
 //    private FileInputStream studentphoto;
 //    private FileInputStream MotherPictureFile;
@@ -30,7 +32,7 @@ public class RegistrationModel {
 
     }
 
-    public RegistrationModel(String studentname, int age, String fathername, String mothername, String nextofkin, String address, String phoneno, String nickname, String hobbies, String turnon, String turnoff, String club, String rolemodel, String futureambition, String gender) {
+    public RegistrationModel(String studentname, int age, String fathername, String mothername, String nextofkin, String address, String phoneno, String nickname, String hobbies, String turnon, String turnoff, String club, String rolemodel, String futureambition, String gender,String clas) {
         this.studentname = studentname;
         this.age = age;
         this.fathername = fathername;
@@ -46,6 +48,7 @@ public class RegistrationModel {
         this.rolemodel = rolemodel;
         this.futureambition = futureambition;
         this.gender = gender;
+        this.clas=clas;
     }
 
     public String getStudentname() {
@@ -54,6 +57,14 @@ public class RegistrationModel {
 
     public void setStudentname(String studentname) {
         this.studentname = studentname;
+    }
+
+    public String getClas() {
+        return clas;
+    }
+
+    public void setClas(String clas) {
+        this.clas = clas;
     }
 
     public int getAge() {
@@ -166,5 +177,13 @@ public class RegistrationModel {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

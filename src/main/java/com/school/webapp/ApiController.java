@@ -2,10 +2,13 @@ package com.school.webapp;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.school.webapp.BookStore.EditBook.EditBookRequest;
+import com.school.webapp.BookStore.SaveBook.BookEntity;
 import com.school.webapp.Information.StudentandParent.StudentInformationResponseEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacherRequestEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacherResponse;
 import com.school.webapp.Registration.RegistrationModel;
+import com.school.webapp.Repository.BookHistory;
 import com.school.webapp.RequestModel.AuthenticateRequest;
 import com.school.webapp.ResponseModel.JwtResponse;
 import com.school.webapp.ResponseModel.JwtUtils;
@@ -17,7 +20,6 @@ import com.school.webapp.Session.SessionResponseEntity;
 import com.school.webapp.StudentScore.*;
 import com.school.webapp.WebAppService.WebService;
 import com.school.webapp.security.MyUserDetailsService;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,9 +31,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.websocket.server.PathParam;
 import java.io.*;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -39,7 +40,6 @@ import java.util.ArrayList;
 @RestController
 public class ApiController {
     //Controller class
-
 
 
     @Autowired
@@ -618,17 +618,32 @@ public class ApiController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting debtors/////////////////////////////////////////////////////////
-//    @RequestMapping(value = "getdebtors/{clas}/{term}/{year}",method = RequestMethod.GET)
-//    public ResponseEntity<?> getDebtors(@PathVariable String clas,@PathVariable String term,@PathVariable String year){
-//        if (clas!=null&& term!=null &&year!=null){
-//            //This also return list of getSchoolfeeResponseEntity because we are gretting the same data as getting school fee
-//            ArrayList<getSchoolFeeResponseEntity> debtors=webService.getDebtors(clas,term,year);
-//        }else {
-//            System.out.println("[Controller]:getting School fee-->Could not get debtors");
-//            return ResponseEntity.badRequest().build();
-//        }
-//
-//    }
+    @RequestMapping(value = "getdebtors/{clas}/{term}/{year}/{minimumfee}/{tag}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDebtors(@PathVariable String clas,@PathVariable String term,@PathVariable String year,@PathVariable int minimumfee,@PathVariable String tag){
+        System.out.println("[Controller]:getting debtors-->\r\n class: "+clas+"\r\n session: "+year+"\r\n term: "+term+"\r\n minimum: "+minimumfee+"\r\n tag:"+tag);
+        if (clas!=null&& term!=null &&year!=null&&minimumfee!=0&&tag!=null){
+            //This also return list of getSchoolfeeResponseEntity because we are getting the same data as getting school fee
+            ArrayList<getSchoolFeeResponseEntity> debtors=webService.getDebtors(clas,term,year,minimumfee,tag);
+            if (debtors!=null||!debtors.isEmpty()){
+                System.out.println("[Controller]:getting Debtors-->Preparing response in json format");
+                GsonBuilder builder=new GsonBuilder();
+                builder.serializeNulls();
+                builder.setPrettyPrinting();
+                Gson gson=builder.create();
+                String json=gson.toJson(debtors);
+                System.out.println("[Controller]:getting Debtors --> "+json);
+                HttpHeaders headers=new HttpHeaders();
+                headers.add("Content-Type","application/json; charset=UTF-8");
+                return ResponseEntity.ok().headers(headers).body(json);
+            }else {
+                return ResponseEntity.notFound().build();
+            }
+        }else {
+            System.out.println("[Controller]:getting School fee-->Could not get debtors");
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
 
     ///////////////////////////////////////Getting debtors END/////////////////////////////////////////////////////
 
@@ -636,4 +651,114 @@ public class ApiController {
 
     ////////////////////////////////////////////////SCHOOL FEE SESSION END////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////BOOK SESSION/////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @RequestMapping(value = "savebook",method = RequestMethod.POST)
+    public ResponseEntity<?> saveBooktoStore(@RequestBody BookEntity book){
+        if (book!=null){
+            boolean result=webService.saveBook(book);
+            if (result){
+                System.out.println("[Controller]:Saving book-->Saving book");
+                return ResponseEntity.ok().build();
+            }else {
+                return ResponseEntity.notFound().build();
+            }
+        }else {
+            System.out.println("[Controller]:Saving book-->Saving book-->Result is false");
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //Find all book
+    @RequestMapping(value = "findallbook",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findAllBook(){
+        final ArrayList<BookEntity> allBooks=webService.findAllBooks();
+        if (allBooks!=null||!allBooks.isEmpty()){
+            return ResponseEntity.ok().body(allBooks);
+        }else {
+            System.out.println("[Controller]:Getting all books-->Result is false");
+            return ResponseEntity.notFound().build();
+        }
+    }
+    //Search Book
+    @RequestMapping(value = "searchbook/{bookname}/{session}/{term}",method = RequestMethod.GET)
+    public ResponseEntity<?> searchBook(@PathVariable String bookname,@PathVariable String session,@PathVariable String term){
+        System.out.println("[Controller]:getting debtors-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term);
+        if (!bookname.isEmpty()&&!session.isEmpty()&&!term.isEmpty()){
+          final ArrayList<BookEntity> resultbooks=webService.searchBook(bookname,session,term);
+          if (resultbooks!=null&&!resultbooks.isEmpty()){
+              System.out.println("[Controller]:Searching books-->result= "+resultbooks.toString());
+              return ResponseEntity.ok().body(resultbooks);
+          }else {
+              System.out.println("[Controller]:Searching books-->Result is false");
+              return ResponseEntity.notFound().build();
+          }
+      }else {
+          return ResponseEntity.badRequest().build();
+      }
+    }
+    //Sell book
+    @RequestMapping(value = "sellbook/{bookname}/{term}/{session}/{buyer}",method = RequestMethod.POST)
+    public ResponseEntity<?> sellBook(@RequestBody BookEntity bookEntity,@PathVariable String bookname, @PathVariable String term, @PathVariable String session, @PathVariable String buyer){
+        System.out.println("[Controller]:selling books-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term+"\r\n buyer: "+buyer);
+        if (bookname!=null&&term!=null&&session!=null&&buyer!=null&&bookEntity!=null){
+           boolean result=new WebService().sellBook(bookname,term,session,buyer,bookEntity);
+            if (result){
+                System.out.println("[Controller]:Selling books-->Book Sold,returning response");
+                return ResponseEntity.ok().build();
+            }else {
+                System.out.println("[Controller]:Selling books-->Result is false");
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    //book history
+    @RequestMapping(value = "getbookhistory/{session}/{term}/{date}",method = RequestMethod.GET)
+    public ResponseEntity<?> getBookHistory(@PathVariable String session,@PathVariable int term,@PathVariable String date){
+        System.out.println("[Controller]:getting book history");
+       if (!session.isEmpty()&&term!=0&&!date.isEmpty()){
+           ArrayList<BookHistory> histories=webService.getBookHistory(session,term,date);
+           if (!histories.isEmpty()){
+               GsonBuilder builder=new GsonBuilder();
+               builder.serializeNulls();
+               builder.setPrettyPrinting();
+               Gson gson=builder.create();
+               String json=gson.toJson(histories);
+               System.out.println("[Controller]: book history-->"+json);
+               HttpHeaders headers=new HttpHeaders();
+               headers.add("Content-Type","application/json; charset=UTF-8");
+               return ResponseEntity.ok().headers(headers).body(histories);
+           }else {
+               return ResponseEntity.noContent().build();
+           }
+
+       }else {
+           return ResponseEntity.badRequest().build();
+       }
+    }
+    //Edit book
+    @RequestMapping(value = "editbook",method = RequestMethod.POST)
+    public ResponseEntity<?> editBook(@RequestBody EditBookRequest editBookRequest){
+        if (editBookRequest!=null){
+            System.out.println("[Controller]:Editing book-->proceeding to web service");
+            boolean result=webService.editBook(editBookRequest);
+            if (result){
+                return ResponseEntity.ok().build();
+            }else {
+                return ResponseEntity.notFound().build();
+            }
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////BOOK SESSION END////////////////////////////////////////////
+
+
 }

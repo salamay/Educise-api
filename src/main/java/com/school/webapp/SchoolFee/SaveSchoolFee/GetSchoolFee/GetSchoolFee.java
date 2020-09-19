@@ -19,7 +19,7 @@ public class GetSchoolFee {
         System.out.println("[GetSchoolFee]:getting School fee-->Setting up connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="select * from schoolfee where class =? and term=? and year=?";
+            String QUERY="select * from schoolfee where class =? and term=? and year=? order by  studentname";
             ResultSet resultSet=null;
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
@@ -28,8 +28,8 @@ public class GetSchoolFee {
                 preparedStatement.setString(3,year);
                 resultSet=preparedStatement.executeQuery();
                 list=new ArrayList<>();
-                getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
                 while (resultSet.next()){
+                    getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
                     getSchoolFeeResponseEntity.setStudentname(resultSet.getString("Studentname"));
                     System.out.println(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setAmount(resultSet.getInt("amount"));

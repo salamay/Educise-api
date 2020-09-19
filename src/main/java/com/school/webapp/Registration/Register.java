@@ -32,6 +32,7 @@ public class Register {
             sout.write(studentpicture.getBytes());
             sout.close();
         } catch (IOException e) {
+
             System.out.println("[Registering]: "+"unable to create student image file");
             e.printStackTrace();
         }
@@ -103,6 +104,11 @@ public class Register {
                 System.out.println("[QueryResponse]: "+schoolfeetablequeryresponse);
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
             PreparedStatement preparedStatement= null;
             try {
@@ -131,8 +137,25 @@ public class Register {
                     System.out.println("[QueryResponse]: "+queryresponse);
                 } catch (SQLException e) {
                     e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    try {
+                        connection.close();
+                    } catch (SQLException exc) {
+                        exc.printStackTrace();
+                    }
                     return null;
                 }
+                return null;
+                }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
 
 
         }else {

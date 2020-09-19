@@ -18,8 +18,8 @@ public class MyUserDetails  implements UserDetails {
     private List<SimpleGrantedAuthority> authorities;
 
     public MyUserDetails(User user){
-        System.out.println(user.getUsername());
-        System.out.println(user.getRole());
+        System.out.println("Username: "+user.getUsername());
+        System.out.println("Role: "+user.getRole());
         this.username=user.getUsername();
         this.password=user.getPassword();
         this.isAvtive=user.isActive();

@@ -38,9 +38,9 @@ public class CreateSession {
                 "Nextofkin " + "varchar(20)," +
                 "Address " + "varchar(40)," +
                 "Tag " + "varchar(10)," +
-                "Picture " + "Blob," +
-                "Fatherpicture " + "Blob," +
-                "Motherpicture " + "Blob," +
+                "Picture " + "MEDIUMBLOB," +
+                "Fatherpicture " + "MEDIUMBLOB," +
+                "Motherpicture " + "MEDIUMBLOB," +
                 "primary key(id)" +
                 ")";
 
@@ -66,9 +66,9 @@ public class CreateSession {
                 "Nextofkin " + "varchar(20)," +
                 "Address " + "varchar(40)," +
                 "Tag " + "varchar(10)," +
-                "Picture " + "Blob," +
-                "Fatherpicture " + "Blob," +
-                "Motherpicture " + "Blob," +
+                "Picture " + "MEDIUMBLOB," +
+                "Fatherpicture " + "MEDIUMBLOB," +
+                "Motherpicture " + "MEDIUMBLOB," +
                 "primary key(id)" +
                 ")";
 
@@ -94,9 +94,9 @@ public class CreateSession {
                 "Nextofkin " + "varchar(20)," +
                 "Address " + "varchar(40)," +
                 "Tag " + "varchar(10)," +
-                "Picture " + "Blob," +
-                "Fatherpicture " + "Blob," +
-                "Motherpicture " + "Blob," +
+                "Picture " + "MEDIUMBLOB," +
+                "Fatherpicture " + "MEDIUMBLOB," +
+                "Motherpicture " + "MEDIUMBLOB," +
                 "primary key(id)" +
                 ")";
 
@@ -121,9 +121,9 @@ public class CreateSession {
                 "Nextofkin " + "varchar(20)," +
                 "Address " + "varchar(40)," +
                 "Tag " + "varchar(10)," +
-                "Picture " + "Blob," +
-                "Fatherpicture " + "Blob," +
-                "Motherpicture " + "Blob," +
+                "Picture " + "MEDIUMBLOB," +
+                "Fatherpicture " + "MEDIUMBLOB," +
+                "Motherpicture " + "MEDIUMBLOB," +
                 "primary key(id)" +
                 ")";
 
@@ -149,9 +149,9 @@ public class CreateSession {
                 "Nextofkin " + "varchar(20)," +
                 "Address " + "varchar(40)," +
                 "Tag " + "varchar(10)," +
-                "Picture " + "Blob," +
-                "Fatherpicture " + "Blob," +
-                "Motherpicture " + "Blob," +
+                "Picture " + "MEDIUMBLOB," +
+                "Fatherpicture " + "MEDIUMBLOB," +
+                "Motherpicture " + "MEDIUMBLOB," +
                 "primary key(id)" +
                 ")";
 
@@ -177,9 +177,9 @@ public class CreateSession {
                 "Nextofkin " + "varchar(20)," +
                 "Address " + "varchar(40)," +
                 "Tag " + "varchar(10)," +
-                "Picture " + "Blob," +
-                "Fatherpicture " + "Blob," +
-                "Motherpicture " + "Blob," +
+                "Picture " + "MEDIUMBLOB," +
+                "Fatherpicture " + "MEDIUMBLOB," +
+                "Motherpicture " + "MEDIUMBLOB," +
                 "primary key(id)" +
                 ")";
 
@@ -483,15 +483,32 @@ public class CreateSession {
                 int f = preparedStatement23.executeUpdate();
                 System.out.println("[CreatingSessionThread]: SessionScoreQuery 6 executed");
                 System.out.println("[CreatingSessionThread]: " + f);
-                return "SUCESS";
+                if (i==0 && j==0 && k==0 && l==0 && m==0 && n==0 && o==1 && p==1 && q==1 && r==1 && s==1 && t==1 && u==0 && v==0 && w==0 && x==0 && y==0 && z==0 && a==1 && b==1 && c==1 && d==1 && e==1 && f==1){
+                    return "SUCCESS";
+                }else {
+                    return null;
+                }
+
             } catch (SQLException e) {
                 e.printStackTrace();
                 try {
                     connection.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
+                    try {
+                        connection.close();
+                    } catch (SQLException exc) {
+                        exc.printStackTrace();
+                        return null;
+                    }
                 }
                 return null;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
 
         }else {

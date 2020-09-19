@@ -17,7 +17,7 @@ public class getSchoolfeeWithoutTerm {
         System.out.println("[GetSchoolFee]:getting School fee without term-->Setting up connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="select * from schoolfee where class =? and year=? and tag=?";
+            String QUERY="select * from schoolfee where class =? and year=? and tag=? order by studentname";
             ResultSet resultSet=null;
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
@@ -26,8 +26,9 @@ public class getSchoolfeeWithoutTerm {
                 preparedStatement.setString(3,tag);
                 resultSet=preparedStatement.executeQuery();
                 list=new ArrayList<>();
-                getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
+
                 while (resultSet.next()){
+                    getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
                     getSchoolFeeResponseEntity.setStudentname(resultSet.getString("Studentname"));
                     System.out.println(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setAmount(resultSet.getInt("amount"));
@@ -43,6 +44,18 @@ public class getSchoolfeeWithoutTerm {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                return null;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (resultSet!=null){
                 return list;

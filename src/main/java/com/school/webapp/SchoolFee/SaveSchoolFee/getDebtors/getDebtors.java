@@ -17,7 +17,7 @@ public class getDebtors {
         ResultSet resultSet=null;
         if (connection!=null){
             debtores=new ArrayList<>();
-            String QUERY="Select * from schoolfee where amount<? and class=? and term=? and year=? and tag=?";
+            String QUERY="Select * from schoolfee where amount<=? and class=? and term=? and year=? and tag=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setInt(1,minimumfee);
@@ -43,6 +43,17 @@ public class getDebtors {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
 
         }else {

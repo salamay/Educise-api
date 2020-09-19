@@ -29,6 +29,18 @@ public class RetrieveScoreSession {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                return null;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }else {
             return null;

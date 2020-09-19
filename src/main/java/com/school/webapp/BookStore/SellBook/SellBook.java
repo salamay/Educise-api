@@ -19,7 +19,7 @@ public class SellBook {
     //Book Entity instance contains the book information to be sold
     public boolean SellBook(String bookname, String term, String session, String buyer, BookEntity bookEntity){
         System.out.println("[Sellbook]:Selling books-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term);
-        System.out.println("[SellBook]: preparing connecction");
+        System.out.println("[SellBook]: preparing connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
             String QUERY="update book_entity set copies=copies-1 where year=? and  title=?  and term=? ";
@@ -33,6 +33,11 @@ public class SellBook {
                 System.out.println("[SellBook]: Result1-->"+i);
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
                 return false;
             }
         }else {
@@ -55,7 +60,18 @@ public class SellBook {
                 System.out.println("[SellBook]: Result2-->"+j);
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
                 return false;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (!i&&!j){
                 return true;

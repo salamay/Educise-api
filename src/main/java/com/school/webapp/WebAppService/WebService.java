@@ -16,9 +16,11 @@ import com.school.webapp.Registration.Register;
 import com.school.webapp.Registration.RegistrationModel;
 import com.school.webapp.Repository.MyRepository;
 import com.school.webapp.RetrievNameFromSession.RetrieveName;
+import com.school.webapp.RetrievNameFromSession.RetrieveNameResponse;
 import com.school.webapp.RetrieveParentInformation.RetrieveParentInformation;
 import com.school.webapp.RetrieveParentInformation.RetrieveParentInformationResponseEntity;
 import com.school.webapp.RetrieveParentNames.RetrieveParentName;
+import com.school.webapp.RetrieveParentNames.RetrieveParentNameResponse;
 import com.school.webapp.RetrieveSession.RetrieveScoreSession;
 import com.school.webapp.RetrieveSession.RetrieveSession;
 import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.GetSchoolFee;
@@ -158,8 +160,8 @@ public class WebService {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///THis method Retrieve List of names from class
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<String> RetrieveName( String classname){
-        ArrayList<String> list=new RetrieveName().retrieveName(classname);
+    public ArrayList<RetrieveNameResponse> RetrieveName( String classname){
+        ArrayList<RetrieveNameResponse> list=new RetrieveName().retrieveName(classname);
         if (list!=null){
             return list;
         }else {
@@ -170,9 +172,9 @@ public class WebService {
 
 ////////////////////////This method retrieve Parent name/////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<String> retrieveParentname( String session){
+    public ArrayList<RetrieveParentNameResponse> retrieveParentname( String session){
         System.out.println("[WebService]-->Retrieving parent names: "+session);
-        ArrayList<String> list=new RetrieveParentName().getParentNames(session);
+        ArrayList<RetrieveParentNameResponse> list=new RetrieveParentName().getParentNames(session);
         if (list!=null){
             return list;
         }else {

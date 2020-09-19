@@ -41,8 +41,21 @@ public class RetrieveParentInformation {
             retrieveParentInformationResponseEntity.setAssociatechildnames(childnameslist);
             retrieveParentInformationResponseEntity.setAssociatechildpictures(childpictureslist);
         }catch (SQLException e){
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                return null;
+            }
             e.printStackTrace();
             return null;
+        }finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
        if (resultSet!=null){
            return retrieveParentInformationResponseEntity;

@@ -20,7 +20,20 @@ public class InsertSubject {
                 i=preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return null;
+                }
                 return null;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
         }else {
             return  null;

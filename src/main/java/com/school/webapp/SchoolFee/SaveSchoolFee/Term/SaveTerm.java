@@ -25,8 +25,18 @@ public class SaveTerm  {
                 i=preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
                 return false;
-
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }else {
             return false;

@@ -18,13 +18,23 @@ public class EditBook {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,editBookRequest.getEntity());
                 preparedStatement.setString(2,editBookRequest.getId());
-
                 //if everything goes well,it returns false
                 result=preparedStatement.execute();
                 System.out.println("[EditBook]: Result-->"+result);
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
                 return false;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (!result){
                 return true;

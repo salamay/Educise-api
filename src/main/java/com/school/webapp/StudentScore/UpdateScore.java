@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class UpdateScore {
     private  int i;
-    public String updateScore(UpdateScoreRequestEntity updateScoreRequestEntity){
+    public String updateScore(UpdateScoreRequestEntity updateScoreRequestEntity) {
         System.out.println(updateScoreRequestEntity.getTable());
         System.out.println(updateScoreRequestEntity.getName());
         System.out.println(updateScoreRequestEntity.getCa());
@@ -19,7 +19,6 @@ public class UpdateScore {
         String Query="update "+updateScoreRequestEntity.getTable()+" set "+updateScoreRequestEntity.getCa()+"=?"+" where Studentname=? and Subject=?";
         if (connection!=null){
             try {
-
                 PreparedStatement preparedStatement=connection.prepareStatement(Query);
                 preparedStatement.setString(1,updateScoreRequestEntity.getScore());
                 preparedStatement.setString(2,updateScoreRequestEntity.getName());
@@ -28,14 +27,20 @@ public class UpdateScore {
                 System.out.println("[SaveScoreThread]: "+ i);
 
             } catch (SQLException e) {
+                e.printStackTrace();
                 try {
-
                     connection.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                     return null;
                 }
-                e.printStackTrace();
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
         }else {
             return null;

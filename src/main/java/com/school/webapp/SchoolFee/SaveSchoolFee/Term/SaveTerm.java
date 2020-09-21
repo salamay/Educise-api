@@ -1,22 +1,27 @@
-package com.school.webapp.StudentScore;
+package com.school.webapp.SchoolFee.SaveSchoolFee.Term;
+
+////This class insert the term into the the school fee table
 
 import com.school.webapp.JDBC.JDBCConnection;
 
-import javax.management.Query;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class InsertSubject {
+public class SaveTerm  {
     private int i;
-    public String insertSubject(String subject,String session,String studentname){
+    public boolean Save(String studentname, String clas, String session, String tag, String term) {
+        System.out.println("[SaveTerm]:Preparing connection --> Proceeding to database");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="insert into "+session+" (Subject,Studentname) values(?,?)";
+            String QUERY="update schoolfee set term=? where studentname=? and class=? and year=? and tag=? ";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
-                preparedStatement.setString(1,subject);
+                preparedStatement.setString(1,term);
                 preparedStatement.setString(2,studentname);
+                preparedStatement.setString(3,clas);
+                preparedStatement.setString(4,session);
+                preparedStatement.setString(5,tag);
                 i=preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -24,25 +29,22 @@ public class InsertSubject {
                     connection.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    return null;
                 }
-                return null;
+                return false;
             }finally {
                 try {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    return null;
                 }
             }
         }else {
-            return  null;
+            return false;
         }
         if (i==1){
-            System.out.println("[WebService]-->Subject Inserted");
-            return "SUCCESS";
+            return true;
         }else {
-            return null;
+            return false;
         }
     }
 }

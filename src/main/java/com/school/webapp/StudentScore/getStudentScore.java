@@ -20,7 +20,6 @@ public class getStudentScore {
             String Query = "Select * from " + getStudentScoreRequestEntity.getTable() + " Where Studentname=?";
 
             try {
-
                 PreparedStatement preparedStatement = connection.prepareStatement(Query);
                 preparedStatement.setString(1, getStudentScoreRequestEntity.getName());
                 resultSet = preparedStatement.executeQuery();
@@ -60,7 +59,19 @@ public class getStudentScore {
 
             } catch (SQLException e) {
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return null;
+                }
                 return null;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }else{
             return null;

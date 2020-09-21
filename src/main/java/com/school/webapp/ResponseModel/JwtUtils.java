@@ -44,7 +44,7 @@ public class JwtUtils {
     private String CreateToken( Map<String,Object> claims,UserDetails userDetails){
         return Jwts.builder().addClaims(claims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*50))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60+24))
                 .signWith(SignatureAlgorithm.HS256,SECRET_KEY).compact();
     }
     public Boolean validateToken(String token,UserDetails userDetails){

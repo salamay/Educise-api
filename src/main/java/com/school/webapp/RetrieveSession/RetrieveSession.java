@@ -27,7 +27,19 @@ public class RetrieveSession {
                     list.add(resultSet.getString("sessionname"));
                 }
             } catch (SQLException e) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
                 e.printStackTrace();
+                return null;
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }else {
             return null;

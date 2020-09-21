@@ -47,14 +47,23 @@ public class RetrieveStudentInformation {
                     studentInformationResponseEntity.setFather(fatherblob.getBytes(1,(int) fatherblob.length()));
                     studentInformationResponseEntity.setMother(motherblob.getBytes(1,(int) motherblob.length()));
                 }
-                System.out.println(studentblob);
-
 
         }catch (SQLException e){
-                System.out.println("[RetrieveStudentInformation]:Information is empty");
+                System.out.println("[RetrieveStudentInformation]:Unable to get student information");
                 e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
                 return null;
-
+            }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
         }else {
             return null;

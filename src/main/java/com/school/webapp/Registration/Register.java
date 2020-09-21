@@ -18,6 +18,7 @@ public class Register {
     private FileInputStream f;
     private FileInputStream m;
     private int queryresponse;
+    private int schoolfeetablequeryresponse;
     public String Register(RegistrationModel registrationModel, String session, MultipartFile studentpicture, MultipartFile fatherpicture, MultipartFile motherpicture) {
         //Saving the file temporarily
         Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
@@ -31,6 +32,7 @@ public class Register {
             sout.write(studentpicture.getBytes());
             sout.close();
         } catch (IOException e) {
+
             System.out.println("[Registering]: "+"unable to create student image file");
             e.printStackTrace();
         }
@@ -79,18 +81,37 @@ public class Register {
         System.out.println(registrationModel.getFutureambition());
         System.out.println(registrationModel.getAge());
         System.out.println(registrationModel.getFathername());
-
         System.out.println(registrationModel.getMothername());
         System.out.println(registrationModel.getNextofkin());
         System.out.println(registrationModel.getAddress());
         System.out.println(registrationModel.getGender());
+        System.out.println(registrationModel.getClas());
         if (connection!=null){
             System.out.println("[Registering]: "+"Preparing Query");
-            String SaveNameQuery="INSERT INTO "+session+"(Studentname,Phoneno,nickname,hobbies,turnon,turnoff,club,rolemodel,futureambition,age,fathername,mothername,nextofkin,address,Gender,picture,fatherpicture,motherpicture) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String SaveNameQuery="INSERT INTO "+session+"(Studentname,Phoneno,nickname,hobbies,turnon,turnoff,club,rolemodel,futureambition,age,fathername,mothername,nextofkin,address,Gender,picture,Fatherpicture,motherpicture,studentclass,tag) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///This insert name into the school fee table so that the bursary department will work with it
+            String savenametoschoolfee="insert into schoolfee (studentname,year,class,tag) values(?,?,?,?)";
+            try {
+                PreparedStatement schoolfeePreparedStatement=connection.prepareStatement(savenametoschoolfee);
+                schoolfeePreparedStatement.setString(1,registrationModel.getStudentname());
+                schoolfeePreparedStatement.setString(2,session);
+                schoolfeePreparedStatement.setString(3,registrationModel.getClas());
+                schoolfeePreparedStatement.setString(4,registrationModel.getTag());
+                schoolfeetablequeryresponse=schoolfeePreparedStatement.executeUpdate();
+                System.out.println("[QueryResponse]: "+schoolfeetablequeryresponse);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             PreparedStatement preparedStatement= null;
             try {
-
                     preparedStatement = connection.prepareStatement(SaveNameQuery);
                     preparedStatement.setString(1,registrationModel.getStudentname());
                     preparedStatement.setString(2,registrationModel.getPhoneno());
@@ -110,19 +131,37 @@ public class Register {
                     preparedStatement.setBinaryStream(16,s,(int)student.length());
                     preparedStatement.setBinaryStream(17,f,(int)father.length());
                     preparedStatement.setBinaryStream(18,m,(int)mother.length());
-
+                    preparedStatement.setString(19,registrationModel.getClas());
+                    preparedStatement.setString(20,registrationModel.getTag());
                     queryresponse=preparedStatement.executeUpdate();
                     System.out.println("[QueryResponse]: "+queryresponse);
                 } catch (SQLException e) {
                     e.printStackTrace();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    try {
+                        connection.close();
+                    } catch (SQLException exc) {
+                        exc.printStackTrace();
+                    }
                     return null;
                 }
+                return null;
+                }finally {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
 
 
         }else {
-            return "FAILED TO SAVE INFORMATION";
+            return null;
         }
-        if (queryresponse==1){
+        if (queryresponse==1&&schoolfeetablequeryresponse==1){
             return "SUCCESS";
         }else {
             return null;

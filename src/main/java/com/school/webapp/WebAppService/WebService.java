@@ -1,8 +1,13 @@
 package com.school.webapp.WebAppService;
 
+import com.school.webapp.BookStore.DeletBook.DeleteBook;
 import com.school.webapp.BookStore.EditBook.EditBook;
 import com.school.webapp.BookStore.EditBook.EditBookRequest;
 import com.school.webapp.BookStore.getBookSoldHistory.getBookSoldHistory;
+import com.school.webapp.Information.EditInformation.DeleteStudent;
+import com.school.webapp.Information.EditInformation.EditImage;
+import com.school.webapp.Information.EditInformation.EditInformation;
+import com.school.webapp.Information.EditInformation.EditInformationImageRequestEntity;
 import com.school.webapp.Repository.BookHistory;
 import com.school.webapp.Repository.BookRepository;
 import com.school.webapp.BookStore.SaveBook.BookEntity;
@@ -27,8 +32,6 @@ import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.GetSchoolFee;
 import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
 import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolfeeWithoutTerm;
 import com.school.webapp.SchoolFee.SaveSchoolFee.SaveDataSchoolFeeTable;
-import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFee;
-import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFeeRequestEntity;
 import com.school.webapp.SchoolFee.SaveSchoolFee.Term.SaveTerm;
 import com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors.getDebtors;
 import com.school.webapp.Session.CreateSession;
@@ -125,6 +128,33 @@ public class WebService {
     /////////////////END///////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    //this method edit Student information
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    public boolean editStudentInformation(String newValue, String oldValue, String column, String studentname, String session) {
+        System.out.println("[Webservice]:Editing student information-->Proceeding to database");
+        return new EditInformation().edit(newValue,oldValue,column,studentname,session);
+    }
+    /////////////////END///////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //this method edit information images
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    public boolean EditInformationImage(EditInformationImageRequestEntity editInformationImageRequestEntity) {
+        System.out.println("[Webservice]:Editing information images-->Proceeding to database");
+        return new EditImage().editImages(editInformationImageRequestEntity);
+    }
+    /////////////////END///////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //this method delete student from database
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    public boolean deleteStudent(int id, String session) {
+        System.out.println("[Webservice]:deleting student information-->Proceeding to database");
+        return new DeleteStudent().delete(id,session);
+    }
+    /////////////////END///////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     ///This method receive information sessions
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<String> retrieve(){
@@ -200,16 +230,6 @@ public class WebService {
 
 
 
-    /////////////////////////////////////////////Save School fee////////////////////////////////////////////////////
-
-    public boolean saveSchoolFee(SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity) {
-        System.out.println("[Webservice]:Saving School fee-->Proceeding to database");
-        return new SaveSchoolFee().SaveSchoolFee(saveSchoolFeeRequestEntity);
-    }
-
-    ///////////////////////////////////SAVE SCHOOL FEE END///////////////////////////////////////////////////////////
-
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting school fee///////////////////////////////////////////////////////////
     public ArrayList<getSchoolFeeResponseEntity> getSchoolFees(String clas, String term, String year) {
@@ -252,14 +272,20 @@ public class WebService {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////BOOK SESSION///////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    //Save book
     public boolean saveBook(BookEntity book) {
-
+        System.out.println("[WebService]:saving books-->Proceeding to database");
         bookRepository.save(book);
         return true;
     }
+    //Delete book
+    public boolean deleteBook(int id) {
+        System.out.println("[WebService]:deleting book-->Proceeding to database");
+        return new DeleteBook().delete(id);
+    }
     //Find all books
     public ArrayList<BookEntity> findAllBooks() {
+        System.out.println("[WebService]:finding books-->Proceeding to database");
         ArrayList<BookEntity> books=new ArrayList<>();
         bookRepository.findAll().forEach(books::add);
         return books;
@@ -287,6 +313,9 @@ public class WebService {
         System.out.println("[WebService]:Editing book-->Proceeding to database");
         return new EditBook().edit(editBookRequest);
     }
+
+
+
 
 ///////////////////////////////////////////////BOOK SESSION END//////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

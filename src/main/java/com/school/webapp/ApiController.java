@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.school.webapp.BookStore.EditBook.EditBookRequest;
 import com.school.webapp.BookStore.SaveBook.BookEntity;
+import com.school.webapp.Information.EditInformation.EditInformationImageRequestEntity;
 import com.school.webapp.Information.StudentandParent.StudentInformationResponseEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacherRequestEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacherResponse;
@@ -335,35 +336,105 @@ public class ApiController {
     public ResponseEntity<?> retrieveStudentInformation(@PathVariable String name,@PathVariable String classselected) {
         System.out.println(name);
         System.out.println(classselected);
-        StudentInformationResponseEntity studentInformationResponseEntity = webService.retrieveStudentinfo(name, classselected);
-        if (studentInformationResponseEntity == null &&name==null &&classselected==null) {
-            return ResponseEntity.badRequest().build();
-        } else {
-            String json;
-            HttpHeaders httpHeaders;
-            System.out.println("[Controller]: Retrieving information");
-            System.out.println("[Controller]: "+studentInformationResponseEntity.getStudent());
-            System.out.println("[Controller]: "+studentInformationResponseEntity.getStudentname());
+        if (name!=null && classselected!=null){
+            StudentInformationResponseEntity studentInformationResponseEntity = webService.retrieveStudentinfo(name, classselected);
+            if (studentInformationResponseEntity == null &&name==null &&classselected==null) {
+                return ResponseEntity.notFound().build();
+            } else {
+                String json;
+                HttpHeaders httpHeaders;
+                System.out.println("[Controller]: Retrieving information");
+                System.out.println("[Controller]: "+studentInformationResponseEntity.getStudent());
+                System.out.println("[Controller]: "+studentInformationResponseEntity.getStudentname());
 
-            System.out.println("[Controller]: Preparing json response");
-            GsonBuilder builder = new GsonBuilder();
-            builder.setPrettyPrinting();
-            builder.serializeNulls();
-            Gson gson = builder.create();
-            //this convert the response instance to json
-            json = gson.toJson(studentInformationResponseEntity);
-            if (json != null) System.out.println("[Controller]: json body processed succesfully");else System.out.println("[Controller]: Gson body processed failed");
-            System.out.println("[Controller]: Preparing images");
-            httpHeaders = new HttpHeaders();
-            httpHeaders.add("Content-Type", "application/json; charset=UTF-8");
-            System.out.println("[Controller]: Response sent");
-            System.out.println("[Controller]: Preparing Successful");
-            return ResponseEntity.ok().headers(httpHeaders).body(json);
+                System.out.println("[Controller]: Preparing json response");
+                GsonBuilder builder = new GsonBuilder();
+                builder.setPrettyPrinting();
+                builder.serializeNulls();
+                Gson gson = builder.create();
+                //this convert the response instance to json
+                json = gson.toJson(studentInformationResponseEntity);
+                if (json != null) System.out.println("[Controller]: json body processed succesfully");else System.out.println("[Controller]: Gson body processed failed");
+                System.out.println("[Controller]: Preparing images");
+                httpHeaders = new HttpHeaders();
+                httpHeaders.add("Content-Type", "application/json; charset=UTF-8");
+                System.out.println("[Controller]: Response sent");
+                System.out.println("[Controller]: Preparing Successful");
+                return ResponseEntity.ok().headers(httpHeaders).body(json);
+            }
+        }else{
+            return ResponseEntity.badRequest().build();
         }
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////Retrieve Information END/////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////Edit student info///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @RequestMapping(value = "editstudentinformation/{studentname}/{session}/{newValue}/{oldValue}/{column}",method = RequestMethod.GET)
+    public ResponseEntity<?> editStudentInformation(@PathVariable String studentname,@PathVariable String session,
+                                                    @PathVariable String newValue,@PathVariable String oldValue,
+                                                    @PathVariable String column){
+        System.out.println("[Controller]: EditstudentInformation--> session: "+session);
+        System.out.println("[Controller]: EditstudentInformation--> studentname: "+studentname);
+        System.out.println("[Controller]: EditstudentInformation--> newValue: "+newValue);
+        System.out.println("[Controller]: EditstudentInformation--> oldvalue: "+oldValue);
+        System.out.println("[Controller]: EditstudentInformation--> column: "+column);
+        if (studentname!=null &&session!=null && newValue!=null && oldValue!=null &&column!=null){
+            boolean result=webService.editStudentInformation(newValue,oldValue,column,studentname,session);
+            if (result){
+                return ResponseEntity.ok().build();
+            }else {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    @RequestMapping(value = "deletestudent/{id}/{session}",method = RequestMethod.GET)
+    public ResponseEntity<?> deleteStudent(@PathVariable int id, @PathVariable String session){
+        if (id!=0&&session!=null){
+            boolean result=webService.deleteStudent(id,session);
+            if (result){
+                return ResponseEntity.ok().build();
+            }else {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////Edit student info end///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////Edit information image ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //This method edit both the student,father and mother image
+    @RequestMapping(value = "editinformationimage",method = RequestMethod.POST)
+    public ResponseEntity<?> editImage(@RequestBody EditInformationImageRequestEntity editInformationImageRequestEntity){
+
+        if (editInformationImageRequestEntity!=null){
+           boolean result= webService.EditInformationImage(editInformationImageRequestEntity);
+           if (result){
+               return ResponseEntity.ok().build();
+           }else {
+               return ResponseEntity.unprocessableEntity().build();
+           }
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////Edit information image ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     //////////////////////////////////////////////////////////////////////////////////
     ///////Retrieve information sessions.this method returns a string of sessions////
@@ -497,42 +568,11 @@ public class ApiController {
 
 
 
-    /////////////////////////////////////////////Save School fee////////////////////////////////////////////////////
-    /////////////This takes in a json Entity that contains the school fee data//////////////////////////////////////
-    @RequestMapping(value = "saveschoolfee",method = RequestMethod.POST)
-    public ResponseEntity<?> saveSchoolFee(@RequestBody SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity){
-        System.out.println("[Controller]:Saving School fee-->"+saveSchoolFeeRequestEntity);
-        if (saveSchoolFeeRequestEntity!=null){
-            System.out.println("[Controller]:Saving School fee-->");
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getStudentname());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getClas());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getTerm());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getYear());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getDate());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getDepositorname());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getId());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getModeofpayment());
-            System.out.println("[Controller]:"+saveSchoolFeeRequestEntity.getAmount());
-            boolean result=webService.saveSchoolFee(saveSchoolFeeRequestEntity);
-            if (result){
-                System.out.println("[Controller]:School fee saved successfully");
-                return ResponseEntity.accepted().build();
-            }else {
-                return ResponseEntity.unprocessableEntity().build();
-            }
-        }else {
-            System.out.println("[Controller]:Saving School fee-->Bad request");
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    ///////////////////////////////////SAVE SCHOOL FEE END//////////////////////////////////////////////////////////
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting school fee/////////////////////////////////////////////////////////
     @RequestMapping(value = "getschoolfee/{clas}/{term}/{year}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getSchoolFee(@PathVariable String clas,@PathVariable String term,@PathVariable String year){
-        System.out.println("[Controller]:getting School fee-->\r\n class: "+clas+"\r\n term: "+term+" \r\n year: "+year);
+        System.out.println("[Controller]:getting School fee-->\r\n class: "+clas+"\r\n term: "+term+"\r\n year: "+year);
         if (clas!=null&&term!=null&&year!=null){
             ArrayList<getSchoolFeeResponseEntity> schoolFees=webService.getSchoolFees(clas,term,year);
             System.out.println(schoolFees.toString());
@@ -709,7 +749,20 @@ public class ApiController {
             return ResponseEntity.badRequest().build();
         }
     }
-
+    //Delete book
+    @RequestMapping(value = "deletebook/{id}",method = RequestMethod.GET)
+    public ResponseEntity<?> deleteBook(@PathVariable int id){
+        if (id!=0){
+            boolean result=webService.deleteBook(id);
+            if (result){
+                return ResponseEntity.ok().build();
+            }else {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
     //Find all book
     @RequestMapping(value = "findallbook",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findAllBook(){

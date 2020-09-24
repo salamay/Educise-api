@@ -40,6 +40,7 @@ public class GetSchoolFee {
                     getSchoolFeeResponseEntity.setId(resultSet.getString("transactionid"));
                     getSchoolFeeResponseEntity.setModeofpayment(resultSet.getString("modeofpayment"));
                     getSchoolFeeResponseEntity.setTerm(resultSet.getString("term"));
+                    getSchoolFeeResponseEntity.setTag(resultSet.getString("tag"));
                     list.add(getSchoolFeeResponseEntity);
                 }
             } catch (SQLException e) {

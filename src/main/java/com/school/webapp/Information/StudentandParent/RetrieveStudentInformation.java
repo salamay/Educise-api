@@ -24,6 +24,7 @@ public class RetrieveStudentInformation {
                 preparedStatement.setString(1,name);
                 resultSet=preparedStatement.executeQuery();
                 while (resultSet.next()) {
+                    studentInformationResponseEntity.setId(resultSet.getInt("id"));
                     studentInformationResponseEntity.setStudentname(resultSet.getString("StudentName"));
                     studentInformationResponseEntity.setAge(resultSet.getInt("Age"));
                     studentInformationResponseEntity.setPhoneno(resultSet.getString("Phoneno"));
@@ -40,6 +41,8 @@ public class RetrieveStudentInformation {
                     studentInformationResponseEntity.setFutureambition(resultSet.getString("futureambition"));
                     studentInformationResponseEntity.setTurnon(resultSet.getString("turnon"));
                     studentInformationResponseEntity.setTurnoff(resultSet.getString("turnoff"));
+                    studentInformationResponseEntity.setClas(resultSet.getString("studentclass"));
+                    studentInformationResponseEntity.setTag(resultSet.getString("tag"));
                     studentblob = resultSet.getBlob("Picture");
                     fatherblob = resultSet.getBlob("Fatherpicture");
                     motherblob = resultSet.getBlob("Motherpicture");

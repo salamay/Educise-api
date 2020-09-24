@@ -20,24 +20,24 @@ public class CreateSession {
 
         String Query = "Create table if not exists " + sessionRequestEntity.getJss1() + "(" +
                 "id " + "int auto_increment," +
-                "StudentName " + "varchar(20)," +
-                "Studentclass " + "varchar(20)," +
-                "PhoneNo " + "float," +
-                "Nickname " + "varchar(10)," +
-                "Hobbies " + "varchar(20)," +
-                "TurnOn " + "varchar(20)," +
-                "TurnOff " + "varchar(20)," +
-                "Gender " + "varchar(10)," +
-                "Club " + "varchar(20)," +
-                "RoleModel " + "varchar(20)," +
-                "FutureAmbition " + "varchar(25)," +
-                "AcademicPerformance " + "varchar(20)," +
+                "StudentName " + "TEXT," +
+                "Studentclass " + "TEXT," +
+                "PhoneNo " + "TEXT," +
+                "Nickname " + "TEXT," +
+                "Hobbies " + "TEXT," +
+                "TurnOn " + "TEXT," +
+                "TurnOff " + "TEXT," +
+                "Gender " + "TEXT," +
+                "Club " + "TEXT," +
+                "RoleModel " + "TEXT," +
+                "FutureAmbition " + "TEXT," +
+                "AcademicPerformance " + "TEXT," +
                 "Age " + "int(20)," +
-                "Fathername " + "varchar(30)," +
-                "Mothername " + "varchar(30)," +
-                "Nextofkin " + "varchar(20)," +
-                "Address " + "varchar(40)," +
-                "Tag " + "varchar(10)," +
+                "Fathername " + "TEXT," +
+                "Mothername " + "TEXT," +
+                "Nextofkin " + "TEXT," +
+                "Address " + "TEXT," +
+                "Tag " + "TEXT," +
                 "Picture " + "MEDIUMBLOB," +
                 "Fatherpicture " + "MEDIUMBLOB," +
                 "Motherpicture " + "MEDIUMBLOB," +
@@ -48,24 +48,24 @@ public class CreateSession {
         //jss2Query
         String jss2Query = "Create table if not exists " + sessionRequestEntity.getJss2() + "(" +
                 "id " + "int auto_increment," +
-                "StudentName " + "varchar(20)," +
-                "Studentclass " + "varchar(20)," +
-                "PhoneNo " + "float," +
-                "Nickname " + "varchar(10)," +
-                "Hobbies " + "varchar(20)," +
-                "TurnOn " + "varchar(20)," +
-                "TurnOff " + "varchar(20)," +
-                "Gender " + "varchar(10)," +
-                "Club " + "varchar(20)," +
-                "RoleModel " + "varchar(20)," +
-                "FutureAmbition " + "varchar(25)," +
-                "AcademicPerformance " + "varchar(20)," +
+                "StudentName " + "TEXT," +
+                "Studentclass " + "TEXT," +
+                "PhoneNo " + "TEXT," +
+                "Nickname " + "TEXT," +
+                "Hobbies " + "TEXT," +
+                "TurnOn " + "TEXT," +
+                "TurnOff " + "TEXT," +
+                "Gender " + "TEXT," +
+                "Club " + "TEXT," +
+                "RoleModel " + "TEXT," +
+                "FutureAmbition " + "TEXT," +
+                "AcademicPerformance " + "TEXT," +
                 "Age " + "int(20)," +
-                "Fathername " + "varchar(30)," +
-                "Mothername " + "varchar(30)," +
-                "Nextofkin " + "varchar(20)," +
-                "Address " + "varchar(40)," +
-                "Tag " + "varchar(10)," +
+                "Fathername " + "TEXT," +
+                "Mothername " + "TEXT," +
+                "Nextofkin " + "TEXT," +
+                "Address " + "TEXT," +
+                "Tag " + "TEXT," +
                 "Picture " + "MEDIUMBLOB," +
                 "Fatherpicture " + "MEDIUMBLOB," +
                 "Motherpicture " + "MEDIUMBLOB," +
@@ -76,24 +76,24 @@ public class CreateSession {
         //jss3Query
         String jss3Query = "Create table if not exists " + sessionRequestEntity.getJss3() + "(" +
                 "id " + "int auto_increment," +
-                "StudentName " + "varchar(20)," +
-                "Studentclass " + "varchar(20)," +
-                "PhoneNo " + "float," +
-                "Nickname " + "varchar(10)," +
-                "Hobbies " + "varchar(20)," +
-                "TurnOn " + "varchar(20)," +
-                "TurnOff " + "varchar(20)," +
-                "Gender " + "varchar(10)," +
-                "Club " + "varchar(20)," +
-                "RoleModel " + "varchar(20)," +
-                "FutureAmbition " + "varchar(25)," +
-                "AcademicPerformance " + "varchar(20)," +
+                "StudentName " + "TEXT," +
+                "Studentclass " + "TEXT," +
+                "PhoneNo " + "TEXT," +
+                "Nickname " + "TEXT," +
+                "Hobbies " + "TEXT," +
+                "TurnOn " + "TEXT," +
+                "TurnOff " + "TEXT," +
+                "Gender " + "TEXT," +
+                "Club " + "TEXT," +
+                "RoleModel " + "TEXT," +
+                "FutureAmbition " + "TEXT," +
+                "AcademicPerformance " + "TEXT," +
                 "Age " + "int(20)," +
-                "Fathername " + "varchar(30)," +
-                "Mothername " + "varchar(30)," +
-                "Nextofkin " + "varchar(20)," +
-                "Address " + "varchar(40)," +
-                "Tag " + "varchar(10)," +
+                "Fathername " + "TEXT," +
+                "Mothername " + "TEXT," +
+                "Nextofkin " + "TEXT," +
+                "Address " + "TEXT," +
+                "Tag " + "TEXT," +
                 "Picture " + "MEDIUMBLOB," +
                 "Fatherpicture " + "MEDIUMBLOB," +
                 "Motherpicture " + "MEDIUMBLOB," +
@@ -103,24 +103,24 @@ public class CreateSession {
 
         String ss1Query = "Create table if not exists " + sessionRequestEntity.getSs1()+ "(" +
                 "id " + "int auto_increment," +
-                "StudentName " + "varchar(20)," +
-                "Studentclass " + "varchar(20)," +
-                "PhoneNo " + "float," +
-                "Nickname " + "varchar(10)," +
-                "Hobbies " + "varchar(20)," +
-                "TurnOn " + "varchar(20)," +
-                "TurnOff " + "varchar(20)," +
-                "Gender " + "varchar(10)," +
-                "Club " + "varchar(20)," +
-                "RoleModel " + "varchar(20)," +
-                "FutureAmbition " + "varchar(25)," +
-                "AcademicPerformance " + "varchar(20)," +
+                "StudentName " + "TEXT," +
+                "Studentclass " + "TEXT," +
+                "PhoneNo " + "TEXT," +
+                "Nickname " + "TEXT," +
+                "Hobbies " + "TEXT," +
+                "TurnOn " + "TEXT," +
+                "TurnOff " + "TEXT," +
+                "Gender " + "TEXT," +
+                "Club " + "TEXT," +
+                "RoleModel " + "TEXT," +
+                "FutureAmbition " + "TEXT," +
+                "AcademicPerformance " + "TEXT," +
                 "Age " + "int(20)," +
-                "Fathername " + "varchar(30)," +
-                "Mothername " + "varchar(30)," +
-                "Nextofkin " + "varchar(20)," +
-                "Address " + "varchar(40)," +
-                "Tag " + "varchar(10)," +
+                "Fathername " + "TEXT," +
+                "Mothername " + "TEXT," +
+                "Nextofkin " + "TEXT," +
+                "Address " + "TEXT," +
+                "Tag " + "TEXT," +
                 "Picture " + "MEDIUMBLOB," +
                 "Fatherpicture " + "MEDIUMBLOB," +
                 "Motherpicture " + "MEDIUMBLOB," +
@@ -131,24 +131,24 @@ public class CreateSession {
         //ss2Query
         String ss2Query = "Create table if not exists " + sessionRequestEntity.getSs2() + "(" +
                 "id " + "int auto_increment," +
-                "StudentName " + "varchar(20)," +
-                "Studentclass " + "varchar(20)," +
-                "PhoneNo " + "float ," +
-                "Nickname " + "varchar(10)," +
-                "Hobbies " + "varchar(20)," +
-                "TurnOn " + "varchar(20)," +
-                "TurnOff " + "varchar(20)," +
-                "Gender " + "varchar(10)," +
-                "Club " + "varchar(20)," +
-                "RoleModel " + "varchar(20)," +
-                "FutureAmbition " + "varchar(25)," +
-                "AcademicPerformance " + "varchar(20)," +
+                "StudentName " + "TEXT," +
+                "Studentclass " + "TEXT," +
+                "PhoneNo " + "TEXT," +
+                "Nickname " + "TEXT," +
+                "Hobbies " + "TEXT," +
+                "TurnOn " + "TEXT," +
+                "TurnOff " + "TEXT," +
+                "Gender " + "TEXT," +
+                "Club " + "TEXT," +
+                "RoleModel " + "TEXT," +
+                "FutureAmbition " + "TEXT," +
+                "AcademicPerformance " + "TEXT," +
                 "Age " + "int(20)," +
-                "Fathername " + "varchar(30)," +
-                "Mothername " + "varchar(30)," +
-                "Nextofkin " + "varchar(20)," +
-                "Address " + "varchar(40)," +
-                "Tag " + "varchar(10)," +
+                "Fathername " + "TEXT," +
+                "Mothername " + "TEXT," +
+                "Nextofkin " + "TEXT," +
+                "Address " + "TEXT," +
+                "Tag " + "TEXT," +
                 "Picture " + "MEDIUMBLOB," +
                 "Fatherpicture " + "MEDIUMBLOB," +
                 "Motherpicture " + "MEDIUMBLOB," +
@@ -159,24 +159,24 @@ public class CreateSession {
         //ss3Query
         String ss3Query = "Create table if not exists " + sessionRequestEntity.getSs3() + "(" +
                 "id " + "int auto_increment," +
-                "StudentName " + "varchar(20)," +
-                "Studentclass " + "varchar(20)," +
-                "PhoneNo " + "float," +
-                "Nickname " + "varchar(10)," +
-                "Hobbies " + "varchar(20)," +
-                "TurnOn " + "varchar(20)," +
-                "TurnOff " + "varchar(20)," +
-                "Gender " + "varchar(10)," +
-                "Club " + "varchar(20)," +
-                "RoleModel " + "varchar(20)," +
-                "FutureAmbition " + "varchar(25)," +
-                "AcademicPerformance " + "varchar(20)," +
+                "StudentName " + "TEXT," +
+                "Studentclass " + "TEXT," +
+                "PhoneNo " + "TEXT," +
+                "Nickname " + "TEXT," +
+                "Hobbies " + "TEXT," +
+                "TurnOn " + "TEXT," +
+                "TurnOff " + "TEXT," +
+                "Gender " + "TEXT," +
+                "Club " + "TEXT," +
+                "RoleModel " + "TEXT," +
+                "FutureAmbition " + "TEXT," +
+                "AcademicPerformance " + "TEXT," +
                 "Age " + "int(20)," +
-                "Fathername " + "varchar(30)," +
-                "Mothername " + "varchar(30)," +
-                "Nextofkin " + "varchar(20)," +
-                "Address " + "varchar(40)," +
-                "Tag " + "varchar(10)," +
+                "Fathername " + "TEXT," +
+                "Mothername " + "TEXT," +
+                "Nextofkin " + "TEXT," +
+                "Address " + "TEXT," +
+                "Tag " + "TEXT," +
                 "Picture " + "MEDIUMBLOB," +
                 "Fatherpicture " + "MEDIUMBLOB," +
                 "Motherpicture " + "MEDIUMBLOB," +

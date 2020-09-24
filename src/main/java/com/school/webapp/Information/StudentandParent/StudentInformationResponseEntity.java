@@ -2,6 +2,7 @@ package com.school.webapp.Information.StudentandParent;
 
 
 public class StudentInformationResponseEntity {
+    private int id;
     private String studentname;
     private int age;
     private String fathername;
@@ -20,10 +21,13 @@ public class StudentInformationResponseEntity {
     private byte[] student;
     private byte[] father;
     private byte[] mother;
+    private String clas;
+    private String tag;
     public StudentInformationResponseEntity() {
     }
 
-    public StudentInformationResponseEntity(String studentname, int age, String fathername, String mothername, String nextofkin, String address, String phoneno, String nickname, String hobbies, String turnon, String turnoff, String club, String rolemodel, String futureambition, String gender) {
+    public StudentInformationResponseEntity(int id, String studentname, int age, String fathername, String mothername, String nextofkin, String address, String phoneno, String nickname, String hobbies, String turnon, String turnoff, String club, String rolemodel, String futureambition, String gender, byte[] student, byte[] father, byte[] mother, String clas, String tag) {
+        this.id = id;
         this.studentname = studentname;
         this.age = age;
         this.fathername = fathername;
@@ -39,6 +43,19 @@ public class StudentInformationResponseEntity {
         this.rolemodel = rolemodel;
         this.futureambition = futureambition;
         this.gender = gender;
+        this.student = student;
+        this.father = father;
+        this.mother = mother;
+        this.clas = clas;
+        this.tag = tag;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getStudentname() {
@@ -47,6 +64,22 @@ public class StudentInformationResponseEntity {
 
     public void setStudentname(String studentname) {
         this.studentname = studentname;
+    }
+
+    public String getClas() {
+        return clas;
+    }
+
+    public void setClas(String clas) {
+        this.clas = clas;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public int getAge() {
@@ -184,4 +217,5 @@ public class StudentInformationResponseEntity {
     public void setMother(byte[] mother) {
         this.mother = mother;
     }
+
 }

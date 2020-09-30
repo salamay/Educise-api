@@ -1,6 +1,7 @@
 package com.school.webapp.WebAppService;
 
 import com.school.webapp.BookStore.DeletBook.DeleteBook;
+import com.school.webapp.BookStore.DeleteBookHistory.DeleteBookHistory;
 import com.school.webapp.BookStore.EditBook.EditBook;
 import com.school.webapp.BookStore.EditBook.EditBookRequest;
 import com.school.webapp.BookStore.getBookSoldHistory.getBookSoldHistory;
@@ -79,8 +80,9 @@ public class WebService {
     //////////////////////////This method get the Scores////////////////////////////////////////////////////////
     public ArrayList<Scores> getScores(getStudentScoreRequestEntity getStudentScoreRequestEntity){
         System.out.println("[WebService]-->Proceeding to Database");
-        System.out.println("[WebService]-->"+getStudentScoreRequestEntity.getName());
-        System.out.println("[WebService]-->"+getStudentScoreRequestEntity.getTable());
+        System.out.println("[WebService]-->name:"+getStudentScoreRequestEntity.getName());
+        System.out.println("[WebService]--> table:"+getStudentScoreRequestEntity.getTable());
+        System.out.println("[WebService]--> term:"+getStudentScoreRequestEntity.getTerm());
         return  new getStudentScore().getScore(getStudentScoreRequestEntity);
     }
     //update Subject
@@ -90,9 +92,9 @@ public class WebService {
 
     ////////////////////////////////////////Insert Subject//////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
-    public String insertSubject(String subject,String session,String studentname){
+    public String insertSubject(String subject, String session, String studentname, String term){
         System.out.println("[WebService]-->Inserting subject-->Proceeding to Database");
-        return new InsertSubject().insertSubject(subject,session,studentname);
+        return new InsertSubject().insertSubject(subject,session,studentname,term);
     }
     //////////////////////////////////Insert Subject END///////////////////////////////////
 
@@ -110,9 +112,9 @@ public class WebService {
     ////////////////////////////////////END//////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////DELETE SUBEJECT//////////////////////////////////////////////////////
-    public boolean deleteSubject(String subject, String session, String studentname) {
+    public boolean deleteSubject(String subject, String session, String studentname, String term) {
         System.out.println("[Webservice]-->Deleting Subject-->proceeding to database");
-        return new DeleteSubject().deleteSubject(subject,session,studentname);
+        return new DeleteSubject().deleteSubject(subject,session,studentname,term);
     }
 
     /////////////////////////////////////DELETE SUBJECT END///////////////////////////////////////////////////////
@@ -130,9 +132,9 @@ public class WebService {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //this method edit Student information
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    public boolean editStudentInformation(String newValue, String oldValue, String column, String studentname, String session) {
+    public boolean editStudentInformation(String newValue, String id, String column, String session) {
         System.out.println("[Webservice]:Editing student information-->Proceeding to database");
-        return new EditInformation().edit(newValue,oldValue,column,studentname,session);
+        return new EditInformation().edit(newValue,id,column,session);
     }
     /////////////////END///////////////////////////////////////////////////////////////////////////
 
@@ -305,9 +307,15 @@ public class WebService {
     }
     //get booksold history
     public ArrayList<BookHistory> getBookHistory(String session, int term, String date) {
-        System.out.println("[WebService]:getting book sold history books-->Proceeding to database");
+        System.out.println("[WebService]:getting book sold history -->Proceeding to database");
         return new getBookSoldHistory().getHistories(session,term,date);
     }
+    //deleting booksold history
+    public boolean deleteBookHistory(String id) {
+        System.out.println("[WebService]:deleting book sold history -->Proceeding to database");
+        return new DeleteBookHistory().deleteHistory(id);
+    }
+
     //Edit book
     public boolean editBook(EditBookRequest editBookRequest) {
         System.out.println("[WebService]:Editing book-->Proceeding to database");

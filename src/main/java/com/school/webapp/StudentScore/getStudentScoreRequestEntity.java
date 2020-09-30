@@ -4,12 +4,14 @@ package com.school.webapp.StudentScore;
 public class getStudentScoreRequestEntity {
     private String table;
     private String name;
+    private String term;
     public getStudentScoreRequestEntity() {
     }
 
-    public getStudentScoreRequestEntity(String table, String name) {
+    public getStudentScoreRequestEntity(String table, String name, String term) {
         this.table = table;
         this.name = name;
+        this.term = term;
     }
 
     public String getTable() {
@@ -26,5 +28,13 @@ public class getStudentScoreRequestEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
     }
 }

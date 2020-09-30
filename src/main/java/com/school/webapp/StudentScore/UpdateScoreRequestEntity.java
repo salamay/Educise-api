@@ -6,16 +6,18 @@ public class UpdateScoreRequestEntity {
     private String score;
     private String subject;
     private String ca;
+    private String term;
 
     public UpdateScoreRequestEntity() {
     }
 
-    public UpdateScoreRequestEntity(String table, String name, String score, String subject, String ca) {
+    public UpdateScoreRequestEntity(String table, String name, String score, String subject, String ca, String term) {
         this.table = table;
         this.name = name;
         this.score = score;
         this.subject = subject;
         this.ca = ca;
+        this.term = term;
     }
 
     public String getTable() {
@@ -56,5 +58,13 @@ public class UpdateScoreRequestEntity {
 
     public void setCa(String ca) {
         this.ca = ca;
+    }
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
     }
 }

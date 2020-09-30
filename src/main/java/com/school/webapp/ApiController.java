@@ -23,6 +23,7 @@ import com.school.webapp.Session.SessionResponseEntity;
 import com.school.webapp.StudentScore.*;
 import com.school.webapp.WebAppService.WebService;
 import com.school.webapp.security.MyUserDetailsService;
+import okhttp3.Headers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -169,7 +170,7 @@ public class ApiController {
     /////The requestbody takes in name of the student and retrieve all the CA from
     ///the table which is also present in the request body////////////////////////
     /////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "getstudentscores",method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "getstudentscores",method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> getStudentScores(@RequestBody MultipartFile jsonbody){
         if (jsonbody!=null){
             getStudentScoreRequestEntity getStudentScoreRequestEntity=new getStudentScoreRequestEntity();
@@ -188,11 +189,19 @@ public class ApiController {
             }
             System.out.println("[Controller-->Getting Student scores]");
             ArrayList<Scores> scores=webService.getScores(getStudentScoreRequestEntity);
-            System.out.println("[Controller-->Getting Student scores]-->Response is not equal to null");
+            System.out.println("[Controller-->Getting Student scores]-->Response is ok");
             if (scores!=null&&!scores.isEmpty()){
                 System.out.println("[Controller-->Getting Student scores]--> Building json response body");
+                GsonBuilder builder=new GsonBuilder();
+                builder.setPrettyPrinting();
+                builder.serializeNulls();
+                Gson gson=builder.create();
+                String json=gson.toJson(scores);
+                System.out.println(json);
+                HttpHeaders headers=new HttpHeaders();
+                headers.add("Content-Type","application/json; charset=UTF-8");
                 System.out.println("[Controller-->Getting Student scores]--> Response sent");
-                return ResponseEntity.ok().body(scores);
+                return ResponseEntity.ok().headers(headers).body(json);
             }else {
                 return ResponseEntity.notFound().build();
             }
@@ -280,12 +289,12 @@ public class ApiController {
     /////////////////////////////Update SUBJECT END/////////////////////////////////////////////////
 
     /////////////////////////////////////Insert Subject////////////////////////////////////////////
-    @RequestMapping(value = "insertsubject/{subject}/{session}/{studentname}",method = RequestMethod.GET)
-    public ResponseEntity<?> insertSubject(@PathVariable String subject,@PathVariable String session,@PathVariable  String studentname){
+    @RequestMapping(value = "insertsubject/{subject}/{session}/{studentname}/{term}",method = RequestMethod.GET)
+    public ResponseEntity<?> insertSubject(@PathVariable String subject,@PathVariable String session,@PathVariable  String studentname,@PathVariable String term){
 
-        if(subject!=null&&session!=null&&studentname!=null){
+        if(subject!=null&&session!=null&&studentname!=null&&term!=null){
             System.out.println("[Controller]-->Inserting subject");
-            String result=webService.insertSubject(subject,session,studentname);
+            String result=webService.insertSubject(subject,session,studentname,term);
             if (result!=null){
                 return ResponseEntity.accepted().build();
             }else {
@@ -300,10 +309,10 @@ public class ApiController {
 
     /////////////////////////////////////Delete SUbject//////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "deletesubject/{subject}/{session}/{studentname}")
-    public ResponseEntity<?>deleteSubject(@PathVariable String subject,@PathVariable String session,@PathVariable String studentname){
-        if (subject!=null&&session!=null&&studentname!=null){
-            boolean result=webService.deleteSubject(subject,session,studentname);
+    @RequestMapping(value = "deletesubject/{subject}/{session}/{studentname}/{term}")
+    public ResponseEntity<?>deleteSubject(@PathVariable String subject,@PathVariable String session,@PathVariable String studentname,@PathVariable String term){
+        if (subject!=null&&session!=null&&studentname!=null&&term!=null){
+            boolean result=webService.deleteSubject(subject,session,studentname,term);
             if (result){
                 System.out.println("[DeletSubject]-->Deleting Subject: "+result);
                 return ResponseEntity.ok().build();
@@ -374,17 +383,16 @@ public class ApiController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////Edit student info///////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "editstudentinformation/{studentname}/{session}/{newValue}/{oldValue}/{column}",method = RequestMethod.GET)
-    public ResponseEntity<?> editStudentInformation(@PathVariable String studentname,@PathVariable String session,
-                                                    @PathVariable String newValue,@PathVariable String oldValue,
+    @RequestMapping(value = "editstudentinformation/{session}/{newValue}/{id}/{column}",method = RequestMethod.GET)
+    public ResponseEntity<?> editStudentInformation(@PathVariable String session,
+                                                    @PathVariable String newValue,@PathVariable String id,
                                                     @PathVariable String column){
         System.out.println("[Controller]: EditstudentInformation--> session: "+session);
-        System.out.println("[Controller]: EditstudentInformation--> studentname: "+studentname);
         System.out.println("[Controller]: EditstudentInformation--> newValue: "+newValue);
-        System.out.println("[Controller]: EditstudentInformation--> oldvalue: "+oldValue);
+        System.out.println("[Controller]: EditstudentInformation--> id: "+id);
         System.out.println("[Controller]: EditstudentInformation--> column: "+column);
-        if (studentname!=null &&session!=null && newValue!=null && oldValue!=null &&column!=null){
-            boolean result=webService.editStudentInformation(newValue,oldValue,column,studentname,session);
+        if (session!=null && newValue!=null && id!=null &&column!=null){
+            boolean result=webService.editStudentInformation(newValue,id,column,session);
             if (result){
                 return ResponseEntity.ok().build();
             }else {
@@ -394,7 +402,7 @@ public class ApiController {
             return ResponseEntity.badRequest().build();
         }
     }
-    @RequestMapping(value = "deletestudent/{id}/{session}",method = RequestMethod.GET)
+    @RequestMapping(value = "deletestudent/{id}/{session}",method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteStudent(@PathVariable int id, @PathVariable String session){
         if (id!=0&&session!=null){
             boolean result=webService.deleteStudent(id,session);
@@ -750,7 +758,7 @@ public class ApiController {
         }
     }
     //Delete book
-    @RequestMapping(value = "deletebook/{id}",method = RequestMethod.GET)
+    @RequestMapping(value = "deletebook/{id}",method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteBook(@PathVariable int id){
         if (id!=0){
             boolean result=webService.deleteBook(id);
@@ -823,7 +831,7 @@ public class ApiController {
                System.out.println("[Controller]: book history-->"+json);
                HttpHeaders headers=new HttpHeaders();
                headers.add("Content-Type","application/json; charset=UTF-8");
-               return ResponseEntity.ok().headers(headers).body(histories);
+               return ResponseEntity.ok().headers(headers).body(json);
            }else {
                return ResponseEntity.noContent().build();
            }
@@ -831,6 +839,21 @@ public class ApiController {
        }else {
            return ResponseEntity.badRequest().build();
        }
+    }
+    //Delete Book History
+    @RequestMapping(value = "deletebookHistory/{id}",method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteBookHistory(@PathVariable String id){
+        System.out.println("[Controller]:deleting book history with id="+id);
+        if (id!=null){
+            boolean result=webService.deleteBookHistory(id);
+            if (result){
+                return ResponseEntity.ok().build();
+            }else{
+                return ResponseEntity.notFound().build();
+            }
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
     }
     //Edit book
     @RequestMapping(value = "editbook",method = RequestMethod.POST)

@@ -9,20 +9,23 @@ import java.sql.SQLException;
 public class UpdateScore {
     private  int i;
     public String updateScore(UpdateScoreRequestEntity updateScoreRequestEntity) {
-        System.out.println(updateScoreRequestEntity.getTable());
-        System.out.println(updateScoreRequestEntity.getName());
-        System.out.println(updateScoreRequestEntity.getCa());
-        System.out.println(updateScoreRequestEntity.getScore());
-        System.out.println(updateScoreRequestEntity.getSubject());
+        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getTable());
+        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getName());
+        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getCa());
+        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getScore());
+        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getSubject());
+        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getSubject());
+
 
         Connection connection= JDBCConnection.connector();
-        String Query="update "+updateScoreRequestEntity.getTable()+" set "+updateScoreRequestEntity.getCa()+"=?"+" where Studentname=? and Subject=?";
+        String Query="update "+updateScoreRequestEntity.getTable()+" set "+updateScoreRequestEntity.getCa()+"=?"+" where Studentname=? and Subject=? and term=?";
         if (connection!=null){
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(Query);
                 preparedStatement.setString(1,updateScoreRequestEntity.getScore());
                 preparedStatement.setString(2,updateScoreRequestEntity.getName());
                 preparedStatement.setString(3,updateScoreRequestEntity.getSubject());
+                preparedStatement.setString(4,updateScoreRequestEntity.getTerm());
                 i=preparedStatement.executeUpdate();
                 System.out.println("[SaveScoreThread]: "+ i);
 

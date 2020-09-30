@@ -1,7 +1,15 @@
 package com.school.webapp.StudentScore;
 
 import com.school.webapp.JDBC.JDBCConnection;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.design.JRDesignQuery;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,16 +25,18 @@ public class getStudentScore {
         ResultSet resultSet;
         if (connection != null) {
             scoresList=new ArrayList<>();
-            String Query = "Select * from " + getStudentScoreRequestEntity.getTable() + " Where Studentname=?";
+            String Query = "Select * from " + getStudentScoreRequestEntity.getTable() + " Where Studentname=? and term =?";
 
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(Query);
                 preparedStatement.setString(1, getStudentScoreRequestEntity.getName());
+                preparedStatement.setString(2,getStudentScoreRequestEntity.getTerm());
                 resultSet = preparedStatement.executeQuery();
                 if (resultSet!=null){
                     while (resultSet.next()) {
                         scores=new Scores();
                         String Subject = resultSet.getString("Subject");
+                        String term=resultSet.getString("term");
                         double FirstCa = resultSet.getDouble("Firstca");
                         double SecondCa = resultSet.getDouble("Secondca");
                         double ThirdCa = resultSet.getDouble("Thirdca");
@@ -40,6 +50,7 @@ public class getStudentScore {
                         double Exam = resultSet.getDouble("Exam");
                         double Cumm = resultSet.getDouble("Cummulative");
                         scores.setSubject(Subject);
+                        scores.setTerm(term);
                         scores.setFirstca(FirstCa);
                         scores.setSecondca(SecondCa);
                         scores.setThirdca(ThirdCa);
@@ -55,8 +66,31 @@ public class getStudentScore {
                         scoresList.add(scores);
                     }
                 }
-
-
+                Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
+                File file=new File(path+"/studentscores.pdf");
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    JasperDesign jd= JRXmlLoader.load("src/main/java/com/school/webapp/JasperReport/studentscores.jrxml");
+                    String sql="Select * from " + getStudentScoreRequestEntity.getTable() + " Where Studentname='"+ getStudentScoreRequestEntity.getName()+"'" +" and term ='"+getStudentScoreRequestEntity.getTerm()+"'";
+                    JRDesignQuery jrDesignQuery=new JRDesignQuery();
+                    jrDesignQuery.setText(sql);
+                    jd.setQuery(jrDesignQuery);
+                    JasperReport report=JasperCompileManager.compileReport(jd);
+                    JasperPrint print= JasperFillManager.fillReport(report,null,connection);
+                    JasperExportManager.exportReportToPdfStream(print,new FileOutputStream(file));
+                    if (!scoresList.isEmpty()){
+                        scoresList.get(scoresList.size()-1).setPdfdocumenbytes(Files.readAllBytes(file.toPath()));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JRException e) {
+                    e.printStackTrace();
+                    System.out.println("[getting student score]: unable to get report");
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
                 try {

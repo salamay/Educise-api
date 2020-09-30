@@ -9,14 +9,15 @@ import java.sql.SQLException;
 
 public class InsertSubject {
     private int i;
-    public String insertSubject(String subject,String session,String studentname){
+    public String insertSubject(String subject, String session, String studentname, String term){
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="insert into "+session+" (Subject,Studentname) values(?,?)";
+            String QUERY="insert into "+session+" (Subject,Studentname,term) values(?,?,?)";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,subject);
                 preparedStatement.setString(2,studentname);
+                preparedStatement.setString(3,term);
                 i=preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();

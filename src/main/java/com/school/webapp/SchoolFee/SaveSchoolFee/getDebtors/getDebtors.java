@@ -2,7 +2,18 @@ package com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors;
 
 import com.school.webapp.JDBC.JDBCConnection;
 import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.design.JRDesignQuery;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,8 +37,9 @@ public class getDebtors {
                 preparedStatement.setString(4,year);
                 preparedStatement.setString(5,tag);
                 resultSet=preparedStatement.executeQuery();
+                getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
                 while (resultSet.next()){
-                    getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
+                    getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
                     getSchoolFeeResponseEntity.setStudentname(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setModeofpayment(resultSet.getString("modeofpayment"));
                     getSchoolFeeResponseEntity.setTag(resultSet.getString("tag"));
@@ -40,6 +52,34 @@ public class getDebtors {
                     System.out.println(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setClas(resultSet.getString("Class"));
                     debtores.add(getSchoolFeeResponseEntity);
+                }
+                try {
+                    JasperDesign jd= JRXmlLoader.load("src/main/java/com/school/webapp/JasperReport/debtor.jrxml");
+                    String query="select * from schoolfee where amount<="+minimumfee +" and class='"+clas+"'"+" and term='"+term+"'"+" and year='"+year+"'"+" and tag='"+tag+"'";
+                    JRDesignQuery jrDesignQuery=new JRDesignQuery();
+                    jrDesignQuery.setText(query);
+                    jd.setQuery(jrDesignQuery);
+                    JasperReport jasperReport= JasperCompileManager.compileReport(jd);
+                    JasperPrint jp= JasperFillManager.fillReport(jasperReport,null,connection);
+                    Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
+                    File file=new File(path+"/debtors.pdf");
+                    try {
+                        file.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        JasperExportManager.exportReportToPdfStream(jp,new FileOutputStream(file));
+                        if (!debtores.isEmpty()){
+                            debtores.get(debtores.size()-1).setPdf(Files.readAllBytes(file.toPath()));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                } catch (JRException e) {
+                    System.out.println("[GetDebtors]:getting debtors-->Unable to get report");
+                    e.printStackTrace();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -60,6 +100,7 @@ public class getDebtors {
             return null;
         }
         if (resultSet!=null){
+
             return debtores;
         }else {
             return null;

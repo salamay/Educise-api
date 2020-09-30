@@ -1,16 +1,19 @@
 package com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee;
 
+import net.sf.jasperreports.engine.JasperPrint;
+
 public class getSchoolFeeResponseEntity {
-    public String studentname;
-    public String depositorname;
-    public String clas;
-    public String term;
-    public String year;
-    public String modeofpayment;
-    public String date;
-    public String id;
-    public int amount;
-    public String tag;
+    private String studentname;
+    private String depositorname;
+    private String clas;
+    private String term;
+    private String year;
+    private String modeofpayment;
+    private String date;
+    private String id;
+    private int amount;
+    private String tag;
+    private byte[] pdf;
 
     public getSchoolFeeResponseEntity() {
     }
@@ -93,5 +96,14 @@ public class getSchoolFeeResponseEntity {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+
+    public byte[] getPdf() {
+        return pdf;
+    }
+
+    public void setPdf(byte[] pdf) {
+        this.pdf = pdf;
     }
 }

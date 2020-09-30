@@ -187,6 +187,7 @@ public class CreateSession {
         String Score1Query = "Create table if not exists " + sessionRequestEntity.getJss1() + "Score" + "(" +
                 "id " + "int auto_increment," +
                 "StudentName " + "TEXT," +
+                "term " + "TEXT," +
                 "Subject " + "TEXT," +
                 "firstca " + "Double," +
                 "secondca " + "Double," +
@@ -206,6 +207,7 @@ public class CreateSession {
         String Score2Query = "Create table if not exists " + sessionRequestEntity.getJss2() + "Score" + "(" +
                 "id " + "int auto_increment," +
                 "StudentName " + "TEXT," +
+                "term " + "TEXT," +
                 "Subject " + "TEXT," +
                 "firstca " + "Double," +
                 "secondca " + "Double," +
@@ -225,6 +227,7 @@ public class CreateSession {
         String Score3Query = "Create table if not exists " + sessionRequestEntity.getJss3() + "Score" + "(" +
                 "id " + "int auto_increment," +
                 "StudentName " + "TEXT," +
+                "term " + "TEXT," +
                 "Subject " + "TEXT," +
                 "firstca " + "Double," +
                 "secondca " + "Double," +
@@ -244,6 +247,7 @@ public class CreateSession {
         String Score4Query = "Create table if not exists " + sessionRequestEntity.getSs1() + "Score" + "(" +
                 "id " + "int auto_increment," +
                 "StudentName " + "TEXT," +
+                "term " + "TEXT," +
                 "Subject " + "TEXT," +
                 "firstca " + "Double," +
                 "secondca " + "Double," +
@@ -263,6 +267,7 @@ public class CreateSession {
         String Score5Query = "Create table if not exists " + sessionRequestEntity.getSs2() + "Score" + "(" +
                 "id " + "int auto_increment," +
                 "StudentName " + "TEXT," +
+                "term " + "TEXT," +
                 "Subject " + "TEXT," +
                 "firstca " + "Double," +
                 "secondca " + "Double," +
@@ -282,6 +287,7 @@ public class CreateSession {
         String Score6Query = "Create table if not exists " + sessionRequestEntity.getSs3() + "Score" + "(" +
                 "id " + "int auto_increment," +
                 "StudentName " + "TEXT," +
+                "term " + "TEXT," +
                 "Subject " + "TEXT," +
                 "firstca " + "Double," +
                 "secondca " + "Double," +

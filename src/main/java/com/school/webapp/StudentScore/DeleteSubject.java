@@ -8,16 +8,14 @@ import java.sql.SQLException;
 
 public class DeleteSubject {
     private int i;
-    public boolean deleteSubject(String subject, String session, String studentname, String term) {
+    public boolean deleteSubject(String id, String session) {
         System.out.println("[DeleteSubject]-->Deleting Subject");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="delete from "+session+" where Studentname=? and Subject=? and term=?";
+            String QUERY="delete from "+session+" where id=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
-                preparedStatement.setString(1,studentname);
-                preparedStatement.setString(2,subject);
-                preparedStatement.setString(3,term);
+                preparedStatement.setString(1,id);
                 i=preparedStatement.executeUpdate();
                 System.out.println("[DeleteSubject]-->Deleting Subject: QUERY result: "+i);
             } catch (SQLException e) {

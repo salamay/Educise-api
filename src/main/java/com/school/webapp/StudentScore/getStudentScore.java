@@ -15,7 +15,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class getStudentScore {
    private  Scores scores;
@@ -35,6 +34,7 @@ public class getStudentScore {
                 if (resultSet!=null){
                     while (resultSet.next()) {
                         scores=new Scores();
+                        String id=String.valueOf(resultSet.getInt("id"));
                         String Subject = resultSet.getString("Subject");
                         String term=resultSet.getString("term");
                         double FirstCa = resultSet.getDouble("Firstca");
@@ -49,6 +49,7 @@ public class getStudentScore {
                         double Tenthca = resultSet.getDouble("Tenthca");
                         double Exam = resultSet.getDouble("Exam");
                         double Cumm = resultSet.getDouble("Cummulative");
+                        scores.setId(id);
                         scores.setSubject(Subject);
                         scores.setTerm(term);
                         scores.setFirstca(FirstCa);
@@ -74,12 +75,13 @@ public class getStudentScore {
                     e.printStackTrace();
                 }
                 try {
+
                     JasperDesign jd= JRXmlLoader.load("src/main/java/com/school/webapp/JasperReport/studentscores.jrxml");
                     String sql="Select * from " + getStudentScoreRequestEntity.getTable() + " Where Studentname='"+ getStudentScoreRequestEntity.getName()+"'" +" and term ='"+getStudentScoreRequestEntity.getTerm()+"'";
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
                     jrDesignQuery.setText(sql);
                     jd.setQuery(jrDesignQuery);
-                    JasperReport report=JasperCompileManager.compileReport(jd);
+                    JasperReport report= JasperCompileManager.compileReport(jd);
                     JasperPrint print= JasperFillManager.fillReport(report,null,connection);
                     JasperExportManager.exportReportToPdfStream(print,new FileOutputStream(file));
                     if (!scoresList.isEmpty()){

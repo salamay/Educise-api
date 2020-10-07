@@ -33,6 +33,8 @@ import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.GetSchoolFee;
 import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
 import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolfeeWithoutTerm;
 import com.school.webapp.SchoolFee.SaveSchoolFee.SaveDataSchoolFeeTable;
+import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFee;
+import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFeeRequestEntity;
 import com.school.webapp.SchoolFee.SaveSchoolFee.Term.SaveTerm;
 import com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors.getDebtors;
 import com.school.webapp.Session.CreateSession;
@@ -75,6 +77,7 @@ public class WebService {
         System.out.println("[WebService]-->Proceeding to Database");
         return  new RegisterTeacher().Registerteacher(registerTeacherRequestEntity);
     }
+
     ////////////////////////////CREATING SESSION END/////////////////////////////////////////
 
 
@@ -88,7 +91,7 @@ public class WebService {
     }
     //update Subject
     public String updateSubject(UpdateSubjectRequestEntity updateSubjectRequestEntity){
-        System.out.println("[WebService] inserting subject--> Proceeding to Database");
+        System.out.println("[WebService] Updating subject--> Proceeding to Database");
         return new UpdateSubject().InsertSubject(updateSubjectRequestEntity);
     }
 
@@ -105,7 +108,7 @@ public class WebService {
     //////////////////////////////////////////////////////////////////////////////////////
     public String UpdateScore(UpdateScoreRequestEntity updateScoreRequestEntity){
         System.out.println("[WebService] updating score--> proceeding to Database");
-        if (updateScoreRequestEntity.getCa()!=null&&updateScoreRequestEntity.getTable()!=null&&updateScoreRequestEntity.getName()!=null&&updateScoreRequestEntity.getSubject()!=null&&updateScoreRequestEntity.getScore()!=null){
+        if (updateScoreRequestEntity.getCa()!=null&&updateScoreRequestEntity.getTable()!=null&&updateScoreRequestEntity.getScore()!=null){
             return new UpdateScore().updateScore(updateScoreRequestEntity);
         }
         else {
@@ -115,9 +118,9 @@ public class WebService {
     ////////////////////////////////////END//////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////DELETE SUBEJECT//////////////////////////////////////////////////////
-    public boolean deleteSubject(String subject, String session, String studentname, String term) {
+    public boolean deleteSubject(String id, String session) {
         System.out.println("[Webservice]-->Deleting Subject-->proceeding to database");
-        return new DeleteSubject().deleteSubject(subject,session,studentname,term);
+        return new DeleteSubject().deleteSubject(id,session);
     }
 
     /////////////////////////////////////DELETE SUBJECT END///////////////////////////////////////////////////////
@@ -243,9 +246,9 @@ public class WebService {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting school fee///////////////////////////////////////////////////////////
-    public ArrayList<getSchoolFeeResponseEntity> getSchoolFees(String clas, String term, String year) {
+    public ArrayList<getSchoolFeeResponseEntity> getSchoolFees(String clas, String term, String year, String tag) {
         System.out.println("[Webservice]:getting school fee-->Proceeding to database");
-        return new GetSchoolFee().getFee(clas,term,year);
+        return new GetSchoolFee().getFee(clas,term,year,tag);
     }
 
     public ArrayList<getSchoolFeeResponseEntity> getSchoolFeesWithoutTerm(String clas, String session,String tag) {
@@ -259,14 +262,19 @@ public class WebService {
         return new SaveTerm().Save(studentname,clas,session,tag,term);
     }
 
-    public boolean saveDataToSchoolFeeTable(String studentname, String clas, String session, String tag, String term, String column, String entity) {
-        System.out.println("[Webservice]:Saving data to schoolfee table-->Proceeding to database");
-        return new SaveDataSchoolFeeTable().saveDataToTable(studentname,clas,session,tag,term,column,entity);
+    public boolean saveSchoolFee(SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity) {
+        System.out.println("[Webservice]:  Proceeding to Database");
+        return new SaveSchoolFee().saveStudentnameToSchoolFee(saveSchoolFeeRequestEntity);
     }
 
-    public boolean deleteSchoolFee(String clas, String session, String term, String studentname) {
+    public boolean saveDataToSchoolFeeTable(String studentid, String column, String entity) {
+        System.out.println("[Webservice]:Saving data to schoolfee table-->Proceeding to database");
+        return new SaveDataSchoolFeeTable().saveDataToTable(studentid,column,entity);
+    }
+
+    public boolean deleteSchoolFee(String id) {
         System.out.println("[Webservice]:Deleting schoolfee from schoolfee table-->Proceeding to database");
-        return new DeleteSchoolFee().deleteSchoolFee(clas,session,term,studentname);
+        return new DeleteSchoolFee().deleteSchoolFee(id);
     }
 
     ///////////////////////////////////SAVE TERM TO SCHOOLFEE TABLE END///////////////////////////////////////////////////////////

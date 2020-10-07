@@ -9,29 +9,28 @@ import java.util.List;
 @Table(name = "user")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private int id;
     private String username;
     private String password;
-    private boolean Active;
+    private int Active;
     private String role;
 
     public User() {
 
     }
 
-    public User(String username, String password, boolean isActive, String role) {
+    public User(String username, String password, int isActive, String role) {
         this.username = username;
         this.password = password;
         this.Active = isActive;
         this.role = role;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -51,11 +50,11 @@ public class User {
         this.password = password;
     }
 
-    public boolean isActive() {
+    public int isActive() {
         return Active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(int active) {
         Active = active;
     }
 

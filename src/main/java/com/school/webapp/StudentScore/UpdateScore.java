@@ -10,24 +10,19 @@ public class UpdateScore {
     private  int i;
     public String updateScore(UpdateScoreRequestEntity updateScoreRequestEntity) {
         System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getTable());
-        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getName());
+        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getId());
         System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getCa());
         System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getScore());
-        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getSubject());
-        System.out.println("[UpdateScore]:"+updateScoreRequestEntity.getSubject());
-
 
         Connection connection= JDBCConnection.connector();
-        String Query="update "+updateScoreRequestEntity.getTable()+" set "+updateScoreRequestEntity.getCa()+"=?"+" where Studentname=? and Subject=? and term=?";
+        String Query="update "+updateScoreRequestEntity.getTable()+" set "+updateScoreRequestEntity.getCa()+"=?"+" where id=?";
         if (connection!=null){
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(Query);
                 preparedStatement.setString(1,updateScoreRequestEntity.getScore());
-                preparedStatement.setString(2,updateScoreRequestEntity.getName());
-                preparedStatement.setString(3,updateScoreRequestEntity.getSubject());
-                preparedStatement.setString(4,updateScoreRequestEntity.getTerm());
+                preparedStatement.setString(2,updateScoreRequestEntity.getId());
                 i=preparedStatement.executeUpdate();
-                System.out.println("[SaveScoreThread]: "+ i);
+                System.out.println("[UpdateScore]: "+ i);
 
             } catch (SQLException e) {
                 e.printStackTrace();

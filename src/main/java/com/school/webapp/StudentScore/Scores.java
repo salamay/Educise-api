@@ -1,6 +1,7 @@
 package com.school.webapp.StudentScore;
 
 public class Scores {
+    private String id;
     private String subject;
     private String term;
     private double firstca;
@@ -16,7 +17,16 @@ public class Scores {
     private double exam;
     private double cumulative;
     private byte[] pdfdocumenbytes;
+
     public Scores() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getSubject() {

@@ -1,11 +1,8 @@
 package com.school.webapp.BookStore.SellBook;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.school.webapp.Repository.BookHistory;
+
 import com.school.webapp.BookStore.SaveBook.BookEntity;
 import com.school.webapp.JDBC.JDBCConnection;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,17 +42,16 @@ public class SellBook {
         }
         if (!i){
             ///Saving to book sold history
-            String QUERY="insert into book_history(id,title,author,amountsold,buyer,datesold,term,year) values(?,?,?,?,?,?,?,?)";
+            String QUERY="insert into book_history(title,author,amountsold,buyer,datesold,term,year) values(?,?,?,?,?,?,?)";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
-                preparedStatement.setInt(1,bookEntity.getId());
-                preparedStatement.setString(2,bookEntity.getTitle());
-                preparedStatement.setString(3,bookEntity.getAuthor());
-                preparedStatement.setString(4,String.valueOf(bookEntity.getPrice()));
-                preparedStatement.setString(5,buyer);
-                preparedStatement.setString(6,bookEntity.getDate());
-                preparedStatement.setString(7,bookEntity.getTerm());
-                preparedStatement.setString(8,session);
+                preparedStatement.setString(1,bookEntity.getTitle());
+                preparedStatement.setString(2,bookEntity.getAuthor());
+                preparedStatement.setString(3,String.valueOf(bookEntity.getPrice()));
+                preparedStatement.setString(4,buyer);
+                preparedStatement.setString(5,bookEntity.getDate());
+                preparedStatement.setString(6,bookEntity.getTerm());
+                preparedStatement.setString(7,session);
                 j=preparedStatement.execute();
                 System.out.println("[SellBook]: Result2-->"+j);
             } catch (SQLException e) {

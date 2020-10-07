@@ -1,7 +1,6 @@
 package com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee;
 
 import com.school.webapp.JDBC.JDBCConnection;
-import kotlin.ResultKt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,22 +13,24 @@ import java.util.ArrayList;
 public class GetSchoolFee {
     private ArrayList<getSchoolFeeResponseEntity> list;
 
-    public ArrayList<getSchoolFeeResponseEntity> getFee(String clas, String term, String year) {
+    public ArrayList<getSchoolFeeResponseEntity> getFee(String clas, String term, String year, String tag) {
 
         System.out.println("[GetSchoolFee]:getting School fee-->Setting up connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="select * from schoolfee where class =? and term=? and year=? order by  studentname";
+            String QUERY="select * from schoolfee where class =? and term=? and year=? and tag=? order by  studentname";
             ResultSet resultSet=null;
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,clas);
                 preparedStatement.setString(2,term);
                 preparedStatement.setString(3,year);
+                preparedStatement.setString(4,tag);
                 resultSet=preparedStatement.executeQuery();
                 list=new ArrayList<>();
                 while (resultSet.next()){
                     getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
+                    getSchoolFeeResponseEntity.setStudentid(resultSet.getString("id"));
                     getSchoolFeeResponseEntity.setStudentname(resultSet.getString("Studentname"));
                     System.out.println(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setAmount(resultSet.getInt("amount"));

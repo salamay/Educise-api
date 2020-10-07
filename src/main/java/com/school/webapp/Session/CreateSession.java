@@ -726,53 +726,53 @@ public class CreateSession {
                 System.out.println("[CreatingSessionThread]: " + nur2);
                 ///////////////////////////////////////////////////////////
                 //Adding session name to database
-                String SaveSessionQuery = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
+                String SaveSessionQuery = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
 
                 //session query1
-                String SaveSessionQuery1 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
+                String SaveSessionQuery1 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
                 //Session query 2
-                String SaveSessionQuery2 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
+                String SaveSessionQuery2 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
                 //session query 3
-                String SaveSessionQuery3 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
+                String SaveSessionQuery3 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
                 // session query 4
-                String SaveSessionQuery4 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
+                String SaveSessionQuery4 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
                 // session query 5
-                String SaveSessionQuery5 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
-                String SaveSessionQuery6 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
-                String SaveSessionQuery7 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
-                String SaveSessionQuery8 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
-                String SaveSessionQuery9 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
-                String SaveSessionQuery10 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
-                String SaveSessionQuery11 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
-                String SaveSessionQuery12 = "INSERT INTO SessionTable (sessionname)  VALUES(?)";
+                String SaveSessionQuery5 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
+                String SaveSessionQuery6 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
+                String SaveSessionQuery7 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
+                String SaveSessionQuery8 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
+                String SaveSessionQuery9 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
+                String SaveSessionQuery10 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
+                String SaveSessionQuery11 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
+                String SaveSessionQuery12 = "INSERT INTO sessiontable (sessionname)  VALUES(?)";
                 ///////////////////////////////////////////////////////////
                 //Adding sessionScore name to database
-                String SaveSessionScoreQuery = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
 
                 //session query1
-                String SaveSessionScoreQuery1 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery1 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 //Session query 2
-                String SaveSessionScoreQuery2 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery2 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 //session query 3
-                String SaveSessionScoreQuery3 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery3 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 4
-                String SaveSessionScoreQuery4 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery4 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 5
-                String SaveSessionScoreQuery5 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery5 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 6
-                String SaveSessionScoreQuery6 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery6 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 7
-                String SaveSessionScoreQuery7 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery7 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 8
-                String SaveSessionScoreQuery8 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery8 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 9
-                String SaveSessionScoreQuery9 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery9 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 10
-                String SaveSessionScoreQuery10 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery10 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 11
-                String SaveSessionScoreQuery11 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery11 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
                 // session query 12
-                String SaveSessionScoreQuery12 = "INSERT INTO SessionScore (sessionscore)  VALUES(?)";
+                String SaveSessionScoreQuery12 = "INSERT INTO sessionscore (sessionscore)  VALUES(?)";
 
                 ///////////////////Saving to database
                 PreparedStatement preparedStatement6 = connection.prepareStatement(SaveSessionQuery);

@@ -28,7 +28,7 @@ public class getDebtors {
         ResultSet resultSet=null;
         if (connection!=null){
             debtores=new ArrayList<>();
-            String QUERY="Select * from schoolfee where amount<=? and class=? and term=? and year=? and tag=?";
+            String QUERY="Select * from schoolfee where amount<=? and class=? and term=? and year=? and tag=? order by Studentname";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setInt(1,minimumfee);
@@ -40,6 +40,7 @@ public class getDebtors {
                 getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
                 while (resultSet.next()){
                     getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
+                    getSchoolFeeResponseEntity.setStudentid(resultSet.getString("id"));
                     getSchoolFeeResponseEntity.setStudentname(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setModeofpayment(resultSet.getString("modeofpayment"));
                     getSchoolFeeResponseEntity.setTag(resultSet.getString("tag"));

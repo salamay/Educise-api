@@ -3,10 +3,9 @@ package com.school.webapp.BookStore.SaveBook;
 import javax.persistence.*;
 
 @Entity
-@Table(schema = "Books")
+@Table(name = "book_entity")
 public class BookEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private String title;
     private String author;
@@ -17,6 +16,7 @@ public class BookEntity {
     //date is marked as transient because it is not included when saving book but when saving to history
     @Transient
     private String date;
+
     public BookEntity() {
     }
 

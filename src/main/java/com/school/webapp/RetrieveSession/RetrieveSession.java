@@ -17,7 +17,7 @@ public class RetrieveSession {
         Connection connection = JDBCConnection.connector();
         if (connection!=null){
             System.out.println("[Retrieving session]: preparing query");
-            String QUERY = "Select * from SessionTable where 1";
+            String QUERY = "Select * from sessiontable where 1";
             resultSet = null;
             PreparedStatement prs;
             try {

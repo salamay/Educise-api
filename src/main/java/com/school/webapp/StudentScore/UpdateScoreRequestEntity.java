@@ -1,23 +1,23 @@
 package com.school.webapp.StudentScore;
 
 public class UpdateScoreRequestEntity {
+    //table corrspond to a table in database
     private String table;
-    private String name;
+    private String id;
+    //Score is the value to store
     private String score;
-    private String subject;
+    //ca is the column name
     private String ca;
-    private String term;
 
     public UpdateScoreRequestEntity() {
     }
 
-    public UpdateScoreRequestEntity(String table, String name, String score, String subject, String ca, String term) {
-        this.table = table;
-        this.name = name;
-        this.score = score;
-        this.subject = subject;
-        this.ca = ca;
-        this.term = term;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTable() {
@@ -28,13 +28,6 @@ public class UpdateScoreRequestEntity {
         this.table = table;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getScore() {
         return score;
@@ -42,14 +35,6 @@ public class UpdateScoreRequestEntity {
 
     public void setScore(String score) {
         this.score = score;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
     }
 
     public String getCa() {
@@ -60,11 +45,4 @@ public class UpdateScoreRequestEntity {
         this.ca = ca;
     }
 
-    public String getTerm() {
-        return term;
-    }
-
-    public void setTerm(String term) {
-        this.term = term;
-    }
 }

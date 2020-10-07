@@ -29,8 +29,8 @@ public class getSchoolfeeWithoutTerm {
 
                 while (resultSet.next()){
                     getSchoolFeeResponseEntity getSchoolFeeResponseEntity=new getSchoolFeeResponseEntity();
+                    getSchoolFeeResponseEntity.setStudentid(resultSet.getString("id"));
                     getSchoolFeeResponseEntity.setStudentname(resultSet.getString("Studentname"));
-                    System.out.println(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setAmount(resultSet.getInt("amount"));
                     getSchoolFeeResponseEntity.setClas(resultSet.getString("class"));
                     getSchoolFeeResponseEntity.setDate(resultSet.getString("paymentdate"));

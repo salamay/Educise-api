@@ -52,6 +52,7 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/getschoolfeewithoutterm/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
                 .antMatchers("/saveterm/**").hasRole("BURSARY")
                 .antMatchers("/savedatatoschoolfeetable/**").hasRole("BURSARY")
+                .antMatchers("/savestudentnametoschoolfee/**").hasRole("BURSARY")
                 .antMatchers("/deleteschoolfee/**").hasRole("BURSARY")
                 .antMatchers("/getdebtors/**").hasAnyRole("BURSARY","ADMIN")
                 .antMatchers("/savebook/**").hasRole("BURSARY")

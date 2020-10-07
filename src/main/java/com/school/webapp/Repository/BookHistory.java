@@ -1,7 +1,7 @@
 package com.school.webapp.Repository;
 
-import javax.persistence.*;
 public class BookHistory {
+
     private int id;
     private String title;
     private String author;

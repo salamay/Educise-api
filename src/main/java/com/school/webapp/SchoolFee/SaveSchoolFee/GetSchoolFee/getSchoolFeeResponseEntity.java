@@ -1,8 +1,7 @@
 package com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee;
 
-import net.sf.jasperreports.engine.JasperPrint;
-
 public class getSchoolFeeResponseEntity {
+    private String studentid;
     private String studentname;
     private String depositorname;
     private String clas;
@@ -16,6 +15,14 @@ public class getSchoolFeeResponseEntity {
     private byte[] pdf;
 
     public getSchoolFeeResponseEntity() {
+    }
+
+    public String getStudentid() {
+        return studentid;
+    }
+
+    public void setStudentid(String studentid) {
+        this.studentid = studentid;
     }
 
     public String getStudentname() {

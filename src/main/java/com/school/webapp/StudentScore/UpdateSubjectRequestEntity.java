@@ -1,29 +1,25 @@
 package com.school.webapp.StudentScore;
 
 public class UpdateSubjectRequestEntity {
-    private String name;
+    private String id;
     private String table;
     private String subject;
-    private String oldsubject;
-    private String term;
 
     public UpdateSubjectRequestEntity() {
     }
 
     public UpdateSubjectRequestEntity(String name, String table, String subject, String oldsubject, String term) {
-        this.name = name;
+        this.id = id;
         this.table = table;
         this.subject = subject;
-        this.oldsubject = oldsubject;
-        this.term = term;
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTable() {
@@ -42,19 +38,4 @@ public class UpdateSubjectRequestEntity {
         this.subject = subject;
     }
 
-    public String getOldsubject() {
-        return oldsubject;
-    }
-
-    public void setOldsubject(String oldsubject) {
-        this.oldsubject = oldsubject;
-    }
-
-    public String getTerm() {
-        return term;
-    }
-
-    public void setTerm(String term) {
-        this.term = term;
-    }
 }

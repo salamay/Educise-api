@@ -29,7 +29,6 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println(request.getRemoteAddr()+" Making request");
-        System.out.println(request.getRemoteHost()+" Making request");
         final String authorizationHeader=request.getHeader("Authorization");
         username=null;
          jwt=null;

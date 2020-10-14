@@ -1,5 +1,6 @@
 package com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors;
 
+import com.school.webapp.BookStore.getBookSoldHistory.getBookSoldHistory;
 import com.school.webapp.JDBC.JDBCConnection;
 import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
 import net.sf.jasperreports.engine.*;
@@ -7,10 +8,7 @@ import net.sf.jasperreports.engine.design.JRDesignQuery;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,7 +53,8 @@ public class getDebtors {
                     debtores.add(getSchoolFeeResponseEntity);
                 }
                 try {
-                    JasperDesign jd= JRXmlLoader.load("src/main/java/com/school/webapp/JasperReport/debtor.jrxml");
+                    Path jasperdirictory=Paths.get(System.getProperty("user.dir")+"/jasperreport");
+                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/"+"debtor.jrxml");
                     String query="select * from schoolfee where amount<="+minimumfee +" and class='"+clas+"'"+" and term='"+term+"'"+" and year='"+year+"'"+" and tag='"+tag+"'";
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
                     jrDesignQuery.setText(query);
@@ -69,6 +68,7 @@ public class getDebtors {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
                     try {
                         JasperExportManager.exportReportToPdfStream(jp,new FileOutputStream(file));
                         if (!debtores.isEmpty()){
@@ -107,4 +107,5 @@ public class getDebtors {
             return null;
         }
     }
+
 }

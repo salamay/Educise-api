@@ -36,8 +36,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -150,26 +148,19 @@ public class ApiController {
             if (studentInformationResponseEntity == null &&name==null &&classselected==null) {
                 return ResponseEntity.notFound().build();
             } else {
-                String json;
-                HttpHeaders httpHeaders;
                 System.out.println("[Controller]: Retrieving information");
                 System.out.println("[Controller]: "+studentInformationResponseEntity.getStudent());
                 System.out.println("[Controller]: "+studentInformationResponseEntity.getStudentname());
-
-                System.out.println("[Controller]: Retrieving information--> Preparing json response");
-                GsonBuilder builder = new GsonBuilder();
+                System.out.println("[Controller]: Retrieving information--> Preparing response");
+                GsonBuilder builder=new GsonBuilder();
                 builder.setPrettyPrinting();
                 builder.serializeNulls();
-                Gson gson = builder.create();
-                //this convert the response instance to json
-                json = gson.toJson(studentInformationResponseEntity);
-                if (json != null) System.out.println("[Controller]: Retrieving information--> json body processed succesfully");else System.out.println("[Controller]: Gson body processed failed");
-                System.out.println("[Controller]: Retrieving information--> Preparing images");
-                httpHeaders = new HttpHeaders();
-                httpHeaders.add("Content-Type", "application/json; charset=UTF-8");
+                Gson gson=builder.create();
+                String json=gson.toJson(studentInformationResponseEntity);
                 System.out.println("[Controller]: Retrieving information--> Response sent");
-                System.out.println("[Controller]: Retrieving information--> Preparing Successful");
-                return ResponseEntity.ok().headers(httpHeaders).body(json);
+                HttpHeaders headers=new HttpHeaders();
+                headers.add("Content-Type","application/json;charset=UTF-8");
+                return ResponseEntity.ok().headers(headers).body(json);
             }
         }else{
             return ResponseEntity.badRequest().build();
@@ -342,7 +333,7 @@ public class ApiController {
     /////The requestbody takes in name of the student and retrieve all the CA from
     ///the table which is also present in the request body////////////////////////
     /////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "getstudentscores",method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "getstudentscores",method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getStudentScores(@RequestBody MultipartFile jsonbody){
         if (jsonbody!=null){
             getStudentScoreRequestEntity getStudentScoreRequestEntity=new getStudentScoreRequestEntity();
@@ -363,7 +354,6 @@ public class ApiController {
             ArrayList<Scores> scores=webService.getScores(getStudentScoreRequestEntity);
             if (scores!=null&&!scores.isEmpty()){
                 System.out.println("[Controller-->Getting Student scores]-->Response is ok");
-                System.out.println("[Controller-->Getting Student scores]--> Building json response body");
                 GsonBuilder builder=new GsonBuilder();
                 builder.setPrettyPrinting();
                 builder.serializeNulls();
@@ -375,7 +365,7 @@ public class ApiController {
                 System.out.println("[Controller-->Getting Student scores]--> Response sent");
                 return ResponseEntity.ok().headers(headers).body(json);
             }else {
-                System.out.println("[Controller-->Getting Student scores]-->Response is not found");
+                System.out.println("[Controller-->Getting Student scores]-->score is not found");
                 return ResponseEntity.notFound().build();
             }
         }else {

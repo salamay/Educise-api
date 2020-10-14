@@ -20,10 +20,10 @@ public class Register {
     private int queryresponse;
     public String Register(RegistrationModel registrationModel, String session, MultipartFile studentpicture, MultipartFile fatherpicture, MultipartFile motherpicture) {
         //Saving the file temporarily
-        Path path= Paths.get(System.getProperty("user.dir")+"/webapp/");
+        Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
         System.out.println("[Registering]: "+"saving file temporarily");
         System.out.println("[Registering]: "+"studentpicture ="+studentpicture.getOriginalFilename());
-        File student=new File(path+studentpicture.getOriginalFilename());
+        File student=new File(path+"/"+studentpicture.getOriginalFilename());
 
         try {
             student.createNewFile();

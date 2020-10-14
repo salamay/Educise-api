@@ -3,7 +3,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="debtor" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ced95029-b569-4027-895c-af2843a4e088">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Data Adapter "/>
-	<style name="Title" fontName="Times New Roman" fontSize="50" isBold="true"/>
+	<style name="Title" fontName="Arial" fontSize="50" isBold="true"/>
 	<style name="SubTitle" forecolor="#736343" fontName="Arial" fontSize="18"/>
 	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
 	<style name="Detail" fontName="Arial" fontSize="12"/>
@@ -68,14 +68,14 @@
 			<staticText>
 				<reportElement style="Title" x="90" y="0" width="400" height="62" uuid="1a652692-054a-40f3-ade5-68d8da36626d"/>
 				<textElement verticalAlignment="Middle">
-					<font size="26"/>
+					<font fontName="Arial" size="26"/>
 				</textElement>
 				<text><![CDATA[SHEKINAH COLLEGE,INISA.]]></text>
 			</staticText>
 			<staticText>
 				<reportElement style="SubTitle" x="219" y="62" width="111" height="22" uuid="88d4231e-f014-4b0d-b871-1737ba63a1ae"/>
 				<textElement>
-					<font fontName="Times New Roman"/>
+					<font fontName="Arial"/>
 				</textElement>
 				<text><![CDATA[debtors]]></text>
 			</staticText>

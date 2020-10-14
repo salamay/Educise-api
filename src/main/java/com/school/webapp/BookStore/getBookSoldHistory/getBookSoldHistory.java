@@ -6,10 +6,10 @@ import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +47,8 @@ public class getBookSoldHistory {
                     bookHistories.add(bookHistory);
                 }
                 try {
-                    JasperDesign jd= JRXmlLoader.load("src/main/java/com/school/webapp/JasperReport/booksoldhistory.jrxml");
+                    Path jasperdirictory=Paths.get(System.getProperty("user.dir")+"/jasperreport");
+                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/"+"booksoldhistory.jrxml");
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
                     String sql="select * from book_history where datesold='"+date+"'"+" and  year='"+session+"'"+" and term='"+term+"'";
                     jrDesignQuery.setText(sql);

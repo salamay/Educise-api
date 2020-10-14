@@ -75,8 +75,8 @@ public class getStudentScore {
                     e.printStackTrace();
                 }
                 try {
-
-                    JasperDesign jd= JRXmlLoader.load("src/main/java/com/school/webapp/JasperReport/studentscores.jrxml");
+                    Path jasperdirictory=Paths.get(System.getProperty("user.dir")+"/jasperreport");
+                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/"+"studentscores.jrxml");
                     String sql="Select * from " + getStudentScoreRequestEntity.getTable() + " Where Studentname='"+ getStudentScoreRequestEntity.getName()+"'" +" and term ='"+getStudentScoreRequestEntity.getTerm()+"'";
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
                     jrDesignQuery.setText(sql);

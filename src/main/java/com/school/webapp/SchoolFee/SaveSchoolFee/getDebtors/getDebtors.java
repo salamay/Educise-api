@@ -54,7 +54,7 @@ public class getDebtors {
                 }
                 try {
                     Path jasperdirictory=Paths.get(System.getProperty("user.dir")+"/jasperreport");
-                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/"+"debtor.jrxml");
+                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/debtor.jrxml");
                     String query="select * from schoolfee where amount<="+minimumfee +" and class='"+clas+"'"+" and term='"+term+"'"+" and year='"+year+"'"+" and tag='"+tag+"'";
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
                     jrDesignQuery.setText(query);
@@ -62,16 +62,24 @@ public class getDebtors {
                     JasperReport jasperReport= JasperCompileManager.compileReport(jd);
                     JasperPrint jp= JasperFillManager.fillReport(jasperReport,null,connection);
                     Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
-                    File file=new File(path+"/debtors.pdf");
+                    File file=new File(path+"/debtors.ser");
                     try {
                         file.createNewFile();
+                        Jasperprintdoc jasperprintdoc=new Jasperprintdoc();
+                        jasperprintdoc.jasperPrint=jp;
+                        FileOutputStream fileOutputStream=new FileOutputStream(file);
+                        ObjectOutputStream objectOutputStream=new ObjectOutputStream(fileOutputStream);
+                        objectOutputStream.writeObject(jasperprintdoc);
+                        objectOutputStream.close();
+                        fileOutputStream.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
                     try {
-                        JasperExportManager.exportReportToPdfStream(jp,new FileOutputStream(file));
+                        //JasperExportManager.exportReportToPdfStream(jp,new FileOutputStream(file));
                         if (!debtores.isEmpty()){
+                            //the printable file is deserialize and sent as a response
                             debtores.get(debtores.size()-1).setPdf(Files.readAllBytes(file.toPath()));
                         }
                     } catch (IOException e) {

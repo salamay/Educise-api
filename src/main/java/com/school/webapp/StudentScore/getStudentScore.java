@@ -1,6 +1,7 @@
 package com.school.webapp.StudentScore;
 
 import com.school.webapp.JDBC.JDBCConnection;
+import com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors.Jasperprintdoc;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
 import net.sf.jasperreports.engine.design.JasperDesign;
@@ -68,7 +69,7 @@ public class getStudentScore {
                     }
                 }
                 Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
-                File file=new File(path+"/studentscores.pdf");
+                File file=new File(path+"/studentscores.ser");
                 try {
                     file.createNewFile();
                 } catch (IOException e) {
@@ -76,15 +77,23 @@ public class getStudentScore {
                 }
                 try {
                     Path jasperdirictory=Paths.get(System.getProperty("user.dir")+"/jasperreport");
-                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/"+"studentscores.jrxml");
+                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/studentscores.jrxml");
                     String sql="Select * from " + getStudentScoreRequestEntity.getTable() + " Where Studentname='"+ getStudentScoreRequestEntity.getName()+"'" +" and term ='"+getStudentScoreRequestEntity.getTerm()+"'";
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
                     jrDesignQuery.setText(sql);
                     jd.setQuery(jrDesignQuery);
                     JasperReport report= JasperCompileManager.compileReport(jd);
                     JasperPrint print= JasperFillManager.fillReport(report,null,connection);
-                    JasperExportManager.exportReportToPdfStream(print,new FileOutputStream(file));
+                    Jasperprintdoc jasperprintdoc=new Jasperprintdoc();
+                    jasperprintdoc.jasperPrint=print;
+                    FileOutputStream fileOutputStream=new FileOutputStream(file);
+                    ObjectOutputStream objectOutputStream=new ObjectOutputStream(fileOutputStream);
+                    objectOutputStream.writeObject(jasperprintdoc);
+                    objectOutputStream.close();
+                    fileOutputStream.close();
+                    //JasperExportManager.exportReportToPdfStream(print,new FileOutputStream(file));
                     if (!scoresList.isEmpty()){
+                        //the printable file is deserialize and sent as a response
                         scoresList.get(scoresList.size()-1).setPdfdocumenbytes(Files.readAllBytes(file.toPath()));
                     }
                 } catch (IOException e) {

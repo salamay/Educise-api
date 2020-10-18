@@ -2,6 +2,7 @@ package com.school.webapp.BookStore.getBookSoldHistory;
 
 import com.school.webapp.JDBC.JDBCConnection;
 import com.school.webapp.Repository.BookHistory;
+import com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors.Jasperprintdoc;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
 import net.sf.jasperreports.engine.design.JasperDesign;
@@ -48,7 +49,7 @@ public class getBookSoldHistory {
                 }
                 try {
                     Path jasperdirictory=Paths.get(System.getProperty("user.dir")+"/jasperreport");
-                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/"+"booksoldhistory.jrxml");
+                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/booksoldhistory.jrxml");
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
                     String sql="select * from book_history where datesold='"+date+"'"+" and  year='"+session+"'"+" and term='"+term+"'";
                     jrDesignQuery.setText(sql);
@@ -56,10 +57,18 @@ public class getBookSoldHistory {
                     JasperReport report= JasperCompileManager.compileReport(jd);
                     JasperPrint print= JasperFillManager.fillReport(report,null,connection);
                     Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
-                    File file=new File(path+"/booksold.pdf");
+                    File file=new File(path+"/booksold.ser");
                     file.createNewFile();
-                    JasperExportManager.exportReportToPdfStream(print,new FileOutputStream(file));
+                    Jasperprintdoc jasperprintdoc=new Jasperprintdoc();
+                    jasperprintdoc.jasperPrint=print;
+                    FileOutputStream fileOutputStream=new FileOutputStream(file);
+                    ObjectOutputStream objectOutputStream=new ObjectOutputStream(fileOutputStream);
+                    objectOutputStream.writeObject(jasperprintdoc);
+                    objectOutputStream.close();
+                    fileOutputStream.close();
+                    //JasperExportManager.exportReportToPdfStream(print,new FileOutputStream(file));
                     if (!bookHistories.isEmpty()){
+                        //the printable document is deserialized and sent as a response
                         bookHistories.get(bookHistories.size()-1).setPdfdocumentbytes(Files.readAllBytes(file.toPath()));
                     }
                 } catch (JRException e) {

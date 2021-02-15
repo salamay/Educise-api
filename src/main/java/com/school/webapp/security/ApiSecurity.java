@@ -21,6 +21,7 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
     @Autowired
     private SecurityFilter SecurityFilter;
 
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(myUserDetailsService);
@@ -31,6 +32,7 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests()
                 .antMatchers("/authenticate").permitAll()
+                .antMatchers("/hello").permitAll()
                 .antMatchers("/register").hasAnyRole("TEACHER","BURSARY","ADMIN")
                 .antMatchers("/retrievestudentinformation/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
                 .antMatchers("/editstudentinformation/**").hasRole("TEACHER")
@@ -44,8 +46,8 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/updatesubject/**").hasRole("TEACHER")
                 .antMatchers("/insertsubject/**").hasRole("TEACHER")
                 .antMatchers("/deletesubject/**").hasRole("TEACHER")
-                .antMatchers("/retrieveinformationsession/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
-                .antMatchers("/retrievescoresession/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
+                .antMatchers("/retrieveclasses/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
+                .antMatchers("/retrievesession/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
                 .antMatchers("/retrieveparent/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
                 .antMatchers("/getparentinformation/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
                 .antMatchers("/getschoolfee/**").hasAnyRole("BURSARY","ADMIN")
@@ -62,8 +64,6 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/sellbook/**").hasRole("BURSARY")
                 .antMatchers("/getbookhistory/**").hasAnyRole("BURSARY","ADMIN")
                 .antMatchers("/editbook/**").hasRole("BURSARY")
-
-
                 .anyRequest().authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(SecurityFilter, UsernamePasswordAuthenticationFilter.class);
     }

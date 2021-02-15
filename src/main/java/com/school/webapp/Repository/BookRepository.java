@@ -6,6 +6,9 @@ import java.util.ArrayList;
 
 public interface BookRepository extends CrudRepository<BookEntity,Integer> {
 
-    @Query( value = "Select * from book_entity where title like %?1% and year =?2 and term=?3",nativeQuery = true)
-    ArrayList<BookEntity> findByNameAndSessionAndTerm(String bookname,String session, String term);
+    @Query( value = "Select * from book_entity where title like %?1% and year =?2 and term=?3 and schoolid=?4",nativeQuery = true)
+    ArrayList<BookEntity> findByNameAndSessionAndTerm(String bookname,String session, String term,String schoolid);
+    @Query (value = "Select * from book_entity where schoolid=?1",nativeQuery = true)
+    ArrayList<BookEntity> getAllBook(String schoolid);
+
 }

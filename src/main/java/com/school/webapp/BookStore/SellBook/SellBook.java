@@ -3,6 +3,7 @@ package com.school.webapp.BookStore.SellBook;
 
 import com.school.webapp.BookStore.SaveBook.BookEntity;
 import com.school.webapp.JDBC.JDBCConnection;
+import com.school.webapp.WebAppService.MyException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,17 +15,15 @@ public class SellBook {
     private boolean j;
 
     //Book Entity instance contains the book information to be sold
-    public boolean SellBook(String bookname, String term, String session, String buyer, BookEntity bookEntity){
-        System.out.println("[Sellbook]:Selling books-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term);
+    public void SellBook(String bookid,String schoolid, String buyer, BookEntity bookEntity,String session) throws MyException {
         System.out.println("[SellBook]: preparing connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="update book_entity set copies=copies-1 where year=? and  title=?  and term=? ";
+            String QUERY="update book_entity set copies=copies-1 where id=? and schoolid=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
-                preparedStatement.setString(1,session);
-                preparedStatement.setString(2,bookname);
-                preparedStatement.setString(3,term);
+                preparedStatement.setString(1,bookid);
+                preparedStatement.setString(2,schoolid);
                 //if everything goes well,it return false
                 i=preparedStatement.execute();
                 System.out.println("[SellBook]: Result1-->"+i);
@@ -35,14 +34,13 @@ public class SellBook {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
-                return false;
             }
         }else {
-            return false;
+            throw new MyException("An error occured, please wait while we fix this issue");
         }
         if (!i){
             ///Saving to book sold history
-            String QUERY="insert into book_history(title,author,amountsold,buyer,datesold,term,year) values(?,?,?,?,?,?,?)";
+            String QUERY="insert into book_history(title,author,amountsold,buyer,datesold,term,year,schoolid) values(?,?,?,?,?,?,?,?)";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,bookEntity.getTitle());
@@ -52,6 +50,7 @@ public class SellBook {
                 preparedStatement.setString(5,bookEntity.getDate());
                 preparedStatement.setString(6,bookEntity.getTerm());
                 preparedStatement.setString(7,session);
+                preparedStatement.setString(8,schoolid);
                 j=preparedStatement.execute();
                 System.out.println("[SellBook]: Result2-->"+j);
             } catch (SQLException e) {
@@ -60,25 +59,17 @@ public class SellBook {
                     connection.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
+                    throw new MyException("An error occured");
                 }
-                return false;
+                throw new MyException("An error occured");
             }finally {
                 try {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    throw new MyException("An error occured");
                 }
             }
-            if (!i&&!j){
-                return true;
-            }else {return false;}
-        }else {
-            return false;
-        }
     }
-//    public ArrayList<BookHistoryResponse> getBookSoldeHistory(){
-//        ArrayList<BookHistoryResponse> bookhistory=new ArrayList<>();
-//        //bookHistoryRepository.findAll().forEach(bookhistory::add);
-//        return null;
-//    }
+   }
 }

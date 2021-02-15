@@ -2,7 +2,8 @@ package com.school.webapp.BookStore.getBookSoldHistory;
 
 import com.school.webapp.JDBC.JDBCConnection;
 import com.school.webapp.Repository.BookHistory;
-import com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors.Jasperprintdoc;
+import com.school.webapp.WebAppService.MyException;
+import com.school.webapp.WebAppService.SaveSchoolFee.getDebtors.Jasperprintdoc;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
 import net.sf.jasperreports.engine.design.JasperDesign;
@@ -22,17 +23,17 @@ import java.util.ArrayList;
 
 public class getBookSoldHistory {
     private ArrayList<BookHistory> bookHistories;
-    public ArrayList<BookHistory> getHistories(String session, int term, String date){
+    public ArrayList<BookHistory> getHistories(String session, int term, String date, String schoolid) throws MyException {
         Connection connection= JDBCConnection.connector();
-
         if (connection!=null){
             ResultSet resultSet;
-            String QUERY="select * from book_history where datesold=? and  year=? and term=?";
+            String QUERY="select * from book_history where datesold=? and  year=? and term=? and schoolid=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,date);
                 preparedStatement.setString(2,session);
                 preparedStatement.setInt(3,term);
+                preparedStatement.setString(4,schoolid);
                 resultSet=preparedStatement.executeQuery();
                 bookHistories=new ArrayList<>();
                 while (resultSet.next()){
@@ -48,10 +49,9 @@ public class getBookSoldHistory {
                     bookHistories.add(bookHistory);
                 }
                 try {
-                    Path jasperdirictory=Paths.get(System.getProperty("user.dir")+"/jasperreport");
-                    JasperDesign jd= JRXmlLoader.load(jasperdirictory+"/booksoldhistory.jrxml");
+                    JasperDesign jd= JRXmlLoader.load("src/main/java/com/school/webapp/BookStore/booksoldhistory.jrxml");
                     JRDesignQuery jrDesignQuery=new JRDesignQuery();
-                    String sql="select * from book_history where datesold='"+date+"'"+" and  year='"+session+"'"+" and term='"+term+"'";
+                    String sql="select * from book_history where datesold='"+date+"'"+" and  year='"+session+"'"+" and term='"+term+"' and schoolid='"+schoolid+"'";
                     jrDesignQuery.setText(sql);
                     jd.setQuery(jrDesignQuery);
                     JasperReport report= JasperCompileManager.compileReport(jd);
@@ -73,11 +73,15 @@ public class getBookSoldHistory {
                     }
                 } catch (JRException e) {
                     e.printStackTrace();
+                    throw new MyException("An error occured");
                 } catch (IOException e) {
                     e.printStackTrace();
+                    throw new MyException("An error occured");
                 }
-
-
+                if (bookHistories.isEmpty()){
+                    throw new MyException("Not found");
+                }
+                return bookHistories;
             } catch (SQLException e) {
                 e.printStackTrace();
                 try {
@@ -85,21 +89,17 @@ public class getBookSoldHistory {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
-                return null;
+                throw new MyException("An error occured");
             }finally {
                 try {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    throw new MyException("An error occured");
                 }
             }
-            if (resultSet!=null){
-                return bookHistories;
-            }else {
-                return null;
-            }
         }else {
-            return null;
+            throw new MyException("An error occured, please wait while we fix this issue");
         }
     }
 }

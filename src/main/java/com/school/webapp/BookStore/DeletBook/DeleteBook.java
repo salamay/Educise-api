@@ -1,6 +1,7 @@
 package com.school.webapp.BookStore.DeletBook;
 
 import com.school.webapp.JDBC.JDBCConnection;
+import com.school.webapp.WebAppService.MyException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,7 +9,7 @@ import java.sql.SQLException;
 
 public class DeleteBook {
     private boolean result;
-    public boolean delete(int id) {
+    public void delete(int id) throws MyException {
         System.out.println("[DeleteBook]:Deleting book-->Settingg up connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
@@ -24,21 +25,19 @@ public class DeleteBook {
                     connection.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
+                    throw new MyException("An error occured");
                 }
+                throw new MyException("An error occured");
             }finally {
                 try {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    throw new MyException("An error occured");
                 }
             }
         }else {
-            return false;
-        }
-        if (!result){
-            return true;
-        }else {
-            return false;
+            throw new MyException("An error occured, please wait while we fix this issues");
         }
     }
 }

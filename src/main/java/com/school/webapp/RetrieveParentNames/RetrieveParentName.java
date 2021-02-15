@@ -1,7 +1,6 @@
 package com.school.webapp.RetrieveParentNames;
 
 import com.school.webapp.JDBC.JDBCConnection;
-import com.school.webapp.RetrievNameFromSession.RetrieveNameResponse;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

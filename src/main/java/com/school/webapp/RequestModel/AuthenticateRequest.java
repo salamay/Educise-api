@@ -4,24 +4,28 @@ import org.springframework.security.authentication.AuthenticationManager;
 
 public class AuthenticateRequest {
 
-    private String username;
+    private String schoolid;
+    private String staffid;
     private String password;
 
     public AuthenticateRequest() {
 
     }
 
-    public AuthenticateRequest(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public String getSchoolid() {
+        return schoolid;
     }
 
-    public String getUsername() {
-        return username;
+    public void setSchoolid(String schoolid) {
+        this.schoolid = schoolid;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getStaffid() {
+        return staffid;
+    }
+
+    public void setStaffid(String staffid) {
+        this.staffid = staffid;
     }
 
     public String getPassword() {

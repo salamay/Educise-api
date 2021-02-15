@@ -1,7 +1,7 @@
 package com.school.webapp.Repository;
 
-import javax.persistence.*;
 public class BookHistory {
+
     private int id;
     private String title;
     private String author;
@@ -10,20 +10,11 @@ public class BookHistory {
     private String date;
     private String session;
     private int term;
+    private byte[] pdfdocumentbytes;
 
     public BookHistory() {
     }
 
-    public BookHistory(int id, String title, String author, String amountsold, String buyer, String date, String session, int term) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.amountsold = amountsold;
-        this.buyer = buyer;
-        this.date = date;
-        this.session = session;
-        this.term = term;
-    }
 
     public int getId() {
         return id;
@@ -87,5 +78,13 @@ public class BookHistory {
 
     public void setTerm(int term) {
         this.term = term;
+    }
+
+    public byte[] getPdfdocumentbytes() {
+        return pdfdocumentbytes;
+    }
+
+    public void setPdfdocumentbytes(byte[] pdfdocumentbytes) {
+        this.pdfdocumentbytes = pdfdocumentbytes;
     }
 }

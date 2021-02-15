@@ -1,49 +1,43 @@
 package com.school.webapp.DeleteSchoolFee;
 
 import com.school.webapp.JDBC.JDBCConnection;
+import com.school.webapp.WebAppService.MyException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DeleteSchoolFee {
-    private int i;
-    public boolean deleteSchoolFee(String clas, String session, String term, String studentname) {
+    private boolean result;
+    public boolean deleteSchoolFee(String id, String schoolid) throws MyException {
         System.out.println("[DeleteSchoolFee]:Deleting Schoolfee from Schoolfee table-->Making database connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="update schoolfee set depositor='', modeofpayment='', amount='', transactionid='', term='',paymentdate='' where studentname=? and class=? and year=? and term=?";
+            String QUERY="delete from schoolfee where id=? and schoolid=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
-                preparedStatement.setString(1,studentname);
-                preparedStatement.setString(2,clas);
-                preparedStatement.setString(3,session);
-                preparedStatement.setString(4,term);
-                i=preparedStatement.executeUpdate();
-                System.out.println("[SQL RESULT]: "+i);
-            } catch (SQLException e) {
+                preparedStatement.setString(1,id);
+                preparedStatement.setString(2,schoolid);
+                result=preparedStatement.execute();
+                System.out.println("[SQL RESULT]: "+result);
+            }catch (SQLException e){
                 try {
                     connection.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
+                    throw new MyException("An error occured");
                 }
                 e.printStackTrace();
-                return false;
-            }finally {
+            }finally{
                 try {
                     connection.close();
-                } catch (SQLException e) {
+                }catch (SQLException e){
                     e.printStackTrace();
                 }
+                throw new MyException("An error occured");
             }
-
         }else {
-            return false;
-        }
-        if (i==1){
-            return true;
-        }else {
-            return false;
+            throw new MyException("An error occured, please wait while we fix this issue");
         }
     }
 }

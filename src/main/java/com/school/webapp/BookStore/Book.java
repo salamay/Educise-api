@@ -1,6 +1,7 @@
 package com.school.webapp.BookStore;
 
 public class Book {
+
     private String title;
     private String author;
     private int price;

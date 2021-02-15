@@ -3,11 +3,12 @@ package com.school.webapp.BookStore.SaveBook;
 import javax.persistence.*;
 
 @Entity
-@Table(schema = "Books")
+@Table(name = "book_entity")
 public class BookEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    private String schoolid;
     private String title;
     private String author;
     private int price;
@@ -17,26 +18,23 @@ public class BookEntity {
     //date is marked as transient because it is not included when saving book but when saving to history
     @Transient
     private String date;
+
     public BookEntity() {
     }
-
-    public BookEntity(int id, String title, String author, int price, int copies, String year, String term, String date) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.price = price;
-        this.copies = copies;
-        this.year = year;
-        this.term = term;
-        this.date = date;
-    }
-
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getSchoolid() {
+        return schoolid;
+    }
+
+    public void setSchoolid(String schoolid) {
+        this.schoolid = schoolid;
     }
 
     public String getTitle() {

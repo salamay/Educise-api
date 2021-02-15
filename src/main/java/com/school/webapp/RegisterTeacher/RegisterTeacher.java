@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 public class RegisterTeacher {
     private int a;
-    public String Registerteacher(RegisterTeacherRequestEntity registerTeacherRequestEntity){
+    public String Registerteacher(RegisterTeacherRequestEntity registerTeacherRequestEntity, String schoolid){
         System.out.println(registerTeacherRequestEntity.getFirstname());
         System.out.println(registerTeacherRequestEntity.getLastname());
         System.out.println(registerTeacherRequestEntity.getMiddlename());
@@ -30,10 +30,12 @@ public class RegisterTeacher {
         System.out.println(registerTeacherRequestEntity.getSchoolattended());
         System.out.println(registerTeacherRequestEntity.getCourse());
         System.out.println(registerTeacherRequestEntity.getMaritalstatus());
-
+        System.out.println(registerTeacherRequestEntity.getBankaccountnumber());
+        System.out.println(registerTeacherRequestEntity.getBankname());
+        System.out.println(registerTeacherRequestEntity.getAccountname());
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String Query="insert into TeacherInformation(FirstName,LastName,MiddleName,Class,SubjectOne,SubjectTwo,SubjectThree,SubjectFour,Email,Address,EntryYear,Gender,PhoneNo,SchoolAttended,Course,MaritalStatus,Picture) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String Query="insert into TeacherInformation(FirstName,LastName,MiddleName,Class,SubjectOne,SubjectTwo,SubjectThree,SubjectFour,Email,Address,EntryYear,Gender,PhoneNo,SchoolAttended,Course,MaritalStatus,Picture,bankname,accountnumber,bankaccountname,schoolid) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement preparedStatement= null;
             try {
                 preparedStatement = connection.prepareStatement(Query);
@@ -53,6 +55,7 @@ public class RegisterTeacher {
                 preparedStatement.setString(14,registerTeacherRequestEntity.getSchoolattended());
                 preparedStatement.setString(15,registerTeacherRequestEntity.getCourse());
                 preparedStatement.setString(16,registerTeacherRequestEntity.getMaritalstatus());
+
                 Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
                 if (Files.exists(path)){
 
@@ -66,6 +69,10 @@ public class RegisterTeacher {
                 //preparing to save to database
                 FileInputStream inputStream=new FileInputStream(teacherimage);
                 preparedStatement.setBinaryStream(17,inputStream,(int) teacherimage.length());
+                preparedStatement.setString(18,registerTeacherRequestEntity.getBankname());
+                preparedStatement.setString(19,registerTeacherRequestEntity.getBankaccountnumber());
+                preparedStatement.setString(20,registerTeacherRequestEntity.getAccountname());
+                preparedStatement.setString(21,schoolid);
                 a=preparedStatement.executeUpdate();
             } catch (SQLException | FileNotFoundException e) {
                 e.printStackTrace();

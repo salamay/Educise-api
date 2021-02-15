@@ -17,28 +17,12 @@ public class RegisterTeacherRequestEntity {
     private String phoneno;
     private String schoolattended;
     private String course;
+    private String accountname;
+    private String bankaccountnumber;
+    private String bankname;
     private byte[] file;
 
     public RegisterTeacherRequestEntity() {
-    }
-
-    public RegisterTeacherRequestEntity(String firstname, String lastname, String middlename, String clas, String subjectone, String subjecttwo, String subjectthree, String subjectfour, String email, String address, String entryyear, String gender, String maritalstatus, String phoneno, String schoolattended, String course) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.middlename = middlename;
-        this.clas = clas;
-        this.subjectone = subjectone;
-        this.subjecttwo = subjecttwo;
-        this.subjectthree = subjectthree;
-        this.subjectfour = subjectfour;
-        this.email = email;
-        this.address = address;
-        this.entryyear = entryyear;
-        this.gender = gender;
-        this.maritalstatus = maritalstatus;
-        this.phoneno = phoneno;
-        this.schoolattended = schoolattended;
-        this.course = course;
     }
 
     public String getFirstname() {
@@ -175,5 +159,29 @@ public class RegisterTeacherRequestEntity {
 
     public void setFile(byte[] file) {
         this.file = file;
+    }
+
+    public String getAccountname() {
+        return accountname;
+    }
+
+    public void setAccountname(String accountname) {
+        this.accountname = accountname;
+    }
+
+    public String getBankaccountnumber() {
+        return bankaccountnumber;
+    }
+
+    public void setBankaccountnumber(String bankaccountnumber) {
+        this.bankaccountnumber = bankaccountnumber;
+    }
+
+    public String getBankname() {
+        return bankname;
+    }
+
+    public void setBankname(String bankname) {
+        this.bankname = bankname;
     }
 }

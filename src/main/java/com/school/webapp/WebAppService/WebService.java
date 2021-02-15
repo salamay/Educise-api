@@ -1,43 +1,45 @@
+
 package com.school.webapp.WebAppService;
 
+import com.school.webapp.BookStore.DeletBook.DeleteBook;
 import com.school.webapp.BookStore.EditBook.EditBook;
 import com.school.webapp.BookStore.EditBook.EditBookRequest;
 import com.school.webapp.BookStore.getBookSoldHistory.getBookSoldHistory;
-import com.school.webapp.Repository.BookHistory;
-import com.school.webapp.Repository.BookRepository;
+import com.school.webapp.RegisterTeacher.*;
+import com.school.webapp.WebAppService.Information.EditInformation.DeleteStudent;
+import com.school.webapp.WebAppService.Information.EditInformation.EditImage;
+import com.school.webapp.WebAppService.Information.EditInformation.EditInformation;
+import com.school.webapp.WebAppService.Information.EditInformation.EditInformationImageRequestEntity;
+import com.school.webapp.Repository.*;
 import com.school.webapp.BookStore.SaveBook.BookEntity;
 import com.school.webapp.BookStore.SellBook.SellBook;
 import com.school.webapp.DeleteSchoolFee.DeleteSchoolFee;
-import com.school.webapp.Information.StudentandParent.RetrieveStudentInformation;
-import com.school.webapp.Information.StudentandParent.StudentInformationResponseEntity;
-import com.school.webapp.RegisterTeacher.RegisterTeacher;
-import com.school.webapp.RegisterTeacher.RegisterTeacherRequestEntity;
-import com.school.webapp.Registration.Register;
-import com.school.webapp.Registration.RegistrationModel;
-import com.school.webapp.Repository.MyRepository;
-import com.school.webapp.RetrievNameFromSession.RetrieveName;
-import com.school.webapp.RetrievNameFromSession.RetrieveNameResponse;
+import com.school.webapp.WebAppService.Information.StudentandParent.RetrieveStudentInformation;
+import com.school.webapp.WebAppService.Information.StudentandParent.StudentInformationResponseEntity;
+import com.school.webapp.WebAppService.Registration.Register;
+import com.school.webapp.WebAppService.Registration.RegistrationModel;
+import com.school.webapp.WebAppService.RetrievNameFromSession.RetrieveName;
+import com.school.webapp.WebAppService.RetrievNameFromSession.RetrieveNameResponse;
 import com.school.webapp.RetrieveParentInformation.RetrieveParentInformation;
 import com.school.webapp.RetrieveParentInformation.RetrieveParentInformationResponseEntity;
 import com.school.webapp.RetrieveParentNames.RetrieveParentName;
 import com.school.webapp.RetrieveParentNames.RetrieveParentNameResponse;
-import com.school.webapp.RetrieveSession.RetrieveScoreSession;
-import com.school.webapp.RetrieveSession.RetrieveSession;
-import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.GetSchoolFee;
-import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
-import com.school.webapp.SchoolFee.SaveSchoolFee.GetSchoolFee.getSchoolfeeWithoutTerm;
-import com.school.webapp.SchoolFee.SaveSchoolFee.SaveDataSchoolFeeTable;
-import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFee;
-import com.school.webapp.SchoolFee.SaveSchoolFee.SaveSchoolFeeRequestEntity;
-import com.school.webapp.SchoolFee.SaveSchoolFee.Term.SaveTerm;
-import com.school.webapp.SchoolFee.SaveSchoolFee.getDebtors.getDebtors;
+import com.school.webapp.WebAppService.RetrieveSession.RetrieveAcademicSession;
+import com.school.webapp.WebAppService.RetrieveSession.RetrieveClass;
+import com.school.webapp.WebAppService.SaveSchoolFee.GetSchoolFee.GetSchoolFee;
+import com.school.webapp.WebAppService.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
+import com.school.webapp.WebAppService.SaveSchoolFee.GetSchoolFee.getSchoolfeeWithoutTerm;
+import com.school.webapp.WebAppService.SaveSchoolFee.SaveDataSchoolFeeTable;
+import com.school.webapp.WebAppService.SaveSchoolFee.SaveSchoolFee;
+import com.school.webapp.WebAppService.SaveSchoolFee.SaveSchoolFeeRequestEntity;
+import com.school.webapp.WebAppService.SaveSchoolFee.Term.SaveTerm;
+import com.school.webapp.WebAppService.SaveSchoolFee.getDebtors.getDebtors;
 import com.school.webapp.Session.CreateSession;
 import com.school.webapp.Session.SessionRequestEntity;
-import com.school.webapp.StudentScore.*;
+import com.school.webapp.WebAppService.StudentScore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -54,10 +56,12 @@ public class WebService {
     @Autowired
     private Register register;
 
+
 //Register Student
-    public String RegisterStudent(RegistrationModel registrationModel, String session, MultipartFile studentpicture, MultipartFile fatherpicture, MultipartFile motherpicture) throws SQLException {
-       String result=register.Register(registrationModel,session,studentpicture,fatherpicture,motherpicture);
-       System.out.println("[Service]: "+result);
+    public String RegisterStudent(RegistrationModel registrationModel, MultipartFile studentpicture, MultipartFile fatherpicture, MultipartFile motherpicture, MultipartFile otherpicture, String schoolid) throws SQLException, MyException {
+        String result;
+        result=register.Register(registrationModel,studentpicture,fatherpicture,motherpicture,otherpicture,schoolid);
+        System.out.println("[Service]: "+result);
        return result;
     }
      ///////////////////////////Create Session/////////////////////////////////////////////
@@ -67,49 +71,58 @@ public class WebService {
     ///////////////////////////CREATING SESSION END/////////////////////////////////////////
 
     ////////////////////////////Register Teacher////////////////////////////////////////////
-    public String registerTeacher(RegisterTeacherRequestEntity registerTeacherRequestEntity){
-        return  new RegisterTeacher().Registerteacher(registerTeacherRequestEntity);
+    public String registerTeacher(RegisterTeacherRequestEntity registerTeacherRequestEntity, String schoolid){
+        System.out.println("[WebService]-->[Registering teacher]-->Proceeding to Database");
+        return  new RegisterTeacher().Registerteacher(registerTeacherRequestEntity,schoolid);
     }
-    ////////////////////////////CREATING SESSION END/////////////////////////////////////////
+
+    public RegisterTeacherRequestEntity retrieveTeacherInformation( String schoolid,String teaherid) throws MyException {
+        System.out.println("[WebService]-->[Retrieving teacher Information]-->Proceeding to Database");
+        return new RetrieveTeacherInformation().getTeacherInformation(schoolid,teaherid);
+    }
+
+    public ArrayList<TeachernamesResponseEntity> getTeachersName(String schoolid) throws MyException {
+        System.out.println("[WebService]-->[Retrieving teacher names]-->Proceeding to Database");
+        return new RetrieveTeacherName().getTeachersName(schoolid);
+    }
 
 
     //////////////////////////This method get the Scores////////////////////////////////////////////////////////
-    public ArrayList<Scores> getScores(getStudentScoreRequestEntity getStudentScoreRequestEntity){
-        System.out.println("[WebService]-->Proceeding to Database");
-        System.out.println("[WebService]-->"+getStudentScoreRequestEntity.getName());
-        System.out.println("[WebService]-->"+getStudentScoreRequestEntity.getTable());
-        return  new getStudentScore().getScore(getStudentScoreRequestEntity);
+    public ArrayList<Scores> getScores(getStudentScoreRequestEntity getStudentScoreRequestEntity,String schoolid) throws MyException {
+        System.out.println("[WebService] getting student score--> Proceeding to Database");
+        System.out.println("[WebService]-->name:"+getStudentScoreRequestEntity.getName());
+        System.out.println("[WebService]--> table:"+getStudentScoreRequestEntity.getTable());
+        System.out.println("[WebService]--> term:"+getStudentScoreRequestEntity.getTerm());
+        System.out.println("[WebService]--> school id :"+schoolid);
+        return  new getStudentScore().getScore(getStudentScoreRequestEntity,schoolid);
     }
     //update Subject
-    public String updateSubject(UpdateSubjectRequestEntity updateSubjectRequestEntity){
+    public Scores updateSubject(UpdateSubjectRequestEntity updateSubjectRequestEntity) throws MyException {
+        System.out.println("[WebService] Updating subject--> Proceeding to Database");
         return new UpdateSubject().InsertSubject(updateSubjectRequestEntity);
     }
 
     ////////////////////////////////////////Insert Subject//////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
-    public String insertSubject(String subject,String session,String studentname){
+    public Scores insertSubject(String subject, String session, String studentname, String term, String schoolid) throws MyException {
         System.out.println("[WebService]-->Inserting subject-->Proceeding to Database");
-        return new InsertSubject().insertSubject(subject,session,studentname);
+         return new InsertSubject().insertSubject(subject,session,studentname,term,schoolid);
     }
     //////////////////////////////////Insert Subject END///////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////update student score/////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
-    public String UpdateScore(UpdateScoreRequestEntity updateScoreRequestEntity){
-        if (updateScoreRequestEntity.getCa()!=null&&updateScoreRequestEntity.getTable()!=null&&updateScoreRequestEntity.getName()!=null&&updateScoreRequestEntity.getSubject()!=null&&updateScoreRequestEntity.getScore()!=null){
-            return new UpdateScore().updateScore(updateScoreRequestEntity);
-        }
-        else {
-            return null;
-        }
+    public Scores UpdateScore(UpdateScoreRequestEntity updateScoreRequestEntity) throws MyException {
+        System.out.println("[WebService] updating score--> proceeding to Database");
+        return new UpdateScore().updateScore(updateScoreRequestEntity);
     }
     ////////////////////////////////////END//////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////DELETE SUBEJECT//////////////////////////////////////////////////////
-    public boolean deleteSubject(String subject, String session, String studentname) {
+    public void deleteSubject(String id) throws MyException {
         System.out.println("[Webservice]-->Deleting Subject-->proceeding to database");
-        return new DeleteSubject().deleteSubject(subject,session,studentname);
+        new DeleteSubject().deleteSubject(id);
     }
 
     /////////////////////////////////////DELETE SUBJECT END///////////////////////////////////////////////////////
@@ -117,42 +130,62 @@ public class WebService {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //this method retrive Student information,this take in request entity instance and pass it to the Query class
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    public StudentInformationResponseEntity retrieveStudentinfo(String name, String classselected){
+    public StudentInformationResponseEntity retrieveStudentinfo(String studentid) throws MyException {
+        System.out.println("[WebService] Retrieving student information--> Proceeding to Database");
         retrieveStudentInformation=new RetrieveStudentInformation();
-        StudentInformationResponseEntity studentInformationResponseEntity=retrieveStudentInformation.retrieveStudentInformation(name,classselected);
+        StudentInformationResponseEntity studentInformationResponseEntity=retrieveStudentInformation.retrieveStudentInformation(studentid);
         return studentInformationResponseEntity;
+    }
+    /////////////////END///////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //this method edit Student information
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    public StudentInformationResponseEntity editStudentInformation(String newValue, String id, String column) throws MyException {
+        System.out.println("[Webservice]:Editing student information-->Proceeding to database");
+       return new EditInformation().edit(newValue,id,column);
+    }
+    /////////////////END///////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //this method edit information images
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    public void EditInformationImage(EditInformationImageRequestEntity editInformationImageRequestEntity) throws MyException {
+        System.out.println("[Webservice]:Editing information images-->Proceeding to database");
+        new EditImage().editImages(editInformationImageRequestEntity);
+    }
+    /////////////////END///////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //this method delete student from database
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    public void deleteStudent(String id) throws MyException {
+        System.out.println("[Webservice]:deleting student information-->Proceeding to database");
+        new DeleteStudent().delete(id);
     }
     /////////////////END///////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ///This method receive information sessions
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<String> retrieve(){
-        ArrayList<String> sessionList=new RetrieveSession().retrieve();
-        if (sessionList!=null){
-            System.out.println("[Retrieving session]: session retrieved");
-            System.out.println("[Retrieving session]: "+sessionList);
-            return sessionList;
-        }else {
-            System.out.println("[Retrieving session]: session failed to retrieve");
-            return null;
-        }
+    public ArrayList<String> retrieveClasses(String schoolid) throws MyException {
+        System.out.println("[WebService] Retrieving Classess--> Proceeding to Database");
+            ArrayList<String> classList=new RetrieveClass().retrieve(schoolid);
+                System.out.println("[WebService]: classes retrieved");
+                System.out.println("[WebService]: "+classList);
+                return classList;
     }
     ////////////////////////END/////////////////////////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////This method Retrieve score session/////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<String> retrieveScoreSession(){
-        ArrayList<String> sessionList=new RetrieveScoreSession().retrieve();
-        if (sessionList!=null){
-            System.out.println("[RetrievingScore session]: session retrieved");
-            System.out.println("[RetrievingScore session]: "+sessionList);
-            return sessionList;
-        }else {
-            System.out.println("[RetrievingScore session]: session failed to retrieve");
-            return null;
-        }
+    public Object retrieveSession() throws MyException {
+        System.out.println("[WebService] Retrieving session--> Proceeding to Database");
+        ArrayList<String> sessionList=new RetrieveAcademicSession().retrieve();
+                System.out.println("[Retrieving session]: session retrieved");
+                System.out.println("[Retrieving session]: "+sessionList);
+                return sessionList;
     }
     ////////////////////////////////////////END/////////////////////////////////////////////////////////
 
@@ -160,19 +193,17 @@ public class WebService {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///THis method Retrieve List of names from class
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<RetrieveNameResponse> RetrieveName( String classname){
-        ArrayList<RetrieveNameResponse> list=new RetrieveName().retrieveName(classname);
-        if (list!=null){
-            return list;
-        }else {
-            return null;
-        }
+    public ArrayList<RetrieveNameResponse> RetrieveName(String classname, String sessionselected, String schoolid) throws MyException {
+        System.out.println("[WebService] Retrieving student names--> Proceeding to Database");
+        ArrayList<RetrieveNameResponse> list=new RetrieveName().retrieveName(classname,sessionselected,schoolid);
+        return list;
     }
     //////////////////////////////////////END/////////////////////////////////////////////////////////////////
 
 ////////////////////////This method retrieve Parent name/////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<RetrieveParentNameResponse> retrieveParentname( String session){
+        System.out.println("[WebService] Retrieving parent names--> Proceeding to Database");
         System.out.println("[WebService]-->Retrieving parent names: "+session);
         ArrayList<RetrieveParentNameResponse> list=new RetrieveParentName().getParentNames(session);
         if (list!=null){
@@ -183,6 +214,7 @@ public class WebService {
     }
     ///////////////////////////////////END//////////////////////////////////////////////////////////////////////
     public RetrieveParentInformationResponseEntity getParentInfo(String session,String parentname){
+        System.out.println("[WebService] getting parent information--> Proceeding to Database");
         RetrieveParentInformationResponseEntity retrieveParentInformationResponseEntity=new RetrieveParentInformationResponseEntity();
         System.out.println("[WebService]-->Retrieving parent Information");
         retrieveParentInformationResponseEntity=new RetrieveParentInformation().retrieveParentInfo(session,parentname);
@@ -200,49 +232,44 @@ public class WebService {
 
 
 
-    /////////////////////////////////////////////Save School fee////////////////////////////////////////////////////
-
-    public boolean saveSchoolFee(SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity) {
-        System.out.println("[Webservice]:Saving School fee-->Proceeding to database");
-        return new SaveSchoolFee().SaveSchoolFee(saveSchoolFeeRequestEntity);
-    }
-
-    ///////////////////////////////////SAVE SCHOOL FEE END///////////////////////////////////////////////////////////
-
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting school fee///////////////////////////////////////////////////////////
-    public ArrayList<getSchoolFeeResponseEntity> getSchoolFees(String clas, String term, String year) {
+    public ArrayList<getSchoolFeeResponseEntity> getSchoolFees(String clas, String term, String year, String tag, String schoolid) throws MyException {
         System.out.println("[Webservice]:getting school fee-->Proceeding to database");
-        return new GetSchoolFee().getFee(clas,term,year);
+        return new GetSchoolFee().getFee(clas,term,year,tag,schoolid);
     }
 
-    public ArrayList<getSchoolFeeResponseEntity> getSchoolFeesWithoutTerm(String clas, String session,String tag) {
+    public ArrayList<getSchoolFeeResponseEntity> getSchoolFeesWithoutTerm(String clas, String session, String tag, String schoolid) throws MyException {
         System.out.println("[Webservice]:getting school fee without term-->Proceeding to database");
-        return new getSchoolfeeWithoutTerm().getSchoolFeeWithoutTermFiltering(clas,session,tag);
+        return new getSchoolfeeWithoutTerm().getSchoolFeeWithoutTermFiltering(clas,session,tag,schoolid);
     }
 
     /////////////////////////////////////////////Save term to schoolfee table////////////////////////////////////////////////////
-    public boolean saveterm(String studentname, String clas, String session, String tag, String term) {
+    public getSchoolFeeResponseEntity saveterm(String studentid, String term, String schoolid) throws MyException {
         System.out.println("[Webservice]:Saving term-->Proceeding to database");
-        return new SaveTerm().Save(studentname,clas,session,tag,term);
+        return new SaveTerm().Save(studentid,term,schoolid);
     }
 
-    public boolean saveDataToSchoolFeeTable(String studentname, String clas, String session, String tag, String term, String column, String entity) {
+    public getSchoolFeeResponseEntity saveSchoolFee(SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity, String schoolid) throws MyException {
+        System.out.println("[Webservice]:  Proceeding to Database");
+        return new SaveSchoolFee().saveStudentnameToSchoolFee(saveSchoolFeeRequestEntity,schoolid);
+    }
+
+    public getSchoolFeeResponseEntity saveDataToSchoolFeeTable(String studentid, String column, String entity, String schoolid) throws MyException {
         System.out.println("[Webservice]:Saving data to schoolfee table-->Proceeding to database");
-        return new SaveDataSchoolFeeTable().saveDataToTable(studentname,clas,session,tag,term,column,entity);
+        return new SaveDataSchoolFeeTable().saveDataToTable(studentid,column,entity,schoolid);
     }
 
-    public boolean deleteSchoolFee(String clas, String session, String term, String studentname) {
+    public boolean deleteSchoolFee(String id, String schoolid) throws MyException {
         System.out.println("[Webservice]:Deleting schoolfee from schoolfee table-->Proceeding to database");
-        return new DeleteSchoolFee().deleteSchoolFee(clas,session,term,studentname);
+        return new DeleteSchoolFee().deleteSchoolFee(id,schoolid);
     }
 
     ///////////////////////////////////SAVE TERM TO SCHOOLFEE TABLE END///////////////////////////////////////////////////////////
 
-   public ArrayList<getSchoolFeeResponseEntity> getDebtors(String clas, String term, String year, int minimumfee, String tag) {
+   public ArrayList<getSchoolFeeResponseEntity> getDebtors(String clas, String term, String year, int minimumfee, String tag, String schoolid) throws MyException {
         System.out.println("[Webservice]:getting debtors-->Proceeding to database");
-        return new getDebtors().getDebtorsList(clas,term,year,minimumfee,tag);
+        return new getDebtors().getDebtorsList(clas,term,year,minimumfee,tag,schoolid);
     }
     //////////////////////////////////////Getting school fee end/////////////////////////////////////////////////////
 
@@ -252,42 +279,58 @@ public class WebService {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////BOOK SESSION///////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public boolean saveBook(BookEntity book) {
-
-        bookRepository.save(book);
-        return true;
+    //Save book
+    public BookEntity saveBook(BookEntity book, String schoolid) {
+        System.out.println("[WebService]:saving books-->Proceeding to database");
+        //This set the schoolid
+        book.setSchoolid(schoolid);
+        BookEntity entity=bookRepository.save(book);
+        return entity;
+    }
+    //Delete book
+    public void deleteBook(int id) throws MyException {
+        System.out.println("[WebService]:deleting book-->Proceeding to database");
+        new DeleteBook().delete(id);
     }
     //Find all books
-    public ArrayList<BookEntity> findAllBooks() {
+    public ArrayList<BookEntity> findAllBooks(String schoolid) {
+        System.out.println("[WebService]:finding books-->Proceeding to database");
         ArrayList<BookEntity> books=new ArrayList<>();
-        bookRepository.findAll().forEach(books::add);
+        bookRepository.getAllBook(schoolid).forEach(books::add);
         return books;
     }
     //search book
-    public ArrayList<BookEntity> searchBook(String bookname, String session, String term) {
+    public ArrayList<BookEntity> searchBook(String bookname, String session, String term,String schoolid) {
         System.out.println("[Controller]:Searching books-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term);
         System.out.println("[WebService]:Searching books-->Proceeding to database");
         ArrayList<BookEntity> books=new ArrayList<>();
-        bookRepository.findByNameAndSessionAndTerm(bookname,session,term).forEach(books::add);
+        bookRepository.findByNameAndSessionAndTerm(bookname,session,term,schoolid).forEach(books::add);
         return books;
     }
     //sell book
-    public boolean sellBook(String bookname, String term, String session, String buyer, BookEntity bookEntity) {
-        System.out.println("[webService]:Selling books-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term+"\r\n buyer: "+buyer);
-        return  new SellBook().SellBook(bookname,term,session,buyer,bookEntity);
+    public void sellBook(String bookid ,String schoolid, String buyer, BookEntity bookEntity,String session) throws MyException {
+        new SellBook().SellBook(bookid,schoolid,buyer,bookEntity,session);
     }
     //get booksold history
-    public ArrayList<BookHistory> getBookHistory(String session, int term, String date) {
-        System.out.println("[WebService]:getting book sold history books-->Proceeding to database");
-        return new getBookSoldHistory().getHistories(session,term,date);
+    public ArrayList<BookHistory> getBookHistory(String session, int term, String date, String schoolid) throws MyException {
+        System.out.println("[WebService]:getting book sold history -->Proceeding to database");
+        return new getBookSoldHistory().getHistories(session,term,date,schoolid);
     }
+//    //deleting booksold history
+//    public boolean deleteBookHistory(String id) {
+//        System.out.println("[WebService]:deleting book sold history -->Proceeding to database");
+//        return new DeleteBookHistory().deleteHistory(id);
+//    }
+
     //Edit book
-    public boolean editBook(EditBookRequest editBookRequest) {
+    public BookEntity editBook(EditBookRequest editBookRequest, String schoolid) throws MyException {
         System.out.println("[WebService]:Editing book-->Proceeding to database");
-        return new EditBook().edit(editBookRequest);
+        return new EditBook().edit(editBookRequest,schoolid);
     }
+
+
 
 ///////////////////////////////////////////////BOOK SESSION END//////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }

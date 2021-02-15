@@ -20,6 +20,9 @@ public class JwtUtils {
     public String extractUsername(String token){
         return extractClaim(token,Claims::getSubject);
     }
+    public String extractSchoolEmail(String token){
+        return extractClaim(token,Claims::getAudience);
+    }
     public Date extractExpiration(String token){
         return extractClaim(token,Claims::getExpiration);
     }
@@ -28,7 +31,6 @@ public class JwtUtils {
         final Claims claims=extractAllClaim(token);
         return claimResolver.apply(claims);
     }
-
     private Claims extractAllClaim(String token){
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
@@ -37,14 +39,14 @@ public class JwtUtils {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(UserDetails userDetails,String email){
         Map<String,Object> claims=new HashMap<>();
-        return CreateToken(claims,userDetails);
+        return CreateToken(claims,userDetails,email);
     }
-    private String CreateToken( Map<String,Object> claims,UserDetails userDetails){
-        return Jwts.builder().addClaims(claims).setSubject(userDetails.getUsername())
+    private String CreateToken( Map<String,Object> claims,UserDetails userDetails,String email){
+        return Jwts.builder().addClaims(claims).setSubject(userDetails.getUsername()).setAudience(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60+24))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*24))
                 .signWith(SignatureAlgorithm.HS256,SECRET_KEY).compact();
     }
     public Boolean validateToken(String token,UserDetails userDetails){

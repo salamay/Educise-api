@@ -11,6 +11,7 @@ public class RetrieveStudentInformation {
     public static Blob fatherblob;
     public static Blob motherblob;
     public static Blob otherblob;
+    public static Blob qrblob;
 
     public StudentInformationResponseEntity retrieveStudentInformation(String studentid) throws MyException {
         ResultSet resultSet;
@@ -23,7 +24,7 @@ public class RetrieveStudentInformation {
                 preparedStatement.setString(1,studentid);
                 resultSet=preparedStatement.executeQuery();
                 while (resultSet.next()) {
-                    studentInformationResponseEntity.setId(resultSet.getInt("id"));
+                    studentInformationResponseEntity.setId(resultSet.getString("id"));
                     studentInformationResponseEntity.setStudentname(resultSet.getString("StudentName"));
                     studentInformationResponseEntity.setAge(resultSet.getInt("Age"));
                     studentInformationResponseEntity.setPhoneno(resultSet.getString("Phoneno"));
@@ -49,10 +50,12 @@ public class RetrieveStudentInformation {
                     fatherblob = resultSet.getBlob("Fatherpicture");
                     motherblob = resultSet.getBlob("Motherpicture");
                     otherblob = resultSet.getBlob("otherpicture");
+                    qrblob=resultSet.getBlob("qrcode");
                     studentInformationResponseEntity.setStudent(studentblob.getBytes(1,(int) studentblob.length()));
                     studentInformationResponseEntity.setFather(fatherblob.getBytes(1,(int) fatherblob.length()));
                     studentInformationResponseEntity.setMother(motherblob.getBytes(1,(int) motherblob.length()));
                     studentInformationResponseEntity.setOther(otherblob.getBytes(1,(int) otherblob.length()));
+                    studentInformationResponseEntity.setQrcode(qrblob.getBytes(1,(int) qrblob.length()));
                 }
         }catch (SQLException e){
                 System.out.println("[RetrieveStudentInformation]:Unable to get student information");

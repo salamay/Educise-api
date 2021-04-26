@@ -108,7 +108,7 @@ public class EditImage {
                     }
                 }
 //////////////////////////////////Checking if tag is guardian////////////////////////////////////////
-                if (editInformationImageRequestEntity.getTag().equals("mother")){
+                if (editInformationImageRequestEntity.getTag().equals("other")){
                     String QUERY="update studentinformation set otherpicture=? where id=?";
                     try {
                         PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
@@ -125,6 +125,13 @@ public class EditImage {
                             throw new MyException("An error occur when saving image");
                         }
                         throw new MyException("An error occur when saving image");
+                    }finally {
+                        try {
+                            connection.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            throw new MyException("An error occur when saving image");
+                        }
                     }
                 }
             }else {

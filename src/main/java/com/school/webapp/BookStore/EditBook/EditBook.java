@@ -36,7 +36,7 @@ public class EditBook {
                         throw new MyException("An error occur");
                     }
                     while (resultSet.next()){
-                        book.setId(Integer.parseInt(resultSet.getString("id")));
+                        book.setId(resultSet.getString("id"));
                         book.setTitle(resultSet.getString("title"));
                         book.setAuthor(resultSet.getString("author"));
                         book.setPrice(resultSet.getInt("price"));

@@ -24,20 +24,7 @@ public class MyUserDetails  implements UserDetails {
         this.password=user.getPassword();
         this.authorities= Arrays.stream(user.getRole().split(",")).map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        //Checking subcription
-        LocalDate localDate=LocalDate.parse(user.getExpiry_date());
-        if (localDate.isBefore(LocalDate.now())){
-            System.out.println("Subcription expired");
-            throw new UsernameNotFoundException("Subscription expired");
-        }else {
-            System.out.println("Subcription not expired");
-        }
-        //Checking locked status
-        if (user.getLocked_status()==1){
-            throw new UsernameNotFoundException("Account is locked");
-        }else {
-            System.out.println(">>>>>>>> not Locked");
-        }
+
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

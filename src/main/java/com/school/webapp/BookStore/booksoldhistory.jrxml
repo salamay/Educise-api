@@ -16,7 +16,7 @@
 	<queryString language="SQL">
 		<![CDATA[select * from book_history]]>
 	</queryString>
-	<field name="id" class="java.lang.Integer">
+	<field name="id" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="book_history"/>
 	</field>

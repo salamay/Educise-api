@@ -42,8 +42,8 @@ public class getBookSoldHistory {
                     bookHistory.setAmountsold(resultSet.getString("amountsold"));
                     bookHistory.setAuthor(resultSet.getString("author"));
                     bookHistory.setDate(resultSet.getString("datesold"));
-                    bookHistory.setId(resultSet.getInt("id"));
-                    bookHistory.setTerm(resultSet.getInt("term"));
+                    bookHistory.setId(resultSet.getString("id"));
+                    bookHistory.setTerm(resultSet.getString("term"));
                     bookHistory.setSession(resultSet.getString("year"));
                     bookHistory.setTitle(resultSet.getString("title"));
                     bookHistories.add(bookHistory);

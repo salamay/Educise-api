@@ -29,7 +29,7 @@ public class EditInformation {
                     preparedStatement2.setString(1,id);
                     ResultSet resultSet=preparedStatement2.executeQuery();
                     while (resultSet.next()){
-                        studentInformationResponseEntity.setId(resultSet.getInt("id"));
+                        studentInformationResponseEntity.setId(resultSet.getString("id"));
                         studentInformationResponseEntity.setStudentname(resultSet.getString("StudentName"));
                         studentInformationResponseEntity.setAge(resultSet.getInt("Age"));
                         studentInformationResponseEntity.setPhoneno(resultSet.getString("Phoneno"));

@@ -35,9 +35,6 @@ public class RetrieveTeacherInformation {
                     registerTeacherRequestEntity.setMaritalstatus(resultSet.getString("MaritalStatus"));
                     Blob blobPicture=resultSet.getBlob("Picture");
                     registerTeacherRequestEntity.setFile(blobPicture.getBytes(1,(int) blobPicture.length()));
-                    registerTeacherRequestEntity.setBankname(resultSet.getString("bankname"));
-                    registerTeacherRequestEntity.setBankaccountnumber(resultSet.getString("accountnumber"));
-                    registerTeacherRequestEntity.setAccountname(resultSet.getString("bankaccountname"));
                 }
                 return registerTeacherRequestEntity;
             } catch (SQLException e) {

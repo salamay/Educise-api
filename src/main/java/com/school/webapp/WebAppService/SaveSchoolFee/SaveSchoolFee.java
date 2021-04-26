@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class SaveSchoolFee {
     private boolean result;
@@ -16,8 +17,10 @@ public class SaveSchoolFee {
         System.out.println("[SaveSchoolFee]: Preparing connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="insert into schoolfee (studentname,class,term,year,tag,amount,schoolid) values(?,?,?,?,?,?,?)";
-            String QUERY2="Select * from schoolfee where studentname=? and class=? and term=? and year=? and tag=?  and schoolid=?";
+            //This generate an id
+            String id= UUID.randomUUID().toString();
+            String QUERY="insert into schoolfee (studentname,class,term,year,tag,amount,schoolid,id) values(?,?,?,?,?,?,?,?)";
+            String QUERY2="Select * from schoolfee where id=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,saveSchoolFeeRequestEntity.getStudentname());
@@ -27,16 +30,12 @@ public class SaveSchoolFee {
                 preparedStatement.setString(5,saveSchoolFeeRequestEntity.getTag());
                 preparedStatement.setString(6,"0");
                 preparedStatement.setString(7,schoolid);
+                preparedStatement.setString(8,id);
                 result=preparedStatement.execute();
                 System.out.println("[SaveSchoolFee]: Result: "+result);
                 if (!result){
                     PreparedStatement preparedStatement2=connection.prepareStatement(QUERY2);
-                    preparedStatement2.setString(1,saveSchoolFeeRequestEntity.getStudentname());
-                    preparedStatement2.setString(2,saveSchoolFeeRequestEntity.getClas());
-                    preparedStatement2.setString(3,saveSchoolFeeRequestEntity.getTerm());
-                    preparedStatement2.setString(4,saveSchoolFeeRequestEntity.getYear());
-                    preparedStatement2.setString(5,saveSchoolFeeRequestEntity.getTag());
-                    preparedStatement2.setString(6,schoolid);
+                    preparedStatement2.setString(1,id);
                     ResultSet resultSet=preparedStatement2.executeQuery();
                     getSchoolFeeResponseEntity schoolFeeResponseEntity=new getSchoolFeeResponseEntity();
                    while (resultSet.next()){

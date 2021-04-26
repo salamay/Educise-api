@@ -49,7 +49,6 @@ public class getDebtors {
                     getSchoolFeeResponseEntity.setAmount(Integer.parseInt(amount));
                     getSchoolFeeResponseEntity.setTerm(resultSet.getString("term"));
                     getSchoolFeeResponseEntity.setYear(resultSet.getString("year"));
-                    System.out.println(resultSet.getString("Studentname"));
                     getSchoolFeeResponseEntity.setClas(resultSet.getString("Class"));
                     debtores.add(getSchoolFeeResponseEntity);
                 }

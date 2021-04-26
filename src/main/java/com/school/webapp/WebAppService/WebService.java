@@ -6,6 +6,7 @@ import com.school.webapp.BookStore.EditBook.EditBook;
 import com.school.webapp.BookStore.EditBook.EditBookRequest;
 import com.school.webapp.BookStore.getBookSoldHistory.getBookSoldHistory;
 import com.school.webapp.RegisterTeacher.*;
+import com.school.webapp.WebAppService.Attendance.AttendanceManager;
 import com.school.webapp.WebAppService.Information.EditInformation.DeleteStudent;
 import com.school.webapp.WebAppService.Information.EditInformation.EditImage;
 import com.school.webapp.WebAppService.Information.EditInformation.EditInformation;
@@ -13,7 +14,7 @@ import com.school.webapp.WebAppService.Information.EditInformation.EditInformati
 import com.school.webapp.Repository.*;
 import com.school.webapp.BookStore.SaveBook.BookEntity;
 import com.school.webapp.BookStore.SellBook.SellBook;
-import com.school.webapp.DeleteSchoolFee.DeleteSchoolFee;
+import com.school.webapp.WebAppService.DeleteSchoolFee.DeleteSchoolFee;
 import com.school.webapp.WebAppService.Information.StudentandParent.RetrieveStudentInformation;
 import com.school.webapp.WebAppService.Information.StudentandParent.StudentInformationResponseEntity;
 import com.school.webapp.WebAppService.Registration.Register;
@@ -40,8 +41,10 @@ import com.school.webapp.WebAppService.StudentScore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.ArrayList;;
+import java.util.UUID;
 
 @Service
 public class WebService {
@@ -51,6 +54,10 @@ public class WebService {
 
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+    @Autowired
+    private AttendanceManager attendanceManager;
 
     public RetrieveStudentInformation retrieveStudentInformation;
     @Autowired
@@ -71,7 +78,7 @@ public class WebService {
     ///////////////////////////CREATING SESSION END/////////////////////////////////////////
 
     ////////////////////////////Register Teacher////////////////////////////////////////////
-    public String registerTeacher(RegisterTeacherRequestEntity registerTeacherRequestEntity, String schoolid){
+    public String registerTeacher(RegisterTeacherRequestEntity registerTeacherRequestEntity, String schoolid) throws MyException {
         System.out.println("[WebService]-->[Registering teacher]-->Proceeding to Database");
         return  new RegisterTeacher().Registerteacher(registerTeacherRequestEntity,schoolid);
     }
@@ -284,6 +291,9 @@ public class WebService {
         System.out.println("[WebService]:saving books-->Proceeding to database");
         //This set the schoolid
         book.setSchoolid(schoolid);
+        //This generate an id
+        String id= UUID.randomUUID().toString();
+        book.setId(id);
         BookEntity entity=bookRepository.save(book);
         return entity;
     }
@@ -329,8 +339,22 @@ public class WebService {
     }
 
 
-
 ///////////////////////////////////////////////BOOK SESSION END//////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ////////////////////////////////////////////////////////ATTENDANCE/////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public Object getAttendance(String clas, String session, String term,String daytime,String gender,String schoolid,String week) {
+        ArrayList<Attendance> attendance=attendanceRepository.findAttendance(clas,session,term,daytime,gender,schoolid,week);
+        return attendance;
+    }
+
+    public boolean signAttendance(String studentid,String schoolid,String session,String term) throws MyException {
+        return  attendanceManager.signAttendanceForAStudent(studentid,schoolid,session,term);
+    }
+
+    ////////////////////////////////////////////////ATTENDANCE END/////////////////////////////////////////////////
 
 }

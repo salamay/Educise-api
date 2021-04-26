@@ -2,7 +2,7 @@ package com.school.webapp.WebAppService.Information.StudentandParent;
 
 
 public class StudentInformationResponseEntity {
-    private int id;
+    private String id;
     private String studentname;
     private int age;
     private String fathername;
@@ -24,6 +24,7 @@ public class StudentInformationResponseEntity {
     private byte[] father;
     private byte[] mother;
     private byte[] other;
+    private byte[] qrcode;
     private String clas;
     private String session;
     private String tag;
@@ -31,11 +32,11 @@ public class StudentInformationResponseEntity {
     public StudentInformationResponseEntity() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -229,5 +230,13 @@ public class StudentInformationResponseEntity {
 
     public void setOther(byte[] other) {
         this.other = other;
+    }
+
+    public byte[] getQrcode() {
+        return qrcode;
+    }
+
+    public void setQrcode(byte[] qrcode) {
+        this.qrcode = qrcode;
     }
 }

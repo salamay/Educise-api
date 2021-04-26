@@ -4,7 +4,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 
 public class AuthenticateRequest {
 
-    private String schoolid;
     private String staffid;
     private String password;
 
@@ -12,13 +11,6 @@ public class AuthenticateRequest {
 
     }
 
-    public String getSchoolid() {
-        return schoolid;
-    }
-
-    public void setSchoolid(String schoolid) {
-        this.schoolid = schoolid;
-    }
 
     public String getStaffid() {
         return staffid;

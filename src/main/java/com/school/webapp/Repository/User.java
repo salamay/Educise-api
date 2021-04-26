@@ -13,7 +13,6 @@ public class User {
     private String username;
     private String schoolid;
     private String password;
-    private int Active;
     private int locked_status;
     private String payment_date;
     private String expiry_date;
@@ -46,10 +45,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public int isActive() {
-        return Active;
     }
 
     public String getRole() {

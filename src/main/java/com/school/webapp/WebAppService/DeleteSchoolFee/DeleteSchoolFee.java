@@ -1,4 +1,4 @@
-package com.school.webapp.DeleteSchoolFee;
+package com.school.webapp.WebAppService.DeleteSchoolFee;
 
 import com.school.webapp.JDBC.JDBCConnection;
 import com.school.webapp.WebAppService.MyException;
@@ -33,8 +33,13 @@ public class DeleteSchoolFee {
                     connection.close();
                 }catch (SQLException e){
                     e.printStackTrace();
+                    throw new MyException("An error occured");
                 }
-                throw new MyException("An error occured");
+            }
+            if (!result){
+                return true;
+            }else{
+                return false;
             }
         }else {
             throw new MyException("An error occured, please wait while we fix this issue");

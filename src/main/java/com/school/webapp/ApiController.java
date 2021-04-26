@@ -1,7 +1,6 @@
 package com.school.webapp;
 
 
-
 import com.school.webapp.BookStore.Book;
 import com.school.webapp.RegisterTeacher.TeachernamesResponseEntity;
 import com.school.webapp.WebAppService.MyException;
@@ -38,9 +37,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.*;
+import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 @RestController
@@ -55,41 +58,45 @@ public class ApiController {
     @Autowired
     private JwtUtils jwtUtils;
     @Autowired
-    private  WebService webService;
+    private WebService webService;
 
     @RequestMapping(value = "/hello")
-    public String hello()  {
+    public String hello() {
         return "Rejhd";
     }
 
     ///////////////////////////////////////////////////Authentication Session///////////////////////////////////////////////
     //authenticate
-    @RequestMapping(value = "/authenticate",method = RequestMethod.POST)
+    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> Authenticate(@RequestBody AuthenticateRequest authenticateRequest) throws Exception {
         System.out.println("user Authenticating");
-        String jwt=null;
-        if (authenticateRequest.getStaffid()!=null&& authenticateRequest.getSchoolid()!=null&&authenticateRequest.getPassword()!=null){
+        String jwt = null;
+        if (authenticateRequest.getStaffid() != null && authenticateRequest.getPassword() != null) {
             try {
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticateRequest.getStaffid(),authenticateRequest.getPassword()));
+                //The staffid in authenticateRequest is in this format username,schoolid,it is then split to get the
+                // username and schoolid, the schoolid is used as part of token payload for subsequent request
+                List<String> userdata = Arrays.asList(authenticateRequest.getStaffid().split(","));
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticateRequest.getStaffid(), authenticateRequest.getPassword()));
                 ////Return back a token as a response,
                 ///This serve as an auhourization for the user
-                UserDetails userDetails= myUserDetailsService.loadUserByUsername(authenticateRequest.getStaffid());
-                if (userDetails!=null){
-                    jwt=jwtUtils.generateToken(userDetails,authenticateRequest.getSchoolid());
-                    HttpHeaders headers=new HttpHeaders();
-                    headers.add("Content-Type","application/json; charset=UTF-8");
-                    JwtResponse jwtResponse=new JwtResponse();
+                UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticateRequest.getStaffid());
+                System.out.println(userDetails.getUsername());
+                if (userDetails != null) {
+                    jwt = jwtUtils.generateToken(userDetails, userdata.get(1));
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("Content-Type", "application/json; charset=UTF-8");
+                    JwtResponse jwtResponse = new JwtResponse();
                     jwtResponse.setJwt(jwt);
                     return ResponseEntity.ok().headers(headers).body(jwtResponse);
-                }else{
-                    return  ResponseEntity.notFound().build();
+                } else {
+                    return ResponseEntity.notFound().build();
                 }
-            }catch (BadCredentialsException e){
+            } catch (BadCredentialsException e) {
                 System.out.println("Incorect password [bad Credentials]:");
                 return ResponseEntity.unprocessableEntity().body("Incorect password [bad Credentials]");
             }
 
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
 
@@ -102,39 +109,40 @@ public class ApiController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //////////////////Register Student method////////////////////////////////////////
-    @RequestMapping(value = "register",method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "register", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> RegisterStudent(@RequestBody MultipartFile studentpicture,
                                                   @RequestBody MultipartFile fatherpicture,
                                                   @RequestBody MultipartFile motherpicture,
                                                   @RequestBody MultipartFile otherpicture,
                                                   @RequestBody MultipartFile json,
                                                   @RequestAttribute String schoolid
-                                ) throws SQLException, MyException {
 
-        if (json!=null&& studentpicture!=null && fatherpicture!=null && motherpicture!=null&&schoolid!=null){
-            RegistrationModel registrationModel=new RegistrationModel();
-            System.out.println("[Controller]: Registering student--> "+"Converting json file to bytes");
+    ) throws SQLException, MyException {
+
+        if (json != null && studentpicture != null && fatherpicture != null && motherpicture != null && schoolid != null) {
+            RegistrationModel registrationModel = new RegistrationModel();
+            System.out.println("[Controller]: Registering student--> " + "Converting json file to bytes");
             try {
-                byte [] entity=json.getBytes();
-                System.out.println("[Controller]: Registering student--> "+"Converting bytes to string");
-                String jsonstring=new String(entity,"UTF-8");
-                System.out.println("[Controller]: Registering student--> "+"Converting String to json");
+                byte[] entity = json.getBytes();
+                System.out.println("[Controller]: Registering student--> " + "Converting bytes to string");
+                String jsonstring = new String(entity, "UTF-8");
+                System.out.println("[Controller]: Registering student--> " + "Converting String to json");
 
-                GsonBuilder builder=new GsonBuilder();
+                GsonBuilder builder = new GsonBuilder();
                 builder.setPrettyPrinting();
                 builder.serializeNulls();
-                Gson gson=builder.create();
-                System.out.println("[Controller]: Registering student--> "+"preparing json object file");
-                registrationModel=gson.fromJson(jsonstring,RegistrationModel.class);
-                System.out.println("[Controller]: Registering student--> "+"Finished preparing json object");
+                Gson gson = builder.create();
+                System.out.println("[Controller]: Registering student--> " + "preparing json object file");
+                registrationModel = gson.fromJson(jsonstring, RegistrationModel.class);
+                System.out.println("[Controller]: Registering student--> " + "Finished preparing json object");
             } catch (IOException e) {
-                System.out.println("[Controller]: Registering student--> "+"Unable to convert to byte");
+                System.out.println("[Controller]: Registering student--> " + "Unable to convert to byte");
                 e.printStackTrace();
             }
-            String result=webService.RegisterStudent(registrationModel, studentpicture,fatherpicture,motherpicture,otherpicture,schoolid);
-                System.out.println("[Controller]: Registering student--> "+"result is not equal to null");
-                return ResponseEntity.ok().body(result);
-        }else {
+            String result = webService.RegisterStudent(registrationModel, studentpicture, fatherpicture, motherpicture, otherpicture, schoolid);
+            System.out.println("[Controller]: Registering student--> " + "result is not equal to null");
+            return ResponseEntity.ok().body(result);
+        } else {
             return ResponseEntity.badRequest().body("Invalid parameters");
         }
 
@@ -142,24 +150,24 @@ public class ApiController {
     /////////////////////////Register method End //////////////////////////////////////////////////////
 
     ///Retrieving student information
-    @RequestMapping(value = "retrievestudentinformation/{studentid}",method = RequestMethod.GET)
+    @RequestMapping(value = "retrievestudentinformation/{studentid}", method = RequestMethod.GET)
     public ResponseEntity<?> retrieveStudentInformation(@PathVariable String studentid) throws MyException {
-        if (studentid!=null){
-            System.out.println("[Controller]: Retrieving information for student id"+studentid);
+        if (studentid != null) {
+            System.out.println("[Controller]: Retrieving information for student id" + studentid);
             StudentInformationResponseEntity studentInformationResponseEntity = webService.retrieveStudentinfo(studentid);
-                System.out.println("[Controller]: Student name:"+studentInformationResponseEntity.getStudentname());
-                System.out.println("[Controller]: Retrieving information--> Preparing response");
-                //Converting retrieve data to Json format
-                GsonBuilder builder=new GsonBuilder();
-                builder.setPrettyPrinting();
-                builder.serializeNulls();
-                Gson gson=builder.create();
-                String json=gson.toJson(studentInformationResponseEntity);
-                System.out.println("[Controller]: Retrieving information--> Response sent");
-                HttpHeaders headers=new HttpHeaders();
-                headers.add("Content-Type","application/json;charset=UTF-8");
-                return ResponseEntity.ok().headers(headers).contentLength(json.length()).body(json);
-        }else{
+            System.out.println("[Controller]: Student name:" + studentInformationResponseEntity.getStudentname());
+            System.out.println("[Controller]: Retrieving information--> Preparing response");
+            //Converting retrieve data to Json format
+            GsonBuilder builder = new GsonBuilder();
+            builder.setPrettyPrinting();
+            builder.serializeNulls();
+            Gson gson = builder.create();
+            String json = gson.toJson(studentInformationResponseEntity);
+            System.out.println("[Controller]: Retrieving information--> Response sent");
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json;charset=UTF-8");
+            return ResponseEntity.ok().headers(headers).contentLength(json.length()).body(json);
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -172,16 +180,16 @@ public class ApiController {
     ///////////////////////////////////////////////Edit student info///////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @RequestMapping(value = "editstudentinformation/{newValue}/{id}/{column}",method = RequestMethod.GET)
-    public ResponseEntity<?> editStudentInformation(@PathVariable String newValue,@PathVariable String id,
+    @RequestMapping(value = "editstudentinformation/{newValue}/{id}/{column}", method = RequestMethod.GET)
+    public ResponseEntity<?> editStudentInformation(@PathVariable String newValue, @PathVariable String id,
                                                     @PathVariable String column) throws MyException {
-        System.out.println("[Controller]: EditstudentInformation--> newValue: "+newValue);
-        System.out.println("[Controller]: EditstudentInformation--> student id: "+id);
-        System.out.println("[Controller]: EditstudentInformation--> column: "+column);
-        if (newValue!=null && id!=null &&column!=null){
-            StudentInformationResponseEntity studentInformationResponseEntity=webService.editStudentInformation(newValue,id,column);
+        System.out.println("[Controller]: EditstudentInformation--> newValue: " + newValue);
+        System.out.println("[Controller]: EditstudentInformation--> student id: " + id);
+        System.out.println("[Controller]: EditstudentInformation--> column: " + column);
+        if (newValue != null && id != null && column != null) {
+            StudentInformationResponseEntity studentInformationResponseEntity = webService.editStudentInformation(newValue, id, column);
             return ResponseEntity.ok().body(studentInformationResponseEntity);
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -195,12 +203,12 @@ public class ApiController {
     ///////////////////////////////////////////////Edit information image ///////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //This method edit both the student,father and mother image
-    @RequestMapping(value = "editinformationimage",method = RequestMethod.POST)
+    @RequestMapping(value = "editinformationimage", method = RequestMethod.POST)
     public ResponseEntity<?> editImage(@RequestBody EditInformationImageRequestEntity editInformationImageRequestEntity) throws MyException {
-        if (editInformationImageRequestEntity!=null){
+        if (editInformationImageRequestEntity != null) {
             webService.EditInformationImage(editInformationImageRequestEntity);
             return ResponseEntity.ok().build();
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -210,13 +218,13 @@ public class ApiController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //Delete Student info
-    @RequestMapping(value = "deletestudent/{id}",method = RequestMethod.DELETE)
+    @RequestMapping(value = "deletestudent/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteStudent(@PathVariable String id) throws MyException {
-        System.out.println("[Controller]: Deleting student--> Student id: "+id);
-        if (id!=null){
+        System.out.println("[Controller]: Deleting student--> Student id: " + id);
+        if (id != null) {
             webService.deleteStudent(id);
             return ResponseEntity.ok().build();
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -224,26 +232,25 @@ public class ApiController {
 
     ///Retrieving studentnames
     @RequestMapping(value = "retrivenames/{classselected}/{sessionselected}")
-    public ResponseEntity<?> getNames(@PathVariable String classselected,@PathVariable String sessionselected,@RequestAttribute String schoolid) throws MyException {
-        if (classselected!=null&&sessionselected!=null&&schoolid!=null){
-            System.out.println("[Controller]: Retrieving names--> Class: "+classselected);
-            System.out.println("[Controller]: Retrieving names--> Session: "+sessionselected);
-            System.out.println("[Controller]: Retrieving names--> school id: "+schoolid);
-            ArrayList<RetrieveNameResponse> list=webService.RetrieveName(classselected,sessionselected,schoolid);
-            GsonBuilder builder=new GsonBuilder();
+    public ResponseEntity<?> getNames(@PathVariable String classselected, @PathVariable String sessionselected, @RequestAttribute String schoolid) throws MyException {
+        if (classselected != null && sessionselected != null && schoolid != null) {
+            System.out.println("[Controller]: Retrieving names--> Class: " + classselected);
+            System.out.println("[Controller]: Retrieving names--> Session: " + sessionselected);
+            System.out.println("[Controller]: Retrieving names--> school id: " + schoolid);
+            ArrayList<RetrieveNameResponse> list = webService.RetrieveName(classselected, sessionselected, schoolid);
+            GsonBuilder builder = new GsonBuilder();
             builder.serializeNulls();
-            Gson gson=builder.create();
-            String string=gson.toJson(list);
-            HttpHeaders httpHeaders=new HttpHeaders();
-            httpHeaders.add("Content-Type","text/plain; charset=UTF-8");
+            Gson gson = builder.create();
+            String string = gson.toJson(list);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Content-Type", "text/plain; charset=UTF-8");
             System.out.println("[Retrieving name]: response sent");
             return ResponseEntity.ok().headers(httpHeaders).contentLength(string.length()).body(string);
-        }else {
+        } else {
             return ResponseEntity.badRequest().body("Bad request");
         }
     }
     ///////////Retrieve name End////////////////////
-
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,23 +258,18 @@ public class ApiController {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////  teacher Information session/////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////Register Teacher/////////////////////////////////////////////
-    @RequestMapping(value = "registerteacher",method = RequestMethod.POST)
-    public ResponseEntity<?> registerTeacher(@RequestBody RegisterTeacherRequestEntity registerTeacherRequestEntity,@RequestAttribute String schoolid){
-        if (registerTeacherRequestEntity!=null&&schoolid!=null){
-            String result=webService.registerTeacher(registerTeacherRequestEntity,schoolid);
-            System.out.println("controller[RegisterTeacher]: "+result);
+    @RequestMapping(value = "registerteacher", method = RequestMethod.POST)
+    public ResponseEntity<?> registerTeacher(@RequestBody RegisterTeacherRequestEntity registerTeacherRequestEntity, @RequestAttribute String schoolid) throws MyException {
+        if (registerTeacherRequestEntity != null && schoolid != null) {
+            String result = webService.registerTeacher(registerTeacherRequestEntity, schoolid);
+            System.out.println("controller[RegisterTeacher]: " + result);
             return ResponseEntity.ok().body(new RegisterTeacherResponse(result));
-        }else {
+        } else {
             return ResponseEntity.badRequest().body("Bad request");
         }
     }
@@ -275,43 +277,42 @@ public class ApiController {
 
 
     ////Retrieve teacher information method
-    @RequestMapping(value = "retrieveteacherinformation/{teacherid}",method = RequestMethod.GET)
-    public ResponseEntity<?> retrieveTeacherInformation(@RequestAttribute String schoolid,@PathVariable String teacherid) throws MyException {
+    @RequestMapping(value = "retrieveteacherinformation/{teacherid}", method = RequestMethod.GET)
+    public ResponseEntity<?> retrieveTeacherInformation(@RequestAttribute String schoolid, @PathVariable String teacherid) throws MyException {
         //RegisterTeacherRequestEntityClass is used to fetch teacher information from database because it corresponds to the database structure
-        if (schoolid!=null&&teacherid!=null){
-            RegisterTeacherRequestEntity retrievedTeacherInformation=webService.retrieveTeacherInformation(schoolid,teacherid);
-            if (retrievedTeacherInformation!=null){
+        if (schoolid != null && teacherid != null) {
+            RegisterTeacherRequestEntity retrievedTeacherInformation = webService.retrieveTeacherInformation(schoolid, teacherid);
+            if (retrievedTeacherInformation != null) {
                 System.out.println("[Controller]-->[Retrieving teacher Information] Returning response");
-                HttpHeaders headers=new HttpHeaders();
-                headers.add("Content-Type","application/json; charset=UTF-8");
-                GsonBuilder builder=new GsonBuilder();
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Content-Type", "application/json; charset=UTF-8");
+                GsonBuilder builder = new GsonBuilder();
                 builder.serializeNulls();
                 builder.setPrettyPrinting();
-                Gson gson=builder.create();
-                String responseData=gson.toJson(retrievedTeacherInformation);
-                System.out.println(responseData);
-                System.out.println("[Controller]-->[Retrieving teacher Information] --> Teacher id: "+teacherid);
+                Gson gson = builder.create();
+                String responseData = gson.toJson(retrievedTeacherInformation);
+                System.out.println("[Controller]-->[Retrieving teacher Information] --> Teacher id: " + teacherid);
                 return ResponseEntity.ok().headers(headers).body(responseData);
-            }else {
+            } else {
                 return ResponseEntity.unprocessableEntity().body("No information");
             }
-        }else {
+        } else {
             return ResponseEntity.badRequest().body("Bad request");
         }
     }
     ////Retrieve teacher information method end
 
 
-    @RequestMapping(value = "retrieveTeacherNames",method = RequestMethod.GET)
+    @RequestMapping(value = "retrieveTeacherNames", method = RequestMethod.GET)
     public ResponseEntity<?> getTeachersName(@RequestAttribute String schoolid) throws MyException {
-        if (schoolid!=null){
-            ArrayList<TeachernamesResponseEntity> teachernamesResponseEntities=webService.getTeachersName(schoolid);
-            if (!teachernamesResponseEntities.isEmpty()){
+        if (schoolid != null) {
+            ArrayList<TeachernamesResponseEntity> teachernamesResponseEntities = webService.getTeachersName(schoolid);
+            if (!teachernamesResponseEntities.isEmpty()) {
                 return ResponseEntity.ok(teachernamesResponseEntities);
-            }else {
+            } else {
                 return ResponseEntity.unprocessableEntity().body("Teacher name is empty");
             }
-        }else {
+        } else {
             return ResponseEntity.badRequest().body("Bad request");
         }
     }
@@ -321,19 +322,19 @@ public class ApiController {
 
 
     ///////////////////////////////////////////Create Session////////////////////////////////////////
-    @RequestMapping(value = "createsession",method = RequestMethod.POST)
-    public ResponseEntity<SessionResponseEntity> createSession(@RequestBody SessionRequestEntity sessionRequestEntity){
-       if (sessionRequestEntity!=null){
-           String result= webService.CreateSession(sessionRequestEntity);
-           if (result!=null){
-               System.out.println("[Controller]"+result);
-               return ResponseEntity.ok(new SessionResponseEntity(result));
-           }else {
-               return ResponseEntity.unprocessableEntity().build();
-           }
-       }else {
-           return ResponseEntity.badRequest().build();
-       }
+    @RequestMapping(value = "createsession", method = RequestMethod.POST)
+    public ResponseEntity<SessionResponseEntity> createSession(@RequestBody SessionRequestEntity sessionRequestEntity) {
+        if (sessionRequestEntity != null) {
+            String result = webService.CreateSession(sessionRequestEntity);
+            if (result != null) {
+                System.out.println("[Controller]" + result);
+                return ResponseEntity.ok(new SessionResponseEntity(result));
+            } else {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
     //////////////////////////Create session end///////////////////////////////////////////////////
 
@@ -341,10 +342,6 @@ public class ApiController {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////// Creating session end//////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,36 +354,36 @@ public class ApiController {
     /////The requestbody takes in name of the student and retrieve all the CA from
     ///the table which is also present in the request body////////////////////////
     /////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "getstudentscores",method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getStudentScores(@RequestBody MultipartFile jsonbody,@RequestAttribute String schoolid) throws MyException {
-        if (jsonbody!=null&&schoolid!=null){
-            getStudentScoreRequestEntity getStudentScoreRequestEntity=new getStudentScoreRequestEntity();
+    @RequestMapping(value = "getstudentscores", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getStudentScores(@RequestBody MultipartFile jsonbody, @RequestAttribute String schoolid) throws MyException {
+        if (jsonbody != null && schoolid != null) {
+            getStudentScoreRequestEntity getStudentScoreRequestEntity = new getStudentScoreRequestEntity();
             try {
                 System.out.println("[Controller]-->Converting bytes to Json Object]");
-                byte [] bytes = jsonbody.getBytes();
-                String raw=new String(bytes,"UTF-8");
-                GsonBuilder convert=new GsonBuilder();
+                byte[] bytes = jsonbody.getBytes();
+                String raw = new String(bytes, "UTF-8");
+                GsonBuilder convert = new GsonBuilder();
                 convert.setPrettyPrinting();
                 convert.serializeNulls();
-                Gson gson=convert.create();
-                getStudentScoreRequestEntity=gson.fromJson(raw,getStudentScoreRequestEntity.class);
+                Gson gson = convert.create();
+                getStudentScoreRequestEntity = gson.fromJson(raw, getStudentScoreRequestEntity.class);
             } catch (IOException e) {
                 e.printStackTrace();
                 return ResponseEntity.unprocessableEntity().body("Unprocessable Entity");
             }
             System.out.println("[Controller-->Getting Student scores]");
-            ArrayList<Scores> scores=webService.getScores(getStudentScoreRequestEntity,schoolid);
-                System.out.println("[Controller-->Getting Student scores]-->Response is ok");
-                GsonBuilder builder=new GsonBuilder();
-                builder.setPrettyPrinting();
-                builder.serializeNulls();
-                Gson gson=builder.create();
-                String json=gson.toJson(scores);
-                HttpHeaders headers=new HttpHeaders();
-                headers.add("Content-Type","application/json; charset=UTF-8");
-                System.out.println("[Controller-->Getting Student scores]--> Response sent");
-                return ResponseEntity.ok().headers(headers).body(json);
-        }else {
+            ArrayList<Scores> scores = webService.getScores(getStudentScoreRequestEntity, schoolid);
+            System.out.println("[Controller-->Getting Student scores]-->Response is ok");
+            GsonBuilder builder = new GsonBuilder();
+            builder.setPrettyPrinting();
+            builder.serializeNulls();
+            Gson gson = builder.create();
+            String json = gson.toJson(scores);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json; charset=UTF-8");
+            System.out.println("[Controller-->Getting Student scores]--> Response sent");
+            return ResponseEntity.ok().headers(headers).body(json);
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -397,75 +394,75 @@ public class ApiController {
     ////////////////////////////update Student Score/////////////////////////
     //////////////////////This method update student score///////////////////
     /////////////////////////////////////////////////////////////////////////
-     @RequestMapping(value = "updatescore",method = RequestMethod.POST)
+    @RequestMapping(value = "updatescore", method = RequestMethod.POST)
     public ResponseEntity<?> updateScore(@RequestBody MultipartFile file) throws MyException {
-         if (file!=null){
-             UpdateScoreRequestEntity updateScoreRequestEntity=new UpdateScoreRequestEntity();
-             System.out.println("[Controller-->Updating score]--> Coverting json request");
-             try {
-                 byte[] bytes=file.getBytes();
-                 String raw=new String(bytes,"UTF-8");
-                 GsonBuilder builder=new GsonBuilder();
-                 builder.setPrettyPrinting();
-                 builder.serializeNulls();
-                 Gson gson=builder.create();
-                 updateScoreRequestEntity=gson.fromJson(raw,UpdateScoreRequestEntity.class);
-                 System.out.println("[Controller-->Updating score]--> "+updateScoreRequestEntity.getId());
-                 Scores scores=webService.UpdateScore(updateScoreRequestEntity);
-                 HttpHeaders headers=new HttpHeaders();
-                 headers.add("Content-Type","application/json; charset=UTF-8");
-                 return ResponseEntity.ok().headers(headers).body(scores);
-             } catch (IOException e) {
-                 e.printStackTrace();
-                 return  ResponseEntity.badRequest().build();
-             }
-         }else{
-             return  ResponseEntity.badRequest().build();
-         }
-     }
-     /////////////////////////////END///////////////////////////////////////////
+        if (file != null) {
+            UpdateScoreRequestEntity updateScoreRequestEntity = new UpdateScoreRequestEntity();
+            System.out.println("[Controller-->Updating score]--> Coverting json request");
+            try {
+                byte[] bytes = file.getBytes();
+                String raw = new String(bytes, "UTF-8");
+                GsonBuilder builder = new GsonBuilder();
+                builder.setPrettyPrinting();
+                builder.serializeNulls();
+                Gson gson = builder.create();
+                updateScoreRequestEntity = gson.fromJson(raw, UpdateScoreRequestEntity.class);
+                System.out.println("[Controller-->Updating score]--> " + updateScoreRequestEntity.getId());
+                Scores scores = webService.UpdateScore(updateScoreRequestEntity);
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Content-Type", "application/json; charset=UTF-8");
+                return ResponseEntity.ok().headers(headers).body(scores);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    /////////////////////////////END///////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
 
-     //////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////update subject/////////////////////////////////////
     //this consumes a Json which contain the name of the student map a subject t,
     /// table (a table in a Database) and the subject///////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "updatesubject",method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "updatesubject", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> insertSubject(@RequestBody MultipartFile json) throws MyException {
-        if (json!=null){
-            UpdateSubjectRequestEntity updateSubjectRequestEntity =new UpdateSubjectRequestEntity();
+        if (json != null) {
+            UpdateSubjectRequestEntity updateSubjectRequestEntity = new UpdateSubjectRequestEntity();
             try {
                 System.out.println("[Controller]:-->Converting request to bytes");
-                byte[] bytes=json.getBytes();
-                String raw=new String(bytes,"UTF-8");
+                byte[] bytes = json.getBytes();
+                String raw = new String(bytes, "UTF-8");
                 System.out.println("[Controller]:-->Converting bytes to json Object");
-                GsonBuilder builder=new GsonBuilder();
+                GsonBuilder builder = new GsonBuilder();
                 builder.serializeNulls();
                 builder.setPrettyPrinting();
-                Gson gson=builder.create();
-                updateSubjectRequestEntity =gson.fromJson(raw, UpdateSubjectRequestEntity.class);
-                Scores scores=webService.updateSubject(updateSubjectRequestEntity);
+                Gson gson = builder.create();
+                updateSubjectRequestEntity = gson.fromJson(raw, UpdateSubjectRequestEntity.class);
+                Scores scores = webService.updateSubject(updateSubjectRequestEntity);
                 return ResponseEntity.ok().body(scores);
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new MyException("An error occur");
             }
-        }else {
-            return  ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.badRequest().build();
         }
     }
     /////////////////////////////Update SUBJECT END/////////////////////////////////////////////////
 
     /////////////////////////////////////Insert Subject////////////////////////////////////////////
-    @RequestMapping(value = "insertsubject/{subject}/{session}/{studentname}/{term}",method = RequestMethod.GET)
-    public ResponseEntity<?> insertSubject(@PathVariable String subject,@PathVariable String session,@PathVariable  String studentname,@PathVariable String term,@RequestAttribute String schoolid) throws MyException {
-        if(subject!=null&&session!=null&&studentname!=null&&term!=null &&schoolid!=null){
+    @RequestMapping(value = "insertsubject/{subject}/{session}/{studentname}/{term}", method = RequestMethod.GET)
+    public ResponseEntity<?> insertSubject(@PathVariable String subject, @PathVariable String session, @PathVariable String studentname, @PathVariable String term, @RequestAttribute String schoolid) throws MyException {
+        if (subject != null && session != null && studentname != null && term != null && schoolid != null) {
             System.out.println("[Controller]-->Inserting subject");
-            Scores scores=webService.insertSubject(subject,session,studentname,term,schoolid);
+            Scores scores = webService.insertSubject(subject, session, studentname, term, schoolid);
             return ResponseEntity.ok().body(scores);
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -475,12 +472,12 @@ public class ApiController {
     /////////////////////////////////////Delete SUbject//////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     @RequestMapping(value = "deletesubject/{id}")
-    public ResponseEntity<?>deleteSubject(@PathVariable String id) throws MyException {
-        System.out.println("[Controller]-->Deleting Subject: id:"+id);
-        if (id!=null){
-           webService.deleteSubject(id);
-           return ResponseEntity.ok().build();
-        }else {
+    public ResponseEntity<?> deleteSubject(@PathVariable String id) throws MyException {
+        System.out.println("[Controller]-->Deleting Subject: id:" + id);
+        if (id != null) {
+            webService.deleteSubject(id);
+            return ResponseEntity.ok().build();
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -493,31 +490,26 @@ public class ApiController {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////Score session end//////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
     //////////////////////////////////////////////////////////////////////////////////
     ///////Retrieve information sessions.this method returns a string of sessions////
     //this method return string in json format////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "retrieveclasses",method = RequestMethod.GET)
+    @RequestMapping(value = "retrieveclasses", method = RequestMethod.GET)
     public ResponseEntity<?> retrieveClassess(@RequestAttribute String schoolid) throws MyException {
-        ArrayList<String> list=webService.retrieveClasses(schoolid);
-        String string=list.toString();
-            HttpHeaders headers=new HttpHeaders();
-            headers.add("Content-Type","text/plain; charset=UTF-8");
-            System.out.println("[Controller]: class sent");
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .contentLength(string.length())
-                    .body(string);
+        ArrayList<String> list = webService.retrieveClasses(schoolid);
+        String string = list.toString();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "text/plain; charset=UTF-8");
+        System.out.println("[Controller]: class sent");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(string.length())
+                .body(string);
     }
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
@@ -529,17 +521,17 @@ public class ApiController {
     /////////////////////////////////////////////////////////////////////////
     //////////////////This Method retrieve Score Session /////////////////////
     //////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "retrievesession",method = RequestMethod.GET)
+    @RequestMapping(value = "retrievesession", method = RequestMethod.GET)
     public ResponseEntity<?> retrieveSession() throws MyException {
-        Object list=webService.retrieveSession();
-        String string=list.toString();
-            HttpHeaders headers=new HttpHeaders();
-            headers.add("Content-Type","text/plain; charset=UTF-8");
-            System.out.println("[Controller]: Session sent");
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .contentLength(string.length())
-                    .body(string);
+        Object list = webService.retrieveSession();
+        String string = list.toString();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "text/plain; charset=UTF-8");
+        System.out.println("[Controller]: Session sent");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(string.length())
+                .body(string);
     }
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
@@ -549,12 +541,6 @@ public class ApiController {
     ///////////////////////////////////////////////////////
 
 
-
-
-
-
-
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////Parent information session start////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -562,58 +548,54 @@ public class ApiController {
     /////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////This method get the names of the parent  ///////////////////
     ///////////it takes in the session and fetch the names from it from the database/////
-     @RequestMapping(value = "retrieveparent/{session}",method = RequestMethod.GET)
-    public ResponseEntity<?> getParentNames(@PathVariable String session){
-         ArrayList<RetrieveParentNameResponse> list=webService.retrieveParentname(session);
-         if (list==null&&list.isEmpty()){
-             return ResponseEntity.notFound().build();
-         }else {
-             GsonBuilder builder=new GsonBuilder();
-             builder.serializeNulls();
-             Gson gson=builder.create();
-             String json=gson.toJson(list);
-             HttpHeaders httpHeaders=new HttpHeaders();
-             httpHeaders.add("Content-Type","text/plain; charset=UTF-8");
-             System.out.println("[Controller]-->Retrieving parent names:"+json);
-             System.out.println("[Controller]-->Retrieving parent names: response sent");
-             return ResponseEntity.ok().headers(httpHeaders).contentLength(json.length()).body(json);
-         }
+    @RequestMapping(value = "retrieveparent/{session}", method = RequestMethod.GET)
+    public ResponseEntity<?> getParentNames(@PathVariable String session) {
+        ArrayList<RetrieveParentNameResponse> list = webService.retrieveParentname(session);
+        if (list == null && list.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            GsonBuilder builder = new GsonBuilder();
+            builder.serializeNulls();
+            Gson gson = builder.create();
+            String json = gson.toJson(list);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Content-Type", "text/plain; charset=UTF-8");
+            System.out.println("[Controller]-->Retrieving parent names:" + json);
+            System.out.println("[Controller]-->Retrieving parent names: response sent");
+            return ResponseEntity.ok().headers(httpHeaders).contentLength(json.length()).body(json);
+        }
 
-     }
-     /////////////////////////////////END/////////////////////////////////////////////////
+    }
+    /////////////////////////////////END/////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
-
-
 
 
     ////////////////////////////////parent Information//////////////////////////////////
     ////////This method retrieve the Parent Information////////////////////////////////
     //this take in the session and the parent name,it fetch the information from session where ParentName=parentname
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "getparentinformation/{session}/{parentname}",method = RequestMethod.GET)
-    public ResponseEntity<?> getParentInformation(@PathVariable String session,@PathVariable String parentname){
-        if (session!=null&&parentname!=null){
-            RetrieveParentInformationResponseEntity retrieveParentInformationResponseEntity=webService.getParentInfo(session,parentname);
-            HttpHeaders headers=new HttpHeaders();
-            if (retrieveParentInformationResponseEntity!=null){
+    @RequestMapping(value = "getparentinformation/{session}/{parentname}", method = RequestMethod.GET)
+    public ResponseEntity<?> getParentInformation(@PathVariable String session, @PathVariable String parentname) {
+        if (session != null && parentname != null) {
+            RetrieveParentInformationResponseEntity retrieveParentInformationResponseEntity = webService.getParentInfo(session, parentname);
+            HttpHeaders headers = new HttpHeaders();
+            if (retrieveParentInformationResponseEntity != null) {
                 System.out.println("[Controller]-->Sending Response");
-                headers.add("Content-Type","application/json; charset=UTF-8");
-                GsonBuilder builder=new GsonBuilder();
+                headers.add("Content-Type", "application/json; charset=UTF-8");
+                GsonBuilder builder = new GsonBuilder();
                 builder.setPrettyPrinting();
                 builder.serializeNulls();
-                Gson gson=builder.create();
-                String response=gson.toJson(retrieveParentInformationResponseEntity);
+                Gson gson = builder.create();
+                String response = gson.toJson(retrieveParentInformationResponseEntity);
                 return ResponseEntity.ok(response);
-            }else {
+            } else {
                 return ResponseEntity.notFound().headers(headers).build();
             }
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
     /////////////////////End/////////////////////////////////////
-
-
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -626,19 +608,18 @@ public class ApiController {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting school fee/////////////////////////////////////////////////////////
-    @RequestMapping(value = "getschoolfee/{clas}/{term}/{year}/{tag}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getSchoolFee(@RequestAttribute String schoolid,@PathVariable String clas,@PathVariable String term,@PathVariable String year,@PathVariable String tag) throws MyException {
-        System.out.println("[Controller]:getting School fee-->\r\n class: "+clas+"\r\n term: "+term+"\r\n year: "+year+"\r\n tag: "+tag);
-        if (clas!=null&&term!=null&&year!=null&&tag!=null&&schoolid!=null){
-            ArrayList<getSchoolFeeResponseEntity> schoolFees=webService.getSchoolFees(clas,term,year,tag,schoolid);
-            HttpHeaders headers=new HttpHeaders();
-            headers.add("Content-Type","application/json; charset=UTF-8");
+    @RequestMapping(value = "getschoolfee/{clas}/{term}/{year}/{tag}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSchoolFee(@RequestAttribute String schoolid, @PathVariable String clas, @PathVariable String term, @PathVariable String year, @PathVariable String tag) throws MyException {
+        System.out.println("[Controller]:getting School fee-->\r\n class: " + clas + "\r\n term: " + term + "\r\n year: " + year + "\r\n tag: " + tag);
+        if (clas != null && term != null && year != null && tag != null && schoolid != null) {
+            ArrayList<getSchoolFeeResponseEntity> schoolFees = webService.getSchoolFees(clas, term, year, tag, schoolid);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json; charset=UTF-8");
             System.out.println("[Controller]:getting School fee-->Response sent");
             return ResponseEntity.ok().headers(headers).body(schoolFees);
-        }else {
+        } else {
             System.out.println("[Controller]:getting School fee-->Could not get School fees");
             return ResponseEntity.badRequest().build();
         }
@@ -647,22 +628,22 @@ public class ApiController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting school fee without term/////////////////////////////////////////////////////////
-    @RequestMapping(value = "getschoolfeewithoutterm/{clas}/{session}/{tag}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getSchoolFeeWithoutTerm(@PathVariable String clas,@PathVariable String session,@PathVariable String tag,@RequestAttribute String schoolid) throws MyException {
-        System.out.println("[Controller]:getting School fee without term-->\r\n class: "+clas+"\r\n session: "+session+"\r\n tag: "+tag);
-        if (clas!=null&&session!=null&&tag!=null&&schoolid!=null){
-            ArrayList<getSchoolFeeResponseEntity> schoolFees=webService.getSchoolFeesWithoutTerm(clas,session,tag,schoolid);
+    @RequestMapping(value = "getschoolfeewithoutterm/{clas}/{session}/{tag}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSchoolFeeWithoutTerm(@PathVariable String clas, @PathVariable String session, @PathVariable String tag, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("[Controller]:getting School fee without term-->\r\n class: " + clas + "\r\n session: " + session + "\r\n tag: " + tag);
+        if (clas != null && session != null && tag != null && schoolid != null) {
+            ArrayList<getSchoolFeeResponseEntity> schoolFees = webService.getSchoolFeesWithoutTerm(clas, session, tag, schoolid);
             System.out.println(schoolFees.toString());
-            if (schoolFees!=null&&!schoolFees.isEmpty()){
-                HttpHeaders headers=new HttpHeaders();
-                headers.add("Content-Type","application/json; charset=UTF-8");
+            if (schoolFees != null && !schoolFees.isEmpty()) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Content-Type", "application/json; charset=UTF-8");
                 System.out.println("[Controller]:getting School fee without term -->Response sent");
                 return ResponseEntity.ok().headers(headers).body(schoolFees);
-            }else {
+            } else {
                 System.out.println("[Controller]:getting School fee without term--->Could not get School fees:Result is null");
                 return ResponseEntity.notFound().build();
             }
-        }else {
+        } else {
             System.out.println("[Controller]:getting School fee without term--->Could not get School fees");
             return ResponseEntity.badRequest().build();
         }
@@ -674,14 +655,14 @@ public class ApiController {
     ////////////////////////////////////saving term school fee/////////////////////////////////////////////////////////
     ///////This method add the term into the school fee table when the student paid
 
-    @RequestMapping (value = "saveterm/{term}/{studentid}",method = RequestMethod.GET)
-    public ResponseEntity<?> saveTerm(@PathVariable String studentid,@PathVariable String term,@RequestAttribute String schoolid) throws MyException {
-        System.out.println("[Controller]:Saving term-->\r\n term: "+term+"\r\n studentid: "+studentid);
-        if (studentid!=null &&schoolid!=null&&term!=null){
-            getSchoolFeeResponseEntity result=webService.saveterm(studentid,term,schoolid);
-            System.out.println("[Controller]: Result:"+result);
+    @RequestMapping(value = "saveterm/{term}/{studentid}", method = RequestMethod.GET)
+    public ResponseEntity<?> saveTerm(@PathVariable String studentid, @PathVariable String term, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("[Controller]:Saving term-->\r\n term: " + term + "\r\n studentid: " + studentid);
+        if (studentid != null && schoolid != null && term != null) {
+            getSchoolFeeResponseEntity result = webService.saveterm(studentid, term, schoolid);
+            System.out.println("[Controller]: Result:" + result);
             return ResponseEntity.ok().body(result);
-        }else {
+        } else {
             System.out.println("[Controller]: Bad request returning response");
             return ResponseEntity.badRequest().build();
         }
@@ -694,18 +675,18 @@ public class ApiController {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //This method save student name to school fee table
-    @RequestMapping(value = "savestudentnametoschoolfee",method = RequestMethod.POST)
-    public ResponseEntity<?> saveStudentToSchoolFee(@RequestBody SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity,@RequestAttribute String schoolid) throws MyException {
-        if (saveSchoolFeeRequestEntity!=null&&schoolid!=null){
-            System.out.println("[Contoller]: Student name:"+saveSchoolFeeRequestEntity.getStudentname());
-            System.out.println("[Contoller]: class:"+saveSchoolFeeRequestEntity.getClas());
-            System.out.println("[Contoller]: session:"+saveSchoolFeeRequestEntity.getYear());
-            System.out.println("[Contoller]: tag:"+saveSchoolFeeRequestEntity.getTag());
-            System.out.println("[Contoller]: term:"+saveSchoolFeeRequestEntity.getTerm());
+    @RequestMapping(value = "savestudentnametoschoolfee", method = RequestMethod.POST)
+    public ResponseEntity<?> saveStudentToSchoolFee(@RequestBody SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity, @RequestAttribute String schoolid) throws MyException {
+        if (saveSchoolFeeRequestEntity != null && schoolid != null) {
+            System.out.println("[Contoller]: Student name:" + saveSchoolFeeRequestEntity.getStudentname());
+            System.out.println("[Contoller]: class:" + saveSchoolFeeRequestEntity.getClas());
+            System.out.println("[Contoller]: session:" + saveSchoolFeeRequestEntity.getYear());
+            System.out.println("[Contoller]: tag:" + saveSchoolFeeRequestEntity.getTag());
+            System.out.println("[Contoller]: term:" + saveSchoolFeeRequestEntity.getTerm());
             System.out.println("[Contoller]:  Proceeding to web service");
-            getSchoolFeeResponseEntity result=webService.saveSchoolFee(saveSchoolFeeRequestEntity,schoolid);
+            getSchoolFeeResponseEntity result = webService.saveSchoolFee(saveSchoolFeeRequestEntity, schoolid);
             return ResponseEntity.ok().body(result);
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
 
@@ -714,19 +695,18 @@ public class ApiController {
     ////////////////////////////////////Save Student name to school fee end////////////////////////////////
 
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////saving data to school fee table/////////////////////////////////////////////////////////
     ///////This method save data to schoolfee table with respect to the student name
 
-    @RequestMapping (value = "savedatatoschoolfeetable/{studentid}/{column}/{entity}",method = RequestMethod.GET)
-    public ResponseEntity<?> saveDataToSchoolFeeTable(@PathVariable String studentid,@PathVariable String column,@PathVariable String entity,@RequestAttribute String schoolid) throws MyException {
-        System.out.println("[Controller]:Saving data to schoolfee table-->\r\n student id: "+studentid+"\r\n column: "+column+"\r\n entity: "+entity);
-        if (studentid!=null &&column!=null&&entity!=null&&schoolid!=null){
-            getSchoolFeeResponseEntity result=webService.saveDataToSchoolFeeTable(studentid,column,entity,schoolid);
-            System.out.println("[Controller]: Result:"+result);
+    @RequestMapping(value = "savedatatoschoolfeetable/{studentid}/{column}/{entity}", method = RequestMethod.GET)
+    public ResponseEntity<?> saveDataToSchoolFeeTable(@PathVariable String studentid, @PathVariable String column, @PathVariable String entity, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("[Controller]:Saving data to schoolfee table-->\r\n student id: " + studentid + "\r\n column: " + column + "\r\n entity: " + entity);
+        if (studentid != null && column != null && entity != null && schoolid != null) {
+            getSchoolFeeResponseEntity result = webService.saveDataToSchoolFeeTable(studentid, column, entity, schoolid);
+            System.out.println("[Controller]: Result:" + result);
             return ResponseEntity.ok(result);
-        }else {
+        } else {
             System.out.println("[Controller]: Bad request returning response");
             return ResponseEntity.badRequest().build();
         }
@@ -734,38 +714,37 @@ public class ApiController {
 ///////////////////////////////////////SAVING TERM END/////////////////////////////////////////////////////
 
 
-@RequestMapping(value = "deleteschoolfee/{id}",method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteSchoolFee(@PathVariable String id,@RequestAttribute String schoolid) throws MyException {
-    System.out.println("[Controller]:Saving data to schoolfee table-->\r\n id: "+id+"\r\n schoolid:"+schoolid);
-    if (id!=null&&schoolid!=null){
-        webService.deleteSchoolFee(id,schoolid);
-        System.out.println("[Controller]: Result is OK");
-        return ResponseEntity.ok().build();
-    }else {
-        return ResponseEntity.badRequest().body(" Bad request");
+    @RequestMapping(value = "deleteschoolfee/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteSchoolFee(@PathVariable String id, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("[Controller]:Saving data to schoolfee table-->\r\n id: " + id + "\r\n schoolid:" + schoolid);
+        if (id != null && schoolid != null) {
+            webService.deleteSchoolFee(id, schoolid);
+            System.out.println("[Controller]: Result is OK");
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().body(" Bad request");
+        }
     }
-}
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting debtors/////////////////////////////////////////////////////////
-    @RequestMapping(value = "getdebtors/{clas}/{term}/{year}/{minimumfee}/{tag}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getDebtors(@PathVariable String clas,@PathVariable String term,@PathVariable String year,@PathVariable int minimumfee,@PathVariable String tag,@RequestAttribute String schoolid) throws MyException {
-        System.out.println("[Controller]:getting debtors-->\r\n class: "+clas+"\r\n session: "+year+"\r\n term: "+term+"\r\n minimum: "+minimumfee+"\r\n tag:"+tag);
-        if (clas!=null&& term!=null &&year!=null&&minimumfee!=0&&tag!=null&&schoolid!=null){
+    @RequestMapping(value = "getdebtors/{clas}/{term}/{year}/{minimumfee}/{tag}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDebtors(@PathVariable String clas, @PathVariable String term, @PathVariable String year, @PathVariable int minimumfee, @PathVariable String tag, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("[Controller]:getting debtors-->\r\n class: " + clas + "\r\n session: " + year + "\r\n term: " + term + "\r\n minimum: " + minimumfee + "\r\n tag:" + tag);
+        if (clas != null && term != null && year != null && minimumfee != 0 && tag != null && schoolid != null) {
             //This also return list of getSchoolfeeResponseEntity because we are getting the same data as getting school fee
-            ArrayList<getSchoolFeeResponseEntity> debtors=webService.getDebtors(clas,term,year,minimumfee,tag,schoolid);
+            ArrayList<getSchoolFeeResponseEntity> debtors = webService.getDebtors(clas, term, year, minimumfee, tag, schoolid);
             System.out.println("[Controller]:getting Debtors-->Preparing response in json format");
-            GsonBuilder builder=new GsonBuilder();
+            GsonBuilder builder = new GsonBuilder();
             builder.serializeNulls();
             builder.setPrettyPrinting();
-            Gson gson=builder.create();
-            String json=gson.toJson(debtors);
-            System.out.println("[Controller]:getting Debtors --> "+json);
-            HttpHeaders headers=new HttpHeaders();
-            headers.add("Content-Type","application/json; charset=UTF-8");
+            Gson gson = builder.create();
+            String json = gson.toJson(debtors);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json; charset=UTF-8");
             return ResponseEntity.ok().headers(headers).body(json);
-        }else {
+        } else {
             System.out.println("[Controller]:getting School fee-->Could not get debtors");
             return ResponseEntity.badRequest().build();
         }
@@ -775,102 +754,103 @@ public class ApiController {
     ///////////////////////////////////////Getting debtors END/////////////////////////////////////////////////////
 
 
-
     ////////////////////////////////////////////////SCHOOL FEE SESSION END////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////BOOK SESSION/////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @RequestMapping(value = "savebook",method = RequestMethod.POST)
-    public ResponseEntity<?> saveBooktoStore(@RequestBody BookEntity book,@RequestAttribute String schoolid){
-        if (book!=null){
-            BookEntity result=webService.saveBook(book,schoolid);
-            if (result!=null){
+    @RequestMapping(value = "savebook", method = RequestMethod.POST)
+    public ResponseEntity<?> saveBooktoStore(@RequestBody BookEntity book, @RequestAttribute String schoolid) {
+        if (book != null) {
+            BookEntity result = webService.saveBook(book, schoolid);
+            if (result != null) {
                 System.out.println("[Controller]:Saving book-->Saving book");
                 return ResponseEntity.ok().body(result);
-            }else {
+            } else {
                 return ResponseEntity.notFound().build();
             }
-        }else {
+        } else {
             System.out.println("[Controller]:Saving book-->Saving book-->Result is false");
             return ResponseEntity.badRequest().build();
         }
     }
+
     //Delete book
-    @RequestMapping(value = "deletebook/{id}",method = RequestMethod.DELETE)
+    @RequestMapping(value = "deletebook/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteBook(@PathVariable int id) throws MyException {
-        if (id!=0){
+        if (id != 0) {
             webService.deleteBook(id);
             return ResponseEntity.ok().build();
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
+
     //Find all book
-    @RequestMapping(value = "findallbook",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findAllBook(@RequestAttribute String schoolid){
-        final ArrayList<BookEntity> allBooks=webService.findAllBooks(schoolid);
-        if (allBooks!=null&&!allBooks.isEmpty()){
+    @RequestMapping(value = "findallbook", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findAllBook(@RequestAttribute String schoolid) {
+        final ArrayList<BookEntity> allBooks = webService.findAllBooks(schoolid);
+        if (allBooks != null && !allBooks.isEmpty()) {
             return ResponseEntity.ok().body(allBooks);
-        }else {
+        } else {
             System.out.println("[Controller]:Getting all books-->Result is false");
             return ResponseEntity.unprocessableEntity().body("Books are empty");
         }
     }
+
     //Search Book
-    @RequestMapping(value = "searchbook/{bookname}/{session}/{term}",method = RequestMethod.GET)
-    public ResponseEntity<?> searchBook(@PathVariable String bookname,@PathVariable String session,@PathVariable String term,@RequestAttribute String schoolid){
-        System.out.println("[Controller]:getting debtors-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term);
-        if (!bookname.isEmpty()&&!session.isEmpty()&&!term.isEmpty()){
-            ArrayList<BookEntity> resultbooks=webService.searchBook(bookname,session,term,schoolid);
-          if (resultbooks!=null&&!resultbooks.isEmpty()){
-              System.out.println("[Controller]:Searching books-->result= "+resultbooks.toString());
-              return ResponseEntity.ok().body(resultbooks);
-          }else {
-              System.out.println("[Controller]:Searching books-->Result is false");
-              return ResponseEntity.notFound().build();
-          }
-      }else {
-          return ResponseEntity.badRequest().body("Bad request");
-      }
+    @RequestMapping(value = "searchbook/{bookname}/{session}/{term}", method = RequestMethod.GET)
+    public ResponseEntity<?> searchBook(@PathVariable String bookname, @PathVariable String session, @PathVariable String term, @RequestAttribute String schoolid) {
+        System.out.println("[Controller]:getting debtors-->\r\n bookname: " + bookname + "\r\n session: " + session + "\r\n term: " + term);
+        if (!bookname.isEmpty() && !session.isEmpty() && !term.isEmpty()) {
+            ArrayList<BookEntity> resultbooks = webService.searchBook(bookname, session, term, schoolid);
+            if (resultbooks != null && !resultbooks.isEmpty()) {
+                System.out.println("[Controller]:Searching books-->result= " + resultbooks.toString());
+                return ResponseEntity.ok().body(resultbooks);
+            } else {
+                System.out.println("[Controller]:Searching books-->Result is false");
+                return ResponseEntity.notFound().build();
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Bad request");
+        }
     }
+
     //Sell book
-    @RequestMapping(value = "sellbook/{bookid}/{buyer}/{session}",method = RequestMethod.POST)
-    public ResponseEntity<?> sellBook(@RequestBody BookEntity bookEntity,@PathVariable String bookid, @PathVariable String buyer,@PathVariable String session,@RequestAttribute String schoolid) throws MyException {
-        System.out.println("[Controller]:selling books-->\r\n bookid: "+bookid+"\r\n buyer: "+buyer+"\r\n session: "+session);
-        if (schoolid!=null&&buyer!=null&&bookEntity!=null){
-            webService.sellBook(bookid,schoolid,buyer,bookEntity,session);
-           return ResponseEntity.ok().build();
-        }else {
+    @RequestMapping(value = "sellbook/{bookid}/{buyer}/{session}", method = RequestMethod.POST)
+    public ResponseEntity<?> sellBook(@RequestBody BookEntity bookEntity, @PathVariable String bookid, @PathVariable String buyer, @PathVariable String session, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("[Controller]:selling books-->\r\n bookid: " + bookid + "\r\n buyer: " + buyer + "\r\n session: " + session);
+        if (schoolid != null && buyer != null && bookEntity != null) {
+            webService.sellBook(bookid, schoolid, buyer, bookEntity, session);
+            return ResponseEntity.ok().build();
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
+
     //book history
-    @RequestMapping(value = "getbookhistory/{session}/{term}/{date}",method = RequestMethod.GET)
-    public ResponseEntity<?> getBookHistory(@PathVariable String session,@PathVariable int term,@PathVariable String date,@RequestAttribute String schoolid) throws MyException {
+    @RequestMapping(value = "getbookhistory/{session}/{term}/{date}", method = RequestMethod.GET)
+    public ResponseEntity<?> getBookHistory(@PathVariable String session, @PathVariable int term, @PathVariable String date, @RequestAttribute String schoolid) throws MyException {
         System.out.println("[Controller]:getting book history");
-       if (!session.isEmpty()&&term!=0&&!date.isEmpty()&&schoolid!=null){
-           ArrayList<BookHistory> histories=webService.getBookHistory(session,term,date,schoolid);
-           GsonBuilder builder=new GsonBuilder();
-           builder.serializeNulls();
-           builder.setPrettyPrinting();
-           Gson gson=builder.create();
-           String json=gson.toJson(histories);
-           System.out.println("[Controller]: book history-->"+json);
-           HttpHeaders headers=new HttpHeaders();
-           headers.add("Content-Type","application/json; charset=UTF-8");
-           return ResponseEntity.ok().headers(headers).body(json);
-       }else {
-           return ResponseEntity.badRequest().build();
-       }
+        if (!session.isEmpty() && term != 0 && !date.isEmpty() && schoolid != null) {
+            ArrayList<BookHistory> histories = webService.getBookHistory(session, term, date, schoolid);
+            GsonBuilder builder = new GsonBuilder();
+            builder.serializeNulls();
+            builder.setPrettyPrinting();
+            Gson gson = builder.create();
+            String json = gson.toJson(histories);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json; charset=UTF-8");
+            return ResponseEntity.ok().headers(headers).body(json);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
-//    //Delete Book History
+
+    //    //Delete Book History
 //    @RequestMapping(value = "deletebookHistory/{id}",method = RequestMethod.DELETE)
 //    public ResponseEntity<?> deleteBookHistory(@PathVariable String id){
 //        System.out.println("[Controller]:deleting book history with id="+id);
@@ -886,17 +866,62 @@ public class ApiController {
 //        }
 //    }
     //Edit book
-    @RequestMapping(value = "editbook",method = RequestMethod.POST)
-    public ResponseEntity<?> editBook(@RequestBody EditBookRequest editBookRequest,@RequestAttribute String schoolid) throws MyException {
-        if (editBookRequest!=null&&schoolid!=null){
+    @RequestMapping(value = "editbook", method = RequestMethod.POST)
+    public ResponseEntity<?> editBook(@RequestBody EditBookRequest editBookRequest, @RequestAttribute String schoolid) throws MyException {
+        if (editBookRequest != null && schoolid != null) {
             System.out.println("[Controller]:Editing book-->proceeding to web service");
-            BookEntity result=webService.editBook(editBookRequest,schoolid);
+            BookEntity result = webService.editBook(editBookRequest, schoolid);
             return ResponseEntity.ok().body(result);
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////BOOK SESSION END////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ////////////////////////////////////////ATTENDANCE///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @RequestMapping(value = "getattendance/{clas}/{session}/{term}/{daytime}/{gender}/{week}")
+    public ResponseEntity<?> getAttendance(@PathVariable String clas, @PathVariable String session,@PathVariable String term,@PathVariable String daytime,@PathVariable String gender,@RequestAttribute String schoolid,@PathVariable String week) {
+        if (clas != null && session != null&& term!=null&&daytime!=null&&gender!=null&&schoolid!=null&&week!=null) {
+            Object attendance = webService.getAttendance(clas, session,term,daytime,gender,schoolid,week);
+            GsonBuilder builder = new GsonBuilder();
+            builder.serializeNulls();
+            builder.setPrettyPrinting();
+            Gson gson = builder.create();
+            String json = gson.toJson(attendance);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json; charset=UTF-8");
+            return ResponseEntity.ok().headers(headers).body(json);
+        } else {
+            return ResponseEntity.badRequest().body("Invalid request");
+        }
+    }
+    @RequestMapping(value = "signattendance/{qrdata}")
+    public ResponseEntity<?> signAttendance(@PathVariable String qrdata) throws MyException {
+        //From the qrdata ,information is in this format studentid,schoolid,session,term
+        if (qrdata!=null){
+            //Parse the qrcode
+            List<String> data= Arrays.asList(qrdata.split(","));
+            if (data.size()==4){
+                boolean result=webService.signAttendance(data.get(0),data.get(1),data.get(2),data.get(3));
+                if (result){
+                    return ResponseEntity.ok().body("Successful");
+                }else{
+                    return ResponseEntity.unprocessableEntity().body("Unable to sign attendance");
+                }
+            }else {
+                return ResponseEntity.unprocessableEntity().body("Invalid Qr code");
+            }
+            
+        }else {
+            return  ResponseEntity.badRequest().body("Invalid request");
+        }
+    }
+
+
+//////////////////////////////////////////ATTENDANCE END////////////////////////////////////////////////////////
+
 }

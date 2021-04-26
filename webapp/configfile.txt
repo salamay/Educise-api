@@ -1,0 +1,3 @@
+session=2018-2019
+term=1
+week=1

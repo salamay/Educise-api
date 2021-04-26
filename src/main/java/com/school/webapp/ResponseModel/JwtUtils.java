@@ -39,12 +39,12 @@ public class JwtUtils {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails,String email){
+    public String generateToken(UserDetails userDetails,String schoolid){
         Map<String,Object> claims=new HashMap<>();
-        return CreateToken(claims,userDetails,email);
+        return CreateToken(claims,userDetails,schoolid);
     }
-    private String CreateToken( Map<String,Object> claims,UserDetails userDetails,String email){
-        return Jwts.builder().addClaims(claims).setSubject(userDetails.getUsername()).setAudience(email)
+    private String CreateToken( Map<String,Object> claims,UserDetails userDetails,String schoolid){
+        return Jwts.builder().addClaims(claims).setSubject(userDetails.getUsername()).setAudience(schoolid)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*24))
                 .signWith(SignatureAlgorithm.HS256,SECRET_KEY).compact();

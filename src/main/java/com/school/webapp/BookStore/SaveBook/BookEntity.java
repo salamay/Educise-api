@@ -6,8 +6,7 @@ import javax.persistence.*;
 @Table(name = "book_entity")
 public class BookEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private String id;
     private String schoolid;
     private String title;
     private String author;
@@ -21,17 +20,20 @@ public class BookEntity {
 
     public BookEntity() {
     }
-    public int getId() {
+
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     public String getSchoolid() {
         return schoolid;
     }
+
+
 
     public void setSchoolid(String schoolid) {
         this.schoolid = schoolid;

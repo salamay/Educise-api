@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class InsertSubject {
     private int i;
@@ -14,8 +15,10 @@ public class InsertSubject {
     public Scores insertSubject(String subject, String session, String studentname, String term, String schoolid) throws MyException {
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
-            String QUERY="insert into studentscore (Subject,Studentname,term,schoolid,academicsession) values(?,?,?,?,?)";
-            String QUERY2="select * from studentscore where Subject=? and Studentname=? and term=? and schoolid=? and academicsession=?";
+            //This generate an id for the score
+            String uid= UUID.randomUUID().toString();
+            String QUERY="insert into studentscore (Subject,Studentname,term,schoolid,academicsession,id) values(?,?,?,?,?,?)";
+            String QUERY2="select * from studentscore where id=?";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,subject);
@@ -23,19 +26,16 @@ public class InsertSubject {
                 preparedStatement.setString(3,term);
                 preparedStatement.setString(4,schoolid);
                 preparedStatement.setString(5,session);
+                preparedStatement.setString(6,uid);
                 i=preparedStatement.executeUpdate();
                 if (i==1){
                     PreparedStatement preparedStatement2=connection.prepareStatement(QUERY2);
-                    preparedStatement2.setString(1,subject);
-                    preparedStatement2.setString(2,studentname);
-                    preparedStatement2.setString(3,term);
-                    preparedStatement2.setString(4,schoolid);
-                    preparedStatement2.setString(5,session);
+                    preparedStatement2.setString(1,uid);;
                     ResultSet resultSet=preparedStatement2.executeQuery();
                     if (resultSet!=null){
                        while (resultSet.next()){
                            scores=new Scores();
-                           String id=String.valueOf(resultSet.getInt("id"));
+                           String id=resultSet.getString("id");
                            String Subject = resultSet.getString("Subject");
                            String termm=resultSet.getString("term");
                            double FirstCa = resultSet.getDouble("Firstca");

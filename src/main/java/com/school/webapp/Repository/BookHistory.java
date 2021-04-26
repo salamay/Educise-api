@@ -2,25 +2,25 @@ package com.school.webapp.Repository;
 
 public class BookHistory {
 
-    private int id;
+    private String id;
     private String title;
     private String author;
     private String amountsold;
     private String buyer;
     private String date;
     private String session;
-    private int term;
+    private String term;
     private byte[] pdfdocumentbytes;
 
     public BookHistory() {
     }
 
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -72,11 +72,11 @@ public class BookHistory {
         this.session = session;
     }
 
-    public int getTerm() {
+    public String getTerm() {
         return term;
     }
 
-    public void setTerm(int term) {
+    public void setTerm(String term) {
         this.term = term;
     }
 

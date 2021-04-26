@@ -32,6 +32,8 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        //The staffid in authenticateRequest is in this format username,schoolid,it is then split to get the
+        // username and schoolid, the schoolid is used as part of token payload for subsequent request
         System.out.println(request.getRemoteAddr()+" Making request");
         final String authorizationHeader=request.getHeader("Authorization");
         username=null;
@@ -40,11 +42,12 @@ public class SecurityFilter extends OncePerRequestFilter {
             jwt=authorizationHeader.substring(7);
             username=jwtUtils.extractUsername(jwt);
             schoolid=jwtUtils.extractSchoolEmail(jwt);
-            //Setting schoolid on UserAccessStatus for verification
+
         }
 
         if (username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
-            UserDetails userDetails= myUserDetailsService.loadUserByUsername(username);
+            //Username is appended with thw comma and school id to make thing go as expected in the userdetails service
+            UserDetails userDetails= myUserDetailsService.loadUserByUsername(username+","+schoolid);
             if (userDetails!=null){
                 if (jwtUtils.validateToken(jwt,userDetails)){
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken=new UsernamePasswordAuthenticationToken(

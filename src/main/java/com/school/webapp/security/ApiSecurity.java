@@ -25,6 +25,7 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(myUserDetailsService);
+
     }
 
 
@@ -33,6 +34,8 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests()
                 .antMatchers("/authenticate").permitAll()
                 .antMatchers("/hello").permitAll()
+                .antMatchers("/signattendance/**").permitAll()
+                .antMatchers("/getattendance/**").permitAll()
                 .antMatchers("/register").hasAnyRole("TEACHER","BURSARY","ADMIN")
                 .antMatchers("/retrievestudentinformation/**").hasAnyRole("BURSARY","ADMIN","TEACHER")
                 .antMatchers("/editstudentinformation/**").hasRole("TEACHER")

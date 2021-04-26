@@ -2,9 +2,13 @@ package com.school.webapp.WebAppService.Registration;
 
 import com.school.webapp.JDBC.JDBCConnection;
 import com.school.webapp.WebAppService.MyException;
+import net.glxn.qrgen.QRCode;
+import org.apache.el.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,6 +16,7 @@ import java.sql.Connection;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.UUID;
 
 @Service
 public class Register {
@@ -20,6 +25,7 @@ public class Register {
     private FileInputStream m;
     private FileInputStream o;
     private int queryresponse;
+    private int attendanceQueryrespnse;
     public String Register(RegistrationModel registrationModel, MultipartFile studentpicture, MultipartFile fatherpicture, MultipartFile motherpicture, MultipartFile otherpicture, String schoolid) throws MyException {
         //Saving the file temporarily
         Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
@@ -103,7 +109,7 @@ public class Register {
         System.out.println(registrationModel.getSession());
         if (connection!=null){
             System.out.println("[Registering]: "+"Preparing Query");
-            String SaveNameQuery="INSERT INTO studentinformation (Studentname,Phoneno,parentphonenumber,nickname,hobbies,turnon,turnoff,club,rolemodel,futureambition,age,fathername,mothername,nextofkin,address,Gender,picture,Fatherpicture,motherpicture,otherpicture,studentclass,tag,schoolid,guardianname,academicsession) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String SaveNameQuery="INSERT INTO studentinformation (Studentname,Phoneno,parentphonenumber,nickname,hobbies,turnon,turnoff,club,rolemodel,futureambition,age,fathername,mothername,nextofkin,address,Gender,picture,Fatherpicture,motherpicture,otherpicture,studentclass,tag,schoolid,guardianname,academicsession,id,qrcode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement preparedStatement= null;
             try {
                     preparedStatement = connection.prepareStatement(SaveNameQuery);
@@ -132,9 +138,21 @@ public class Register {
                     preparedStatement.setString(23, schoolid);
                     preparedStatement.setString(24,registrationModel.getGuardianname());
                     preparedStatement.setString(25,registrationModel.getSession());
-                    queryresponse=preparedStatement.executeUpdate();
-                    System.out.println("[QueryResponse]: "+queryresponse);
-                } catch (SQLException e) {
+                    //Generate user identity
+                    String id= UUID.randomUUID().toString();
+                    System.out.println(id);
+                    preparedStatement.setString(26,id);
+                    //Generate QRCOde image
+                    ByteArrayOutputStream byteArrayOutputStream= QRCode
+                            .from(id+","+schoolid+","+registrationModel.getSession()+","+registrationModel.getTerm())
+                            .withSize(300,300)
+                            .stream();
+                byte[] qrbyte=byteArrayOutputStream.toByteArray();
+                InputStream inputStream=new ByteArrayInputStream(qrbyte);
+                preparedStatement.setBinaryStream(27,inputStream,(int)qrbyte.length);
+                queryresponse=preparedStatement.executeUpdate();
+                System.out.println("[QueryResponse]: "+queryresponse);
+            } catch (SQLException e) {
                     e.printStackTrace();
                 try {
                     connection.close();
@@ -156,10 +174,10 @@ public class Register {
         }else {
             throw new MyException("Unable to register student at the moment,please wait while we fix the issue");
         }
-        if (queryresponse==1){
+        if (queryresponse==1&&attendanceQueryrespnse==1){
             return "SUCCESS";
         }else {
-            throw new MyException("Unable to register student");
+            throw new MyException("Unable to register student, Contact the developer to avoid future problem");
         }
     }
 }

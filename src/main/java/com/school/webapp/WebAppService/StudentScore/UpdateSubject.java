@@ -33,7 +33,7 @@ public class UpdateSubject {
                     ResultSet resultSet=preparedStatement2.executeQuery();
                     while (resultSet.next()){
                         scores=new Scores();
-                        String id=String.valueOf(resultSet.getInt("id"));
+                        String id=resultSet.getString("id");
                         String Subject = resultSet.getString("Subject");
                         String term=resultSet.getString("term");
                         double FirstCa = resultSet.getDouble("Firstca");

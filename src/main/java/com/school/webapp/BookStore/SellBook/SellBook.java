@@ -16,6 +16,7 @@ public class SellBook {
 
     //Book Entity instance contains the book information to be sold
     public void SellBook(String bookid,String schoolid, String buyer, BookEntity bookEntity,String session) throws MyException {
+        //The book id is unique in both database
         System.out.println("[SellBook]: preparing connection");
         Connection connection= JDBCConnection.connector();
         if (connection!=null){
@@ -40,7 +41,7 @@ public class SellBook {
         }
         if (!i){
             ///Saving to book sold history
-            String QUERY="insert into book_history(title,author,amountsold,buyer,datesold,term,year,schoolid) values(?,?,?,?,?,?,?,?)";
+            String QUERY="insert into book_history(title,author,amountsold,buyer,datesold,term,year,schoolid,id) values(?,?,?,?,?,?,?,?,?)";
             try {
                 PreparedStatement preparedStatement=connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,bookEntity.getTitle());
@@ -51,6 +52,7 @@ public class SellBook {
                 preparedStatement.setString(6,bookEntity.getTerm());
                 preparedStatement.setString(7,session);
                 preparedStatement.setString(8,schoolid);
+                preparedStatement.setString(9,bookid);
                 j=preparedStatement.execute();
                 System.out.println("[SellBook]: Result2-->"+j);
             } catch (SQLException e) {

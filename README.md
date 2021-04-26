@@ -1,5 +1,5 @@
-# Spring api
-An api for the school management software.a server side code written in java to handle request made by the school management software.
+# Educise api
+  Educise api is written in java.An api for the school management software.a server side code written in java to handle request made by the school management software.
 It stores student information,teacher information.
     A QR code is generated for each student so as for the student to be able to mark attendance by
  scanning their QR code. 

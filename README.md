@@ -1,3 +1,5 @@
+![images (3)](https://user-images.githubusercontent.com/67029408/116397212-3bc23280-a81e-11eb-8ae3-7d5767f7cf1a.jpeg)
+
 # Educise api
   Educise api is written in java.An api for the school management software.a server side code written in java to handle request made by the school management software.
 It stores student information,teacher information.

@@ -9,25 +9,26 @@ import java.util.List;
 @Table(name = "user")
 public class User {
     @Id
-    private int id;
+    private String id;
     private String username;
     private String schoolid;
+
     private String password;
     private int locked_status;
     private String payment_date;
     private String expiry_date;
     private String role;
-
+    private String email;
     public User() {
 
     }
 
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -85,5 +86,13 @@ public class User {
 
     public void setExpiry_date(String expiry_date) {
         this.expiry_date = expiry_date;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

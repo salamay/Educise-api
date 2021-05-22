@@ -3,6 +3,8 @@ package com.school.webapp;
 
 import com.school.webapp.BookStore.Book;
 import com.school.webapp.RegisterTeacher.TeachernamesResponseEntity;
+import com.school.webapp.Repository.User;
+import com.school.webapp.RequestModel.*;
 import com.school.webapp.WebAppService.MyException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,12 +16,12 @@ import com.school.webapp.RegisterTeacher.RegisterTeacherRequestEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacherResponse;
 import com.school.webapp.WebAppService.Registration.RegistrationModel;
 import com.school.webapp.Repository.BookHistory;
-import com.school.webapp.RequestModel.AuthenticateRequest;
 import com.school.webapp.ResponseModel.JwtResponse;
 import com.school.webapp.ResponseModel.JwtUtils;
 import com.school.webapp.WebAppService.RetrievNameFromSession.RetrieveNameResponse;
 import com.school.webapp.RetrieveParentInformation.RetrieveParentInformationResponseEntity;
 import com.school.webapp.RetrieveParentNames.RetrieveParentNameResponse;
+import com.school.webapp.WebAppService.RetrieveSession.DeleteClass;
 import com.school.webapp.WebAppService.SaveSchoolFee.GetSchoolFee.getSchoolFeeResponseEntity;
 import com.school.webapp.WebAppService.SaveSchoolFee.SaveSchoolFeeRequestEntity;
 import com.school.webapp.Session.SessionRequestEntity;
@@ -27,6 +29,7 @@ import com.school.webapp.Session.SessionResponseEntity;
 import com.school.webapp.WebAppService.StudentScore.*;
 import com.school.webapp.WebAppService.WebService;
 import com.school.webapp.security.MyUserDetailsService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -38,12 +41,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.websocket.server.PathParam;
 import java.io.*;
 import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -80,7 +85,6 @@ public class ApiController {
                 ////Return back a token as a response,
                 ///This serve as an auhourization for the user
                 UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticateRequest.getStaffid());
-                System.out.println(userDetails.getUsername());
                 if (userDetails != null) {
                     jwt = jwtUtils.generateToken(userDetails, userdata.get(1));
                     HttpHeaders headers = new HttpHeaders();
@@ -496,30 +500,44 @@ public class ApiController {
 
 
     //////////////////////////////////////////////////////////////////////////////////
-    ///////Retrieve information sessions.this method returns a string of sessions////
+    ///////Retrieve classes.this method returns a string of classess////
     //this method return string in json format////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "retrieveclasses", method = RequestMethod.GET)
+    @RequestMapping(value = "retrieveclasses", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> retrieveClassess(@RequestAttribute String schoolid) throws MyException {
-        ArrayList<String> list = webService.retrieveClasses(schoolid);
-        String string = list.toString();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "text/plain; charset=UTF-8");
-        System.out.println("[Controller]: class sent");
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(string.length())
-                .body(string);
+        if (schoolid!=null){
+            ArrayList<ClassModel> list = webService.retrieveClasses(schoolid);
+            if (!list.isEmpty()){
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Content-Type", "application/json; charset=UTF-8");
+                System.out.println("[Controller]: class sent");
+                GsonBuilder builder = new GsonBuilder();
+                builder.serializeNulls();
+                builder.setPrettyPrinting();
+                Gson gson = builder.create();
+                String listdata = gson.toJson(list);
+                System.out.println(listdata);
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(listdata);
+            }else{
+                return ResponseEntity.unprocessableEntity().body("Failed to process data");
+            }
+
+        }else{
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+
     }
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
-    /////retrieve information Session end /////////////////
+    /////retrieve classess end /////////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////////////////
-    //////////////////This Method retrieve Score Session /////////////////////
+    //////////////////This Method retrieve Session /////////////////////
     //////////////////////////////////////////////////////////////////////////
     @RequestMapping(value = "retrievesession", method = RequestMethod.GET)
     public ResponseEntity<?> retrieveSession() throws MyException {
@@ -535,7 +553,7 @@ public class ApiController {
     }
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
-    /////retrieve score session Session end ///////////////
+    /////retrieve  session Session end ///////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
@@ -899,7 +917,17 @@ public class ApiController {
             return ResponseEntity.badRequest().body("Invalid request");
         }
     }
-    @RequestMapping(value = "signattendance/{qrdata}")
+    @
+
+//////////////////////////////////////////ATTENDANCE END////////////////////////////////////////////////////////
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////MOBILE ENDPOINT/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ RequestMapping(value = "signattendance/{qrdata}")
     public ResponseEntity<?> signAttendance(@PathVariable String qrdata) throws MyException {
         //From the qrdata ,information is in this format studentid,schoolid,session,term
         if (qrdata!=null){
@@ -915,13 +943,110 @@ public class ApiController {
             }else {
                 return ResponseEntity.unprocessableEntity().body("Invalid Qr code");
             }
-            
+
         }else {
             return  ResponseEntity.badRequest().body("Invalid request");
         }
     }
+    @RequestMapping(value = "addstaff",method = RequestMethod.POST)
+    public ResponseEntity<?> addStaff(@RequestBody AddStaffModel addStaffModel, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("Unprocessable");
+        if (addStaffModel!=null&&schoolid!=null){
+            int result=webService.addStaff(addStaffModel,schoolid);
+            if (result==1){
+                System.out.println(result);
+                return ResponseEntity.ok().build();
+            } else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
 
+    }
+    @RequestMapping(value = "retrievestaff",method = RequestMethod.GET)
+    public ResponseEntity<?> getStaff(@RequestAttribute String schoolid){
+        if (schoolid!=null){
+            ArrayList<User> result=webService.getStaffs(schoolid);
+            if (result!=null){
+                System.out.println(result);
+                return ResponseEntity.ok().body(result);
+            } else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+    }
+    @RequestMapping(value = "deleteStaff/{staffid}",method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteStaff(@RequestAttribute String schoolid,@PathVariable String staffid){
+        System.out.println("Unprocessable");
+        if (schoolid!=null&&staffid!=null){
+            int result=webService.deleteStaffs(schoolid,staffid);
+            if (result==1){
+                System.out.println(result);
+                return ResponseEntity.ok().body(result);
+            } else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
 
-//////////////////////////////////////////ATTENDANCE END////////////////////////////////////////////////////////
+    }
+
+    @RequestMapping(value = "registeration",method = RequestMethod.POST)
+    public ResponseEntity<?> mobileRegisteration(@RequestBody RegisterationModel registerationModel) throws MyException {
+        //registerationModel here is for mobile registeration
+        if (registerationModel!=null){
+            int result=webService.mobileRegisteration(registerationModel);
+            if (result==1){
+                System.out.println(result);
+                return ResponseEntity.ok().build();
+            }else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+
+    }
+
+    @RequestMapping(value = "addclass", method = RequestMethod.POST)
+    public ResponseEntity<?> addClasss(@RequestBody AddClassModel clas, @RequestAttribute String schoolid) throws MyException {
+        if (clas!=null&&schoolid!=null){
+            boolean result=webService.addClass(clas,schoolid);
+            if (result){
+                return ResponseEntity.ok("Success");
+            }else{
+                return ResponseEntity.unprocessableEntity().body("unable to process request");
+            }
+        }else{
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+    }
+    @RequestMapping(value = "deleteclass/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteClasss(@PathVariable String id, @RequestAttribute String schoolid) throws MyException {
+        System.out.println(id);
+        System.out.println(schoolid);
+        if (id!=null&&schoolid!=null){
+            boolean result=webService.deleteClass(id,schoolid);
+            if (result){
+                return ResponseEntity.ok("Success");
+            }else{
+                return ResponseEntity.unprocessableEntity().body("unable to process request");
+            }
+        }else{
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////MOBILE ENDPOINT END/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

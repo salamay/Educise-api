@@ -5,7 +5,6 @@ public class RegistrationModel {
     private String studentname;
     private String clas;
     private String session;
-    private String term;
     private int age;
     private String fathername;
     private String mothername;
@@ -52,13 +51,6 @@ public class RegistrationModel {
         this.session = session;
     }
 
-    public String getTerm() {
-        return term;
-    }
-
-    public void setTerm(String term) {
-        this.term = term;
-    }
 
     public int getAge() {
         return age;

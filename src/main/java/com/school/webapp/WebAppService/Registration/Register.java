@@ -16,6 +16,7 @@ import java.sql.Connection;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.UUID;
 
 @Service
@@ -25,7 +26,6 @@ public class Register {
     private FileInputStream m;
     private FileInputStream o;
     private int queryresponse;
-    private int attendanceQueryrespnse;
     public String Register(RegistrationModel registrationModel, MultipartFile studentpicture, MultipartFile fatherpicture, MultipartFile motherpicture, MultipartFile otherpicture, String schoolid) throws MyException {
         //Saving the file temporarily
         Path path= Paths.get(System.getProperty("user.dir")+"/webapp");
@@ -82,36 +82,39 @@ public class Register {
             f=new FileInputStream(father);
             m=new FileInputStream(mother);
             o=new FileInputStream(other);
-        } catch (FileNotFoundException e) {
-            System.out.println("[Registering]: Unable to convert file to input stream");
-            e.printStackTrace();
-        }
-        ///////////////////preparing input stream end////////////////////
-        System.out.println("[Registering]: "+"Creating database connector");
-        Connection connection= JDBCConnection.connector();
-        System.out.println(registrationModel.getStudentname());
-        System.out.println(registrationModel.getPhoneno());
-        System.out.println(registrationModel.getNickname());
-        System.out.println(registrationModel.getHobbies());
-        System.out.println(registrationModel.getTurnon());
-        System.out.println(registrationModel.getTurnoff());
-        System.out.println(registrationModel.getClub());
-        System.out.println(registrationModel.getRolemodel());
-        System.out.println(registrationModel.getFutureambition());
-        System.out.println(registrationModel.getAge());
-        System.out.println(registrationModel.getFathername());
-        System.out.println(registrationModel.getMothername());
-        System.out.println(registrationModel.getNextofkin());
-        System.out.println(registrationModel.getAddress());
-        System.out.println(registrationModel.getParentphonenumber());
-        System.out.println(registrationModel.getGender());
-        System.out.println(registrationModel.getClas());
-        System.out.println(registrationModel.getSession());
-        if (connection!=null){
-            System.out.println("[Registering]: "+"Preparing Query");
-            String SaveNameQuery="INSERT INTO studentinformation (Studentname,Phoneno,parentphonenumber,nickname,hobbies,turnon,turnoff,club,rolemodel,futureambition,age,fathername,mothername,nextofkin,address,Gender,picture,Fatherpicture,motherpicture,otherpicture,studentclass,tag,schoolid,guardianname,academicsession,id,qrcode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            PreparedStatement preparedStatement= null;
-            try {
+            ///////////////////preparing input stream end////////////////////
+            System.out.println("[Registering]: "+"Creating database connector");
+            Connection connection= JDBCConnection.connector();
+            System.out.println(registrationModel.getStudentname());
+            System.out.println(registrationModel.getPhoneno());
+            System.out.println(registrationModel.getNickname());
+            System.out.println(registrationModel.getHobbies());
+            System.out.println(registrationModel.getTurnon());
+            System.out.println(registrationModel.getTurnoff());
+            System.out.println(registrationModel.getClub());
+            System.out.println(registrationModel.getRolemodel());
+            System.out.println(registrationModel.getFutureambition());
+            System.out.println(registrationModel.getAge());
+            System.out.println(registrationModel.getFathername());
+            System.out.println(registrationModel.getMothername());
+            System.out.println(registrationModel.getNextofkin());
+            System.out.println(registrationModel.getAddress());
+            System.out.println(registrationModel.getParentphonenumber());
+            System.out.println(registrationModel.getGender());
+            System.out.println(registrationModel.getClas());
+            System.out.println(registrationModel.getSession());
+
+            if (connection!=null){
+                System.out.println("[Registering]: "+"Preparing Query");
+                String SaveNameQuery="INSERT INTO studentinformation (Studentname,Phoneno,parentphonenumber,nickname,hobbies,turnon,turnoff,club,rolemodel,futureambition,age,fathername,mothername,nextofkin,address,Gender,picture,Fatherpicture,motherpicture,otherpicture,studentclass,tag,schoolid,guardianname,academicsession,id,qrcode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                PreparedStatement preparedStatement= null;
+                try {
+                    //Getting term and session from the Config file
+                    FileInputStream fileInputStream=new FileInputStream(getConfigurationFile());
+                    Properties properties=new Properties();
+                    properties.load(fileInputStream);
+                    fileInputStream.close();
+                    String term=properties.getProperty("term");
                     preparedStatement = connection.prepareStatement(SaveNameQuery);
                     preparedStatement.setString(1,registrationModel.getStudentname());
                     preparedStatement.setString(2,registrationModel.getPhoneno());
@@ -144,40 +147,55 @@ public class Register {
                     preparedStatement.setString(26,id);
                     //Generate QRCOde image
                     ByteArrayOutputStream byteArrayOutputStream= QRCode
-                            .from(id+","+schoolid+","+registrationModel.getSession()+","+registrationModel.getTerm())
+                            .from(id+","+schoolid+","+registrationModel.getSession()+","+term)
                             .withSize(300,300)
                             .stream();
-                byte[] qrbyte=byteArrayOutputStream.toByteArray();
-                InputStream inputStream=new ByteArrayInputStream(qrbyte);
-                preparedStatement.setBinaryStream(27,inputStream,(int)qrbyte.length);
-                queryresponse=preparedStatement.executeUpdate();
-                System.out.println("[QueryResponse]: "+queryresponse);
-            } catch (SQLException e) {
-                    e.printStackTrace();
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    throw new MyException("An error occur when registering student");
-                }
-                throw new MyException("An error occur when registering student");
-                }finally {
-                try {
-                    connection.close();
+                    byte[] qrbyte=byteArrayOutputStream.toByteArray();
+                    InputStream inputStream=new ByteArrayInputStream(qrbyte);
+                    preparedStatement.setBinaryStream(27,inputStream,(int)qrbyte.length);
+                    queryresponse=preparedStatement.executeUpdate();
+                    System.out.println("[QueryResponse]: "+queryresponse);
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    throw new MyException("Unable to register student at the moment,please wait while we fix the issue");
+                    try {
+                        connection.close();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        throw new MyException("An error occur when registering student");
+                    }
+                    throw new MyException("An error occur when registering student");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new MyException("An error occur when registering student");
+                } finally {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        throw new MyException("Unable to register student at the moment,please wait while we fix the issue");
+                    }
                 }
+
+
+            }else {
+                throw new MyException("Unable to register student at the moment,please wait while we fix the connection problem");
             }
-
-
-        }else {
-            throw new MyException("Unable to register student at the moment,please wait while we fix the issue");
-        }
-        if (queryresponse==1&&attendanceQueryrespnse==1){
-            return "SUCCESS";
-        }else {
+            if (queryresponse==1){
+                return "SUCCESS";
+            }else {
+                throw new MyException("Unable to register student,unable to insert data, Contact the developer \n to avoid future problem");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("[Registering]: Unable to convert file to input stream");
+            e.printStackTrace();
             throw new MyException("Unable to register student, Contact the developer to avoid future problem");
+
         }
+
+    }
+    private static File getConfigurationFile(){
+        Path path= Paths.get(System.getProperty("user.dir")+"/webapp/configfile.txt");
+        File file =new File(String.valueOf(path.toAbsolutePath()));
+        return file;
     }
 }

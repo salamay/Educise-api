@@ -56,7 +56,7 @@ public class AttendanceManager {
                     String dayTime = "Evening";
                     return sign(weekday,dayTime,time,studentid,term,date,session,schoolid,weeknumber);
                 } else if (timeOfDay >= 21 && timeOfDay < 24) {
-                    throw new MyException("Unable to sign attendance");
+                    throw new MyException("Unable to sign attendance in the night");
                 }else {
                     return false;
                 }

@@ -18,7 +18,7 @@ public class RetrieveName {
         if (connection!=null){
             list=new ArrayList<>();
             System.out.println("[RetrieveName]: Connected successfully");
-            String Query = "Select StudentName,id from studentinformation Where Studentclass=? and academicsession=? and schoolid=?order by StudentName";
+            String Query = "Select StudentName,id from studentinformation Where Studentclass=? and academicsession=? and schoolid=? order by StudentName";
             ResultSet resultSet = null;
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(Query);
@@ -27,6 +27,7 @@ public class RetrieveName {
                 preparedStatement.setString(3,schoolid);
                 resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
+                    System.out.println(resultSet.getString("id"));
                     RetrieveNameResponse retrieveNameResponse=new RetrieveNameResponse();
                     retrieveNameResponse.setId(resultSet.getString("id"));
                     retrieveNameResponse.setName(resultSet.getString("Studentname"));

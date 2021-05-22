@@ -6,6 +6,10 @@ import com.school.webapp.BookStore.EditBook.EditBook;
 import com.school.webapp.BookStore.EditBook.EditBookRequest;
 import com.school.webapp.BookStore.getBookSoldHistory.getBookSoldHistory;
 import com.school.webapp.RegisterTeacher.*;
+import com.school.webapp.RequestModel.AddClassModel;
+import com.school.webapp.RequestModel.AddStaffModel;
+import com.school.webapp.RequestModel.ClassModel;
+import com.school.webapp.RequestModel.RegisterationModel;
 import com.school.webapp.WebAppService.Attendance.AttendanceManager;
 import com.school.webapp.WebAppService.Information.EditInformation.DeleteStudent;
 import com.school.webapp.WebAppService.Information.EditInformation.EditImage;
@@ -25,6 +29,8 @@ import com.school.webapp.RetrieveParentInformation.RetrieveParentInformation;
 import com.school.webapp.RetrieveParentInformation.RetrieveParentInformationResponseEntity;
 import com.school.webapp.RetrieveParentNames.RetrieveParentName;
 import com.school.webapp.RetrieveParentNames.RetrieveParentNameResponse;
+import com.school.webapp.WebAppService.RetrieveSession.AddClass;
+import com.school.webapp.WebAppService.RetrieveSession.DeleteClass;
 import com.school.webapp.WebAppService.RetrieveSession.RetrieveAcademicSession;
 import com.school.webapp.WebAppService.RetrieveSession.RetrieveClass;
 import com.school.webapp.WebAppService.SaveSchoolFee.GetSchoolFee.GetSchoolFee;
@@ -44,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
 import java.util.ArrayList;;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -62,6 +69,7 @@ public class WebService {
     public RetrieveStudentInformation retrieveStudentInformation;
     @Autowired
     private Register register;
+
 
 
 //Register Student
@@ -175,15 +183,17 @@ public class WebService {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ///This method receive information sessions
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<String> retrieveClasses(String schoolid) throws MyException {
+    public ArrayList<ClassModel> retrieveClasses(String schoolid) throws MyException {
         System.out.println("[WebService] Retrieving Classess--> Proceeding to Database");
-            ArrayList<String> classList=new RetrieveClass().retrieve(schoolid);
+            ArrayList<ClassModel> classList=new RetrieveClass().retrieve(schoolid);
                 System.out.println("[WebService]: classes retrieved");
                 System.out.println("[WebService]: "+classList);
                 return classList;
     }
     ////////////////////////END/////////////////////////////////////////////////////////////////////////
-
+    public boolean addClass(AddClassModel clas, String schoolid) throws MyException {
+        return new AddClass().add(clas,schoolid);
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////This method Retrieve score session/////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -355,6 +365,74 @@ public class WebService {
         return  attendanceManager.signAttendanceForAStudent(studentid,schoolid,session,term);
     }
 
+
     ////////////////////////////////////////////////ATTENDANCE END/////////////////////////////////////////////////
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////MOBILE ENDPOINT/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+public int mobileRegisteration(RegisterationModel registerationModel) throws MyException {
+        //check if email exist
+    checkIfEmailExist(registerationModel.getEmail());
+        //check if school id already exist
+        checkIfSchoolidAlreadyExist(registerationModel.getSchoolid());
+        //check if username already exist
+        checkIfUsernameExist(registerationModel.getStaffid());
+    String uuid=UUID.randomUUID().toString();
+    String role="ROLE_ADMIN";
+    int lockedstatus=1;
+    int active=1;
+    return myRepository.registerUser(uuid,registerationModel.getStaffid(),registerationModel.getPassword(),registerationModel.getSchoolid(),role,lockedstatus,registerationModel.getEmail());
+
 }
+
+    public boolean deleteClass(String id, String schoolid) throws MyException {
+        return new DeleteClass().deleteClass(id,schoolid);
+    }
+
+    public ArrayList<User> getStaffs(String schoolid) {
+        return myRepository.getStaffs(schoolid);
+    }
+
+    public int deleteStaffs(String schoolid, String staffid) {
+        return myRepository.deleteStaffs(staffid,schoolid);
+    }
+
+    public int addStaff(AddStaffModel addStaffModel, String schoolid) throws MyException {
+        //check if username already exist
+        checkIfUsernameExist(addStaffModel.getUsername());
+        return myRepository.addUser(UUID.randomUUID().toString(),addStaffModel.getUsername(),addStaffModel.getPassword(),schoolid,addStaffModel.getRole(),1);
+    }
+
+    public void checkIfSchoolidAlreadyExist(String schoolid) throws MyException {
+        ArrayList<User> result=myRepository.checkForSchoolId(schoolid);
+        if (result.isEmpty()){
+
+        }else {
+            throw new MyException("School id is taken, choose another school id");
+        }
+    }
+    public void checkIfUsernameExist(String username) throws MyException {
+        ArrayList<User> result=myRepository.checkForUsername(username);
+        if (result.isEmpty()){
+
+
+        }else {
+            throw new MyException("Staff id is taken, choose another username");
+        }
+    }
+    public void checkIfEmailExist(String email) throws MyException {
+        ArrayList<User> result=myRepository.checkForEmail(email);
+        if (result.isEmpty()){
+
+        }else {
+            throw new MyException("Email is taken, choose another email");
+        }
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////MOBILE ENDPOINT END/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
+
+

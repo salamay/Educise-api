@@ -5,6 +5,7 @@ public class RegisterationModel {
     private String staffid;
     private String password;
     private String schoolid;
+    private String numberofstudent;
 
     public RegisterationModel() {
     }
@@ -39,5 +40,13 @@ public class RegisterationModel {
 
     public void setSchoolid(String schoolid) {
         this.schoolid = schoolid;
+    }
+
+    public String getNumberofstudent() {
+        return numberofstudent;
+    }
+
+    public void setNumberofstudent(String numberofstudent) {
+        this.numberofstudent = numberofstudent;
     }
 }

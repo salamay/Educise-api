@@ -2,6 +2,7 @@ package com.school.webapp.ResponseModel;
 
 public class JwtResponse {
     private String jwt;
+
     public JwtResponse() {
     }
 

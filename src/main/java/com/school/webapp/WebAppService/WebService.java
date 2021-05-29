@@ -49,8 +49,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;;
-import java.util.Optional;
+import java.util.*;
 import java.util.UUID;
 
 @Service
@@ -69,7 +72,6 @@ public class WebService {
     public RetrieveStudentInformation retrieveStudentInformation;
     @Autowired
     private Register register;
-
 
 
 //Register Student
@@ -383,7 +385,10 @@ public int mobileRegisteration(RegisterationModel registerationModel) throws MyE
     String role="ROLE_ADMIN";
     int lockedstatus=1;
     int active=1;
-    return myRepository.registerUser(uuid,registerationModel.getStaffid(),registerationModel.getPassword(),registerationModel.getSchoolid(),role,lockedstatus,registerationModel.getEmail());
+    //User have to pay an amount that corresponds to the number of student
+    int amounttopay=Integer.parseInt(registerationModel.getNumberofstudent())*1000;
+
+    return myRepository.registerUser(uuid,registerationModel.getStaffid(),registerationModel.getPassword(),registerationModel.getSchoolid(),role,lockedstatus,registerationModel.getEmail(),String.valueOf(amounttopay));
 
 }
 
@@ -430,9 +435,56 @@ public int mobileRegisteration(RegisterationModel registerationModel) throws MyE
             throw new MyException("Email is taken, choose another email");
         }
     }
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////MOBILE ENDPOINT END/////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////Webhook start/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public int updateSubscription(String amountpaid, String paid_at, String created_at, String last4, String card_type, String customer_code, String reference, String next_payment_date,String email) {
+        return myRepository.chargeSuccess(amountpaid,paid_at,created_at,last4,card_type,customer_code,reference,next_payment_date,email);
+    }
+
+    public User retrieveSubscriptionInfo(String schoolid) throws MyException, ParseException {
+        User user=myRepository.getCustomerSubcriptionInfo(schoolid,"ROLE_ADMIN");
+
+        if (user != null) {
+            if(user.getNext_payment_date()!=null||user.getPaid_at()!=null){
+                System.out.println(user.getNext_payment_date());
+                System.out.println(user.getPaid_at());
+                String next_payment_date=user.getNext_payment_date();
+                String paid_at=user.getPaid_at();
+
+                DateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+                Date next = formatter.parse(next_payment_date);
+                Date paid=formatter.parse(paid_at);
+
+                if (next.after(paid)){
+                    user.setSubscription_status("active");
+                }else{
+                    user.setSubscription_status("not active");
+                }
+            }else{
+
+            }
+            return user;
+        }else{
+            throw new MyException(null);
+        }
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////Webhook end/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 }
 
 

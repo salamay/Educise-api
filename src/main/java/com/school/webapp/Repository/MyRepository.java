@@ -16,8 +16,8 @@ public interface MyRepository extends CrudRepository<User,Integer> {
 
     @Transactional
     @Modifying
-    @Query(value = "insert into user (id,username,password,schoolid,role,locked_status,email) values(?1,?2,?3,?4,?5,?6,?7)",nativeQuery = true)
-    int registerUser(String id, String username, String password, String schoolid, String role, int lockedstatus,String email);
+    @Query(value = "insert into user (id,username,password,schoolid,role,locked_status,email,amount) values(?1,?2,?3,?4,?5,?6,?7,?8)",nativeQuery = true)
+    int registerUser(String id, String username, String password, String schoolid, String role, int lockedstatus,String email,String amount);
 
 
     @Query(value = "select * from user where schoolid=?1",nativeQuery = true)
@@ -44,5 +44,12 @@ public interface MyRepository extends CrudRepository<User,Integer> {
     @Query(value = "delete from user where id=?1 and schoolid=?2",nativeQuery = true)
     int deleteStaffs(String id,String schoolid);
 
+    @Modifying
+    @Transactional
+    @Query(value = "update user set amount=?1,paid_at=?2,created_at=?3,last4=?4,card_type=?5,customer_code=?6,reference=?7,next_payment_date=?8 where email=?9",nativeQuery = true)
+    int chargeSuccess(String amountpaid, String paid_at, String created_at, String last4, String card_type, String customer_code, String reference,String next_payment_date,String email);
 
+    //get subcription info only for admin
+    @Query(value = "select * from user where schoolid=?1 and role=?2",nativeQuery = true)
+    User getCustomerSubcriptionInfo(String schoolid,String role);
 }

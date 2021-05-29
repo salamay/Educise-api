@@ -1,9 +1,12 @@
 package com.school.webapp.WebAppService.Attendance;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.school.webapp.JDBC.JDBCConnection;
 import com.school.webapp.Repository.Attendance;
 import com.school.webapp.Repository.AttendanceRepository;
 import com.school.webapp.WebAppService.MyException;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.File;
@@ -18,12 +21,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AttendanceManager {
     @Autowired
     private AttendanceRepository attendanceRepository;
-
+    private Map<String, String> studentinfo = new HashMap<>();
     public boolean signAttendanceForAStudent(String studentid,String schoolid,String cardsession,String cardterm) throws MyException {
         //Card term is not used here
         try {
@@ -75,11 +79,10 @@ public class AttendanceManager {
     }
 
     public Map<String, String> getStudentInformation(String studentid) throws MyException {
-        Map<String, String> studentinfo = new HashMap<>();
         //Getting student information from database
         Connection connection = JDBCConnection.connector();
         if (connection != null) {
-            String QUERY = "Select studentname,Gender,studentclass from studentinformation where id =?";
+            String QUERY = "Select studentname,Gender,studentclass,parentphonenumber from studentinformation where id =?";
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(QUERY);
                 preparedStatement.setString(1,studentid);
@@ -88,6 +91,7 @@ public class AttendanceManager {
                     studentinfo.put("studentname", resultSet.getString("studentname"));
                     studentinfo.put("class", resultSet.getString("studentclass"));
                     studentinfo.put("gender", resultSet.getString("gender"));
+                    studentinfo.put("parentphonenumber",resultSet.getString("parentphonenumber"));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -115,6 +119,7 @@ public class AttendanceManager {
             throw new MyException("This student has already been marked for this "+daytime);
         }else {
             int result=attendanceRepository.SaveAttendance(studentid,map.get("studentname"),session,term,map.get("class"),map.get("gender"),weekday,daytime,time,date,schoolid,weeknumber);
+            sendMessageToParent(studentinfo.get("parentphonenumber"),studentinfo.get("studentname"));
             System.out.println(result);
             if (result==1){
                 return true;
@@ -161,6 +166,46 @@ public class AttendanceManager {
             return true;
         }else {
             return false;
+        }
+    }
+
+
+    public void sendMessageToParent(String parentPhoneNumber,String childname) throws MyException {
+        OkHttpClient client=new OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.MINUTES)
+                .readTimeout(1, TimeUnit.MINUTES)
+                .build();
+        System.out.println("[AttendanceManager]:sending message to parent--> Making Request");
+        MessageModel messageModel=new MessageModel();
+        messageModel.setApi_token("3YzFpdKqtTIjM6pHVOA9wv1Sf30icEXEWubwUZ7q6ITflrsB9LEmdEuvAss6");
+        messageModel.setFrom("Educise");
+        messageModel.setTo(parentPhoneNumber);
+        messageModel.setBody("Your child "+childname+" has been marked present in school at "+new Date().toString());
+        messageModel.setGateway("0");
+        messageModel.setAppend_sender("0");
+        GsonBuilder builder=new GsonBuilder();
+        builder.setPrettyPrinting();
+        builder.serializeNulls();
+        Gson gson=builder.create();
+        String rawjson=gson.toJson(messageModel);
+
+        RequestBody requestBody=RequestBody.create(MediaType.parse("application/json"),rawjson);
+        Request request=new Request.Builder()
+                .addHeader("Content-Type","application/json")
+                .addHeader("Accept","application/json")
+                .post(requestBody)
+                .url("https://www.bulksmsnigeria.com/api/v1/sms/create")
+                .build();
+        try {
+            Response response=client.newCall(request).execute();
+            if (response.code()==200){
+                System.out.println("Message sent");
+            }else{
+                System.out.println("An error occur while sending message");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new MyException("Attendance has been marked but unable to send message to parent");
         }
     }
 }

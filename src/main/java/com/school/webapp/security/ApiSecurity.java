@@ -70,6 +70,9 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/findallbook/**").hasAnyRole("BURSARY","ADMIN")
                 .antMatchers("/searchbook/**").hasAnyRole("BURSARY","ADMIN")
                 .antMatchers("/sellbook/**").hasRole("BURSARY")
+                .antMatchers("/subscriptioninfo").hasIpAddress("52.31.139.75")
+                .antMatchers("/subscriptioninfo").hasIpAddress("52.49.173.169")
+                .antMatchers("/subscriptioninfo").hasIpAddress("52.214.14.220")
                 .antMatchers("/getbookhistory/**").hasAnyRole("BURSARY","ADMIN")
                 .antMatchers("/editbook/**").hasRole("BURSARY")
                 .anyRequest().authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

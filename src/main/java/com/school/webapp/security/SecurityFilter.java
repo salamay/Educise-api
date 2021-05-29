@@ -44,7 +44,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             schoolid=jwtUtils.extractSchoolEmail(jwt);
 
         }
-
         if (username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
             //Username is appended with thw comma and school id to make thing go as expected in the userdetails service
             UserDetails userDetails= myUserDetailsService.loadUserByUsername(username+","+schoolid);
@@ -60,5 +59,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request,response);
+
     }
 }

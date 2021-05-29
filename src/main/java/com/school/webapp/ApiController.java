@@ -1,8 +1,11 @@
 package com.school.webapp;
 
 
-import com.school.webapp.BookStore.Book;
 import com.school.webapp.RegisterTeacher.TeachernamesResponseEntity;
+import com.school.webapp.Repository.Contact;
+import com.school.webapp.Repository.ContactRepo;
+import com.school.webapp.Repository.User;
+import com.school.webapp.RequestModel.*;
 import com.school.webapp.WebAppService.MyException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,7 +17,6 @@ import com.school.webapp.RegisterTeacher.RegisterTeacherRequestEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacherResponse;
 import com.school.webapp.WebAppService.Registration.RegistrationModel;
 import com.school.webapp.Repository.BookHistory;
-import com.school.webapp.RequestModel.AuthenticateRequest;
 import com.school.webapp.ResponseModel.JwtResponse;
 import com.school.webapp.ResponseModel.JwtUtils;
 import com.school.webapp.WebAppService.RetrievNameFromSession.RetrieveNameResponse;
@@ -27,6 +29,8 @@ import com.school.webapp.Session.SessionResponseEntity;
 import com.school.webapp.WebAppService.StudentScore.*;
 import com.school.webapp.WebAppService.WebService;
 import com.school.webapp.security.MyUserDetailsService;
+import okhttp3.Response;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -37,13 +41,27 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.UnsupportedEncodingException;
+
+import java.security.InvalidKeyException;
+
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Mac;
+
+import javax.crypto.spec.SecretKeySpec;
+
+import javax.xml.bind.DatatypeConverter;
+
+import org.json.JSONException;
+
+import org.json.JSONObject;
+
 
 import java.io.*;
-import java.sql.Array;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.ParseException;
+import java.util.*;
 
 
 @RestController
@@ -59,12 +77,13 @@ public class ApiController {
     private JwtUtils jwtUtils;
     @Autowired
     private WebService webService;
+    @Autowired
+    private ContactRepo contactRepo;
 
     @RequestMapping(value = "/hello")
     public String hello() {
         return "Rejhd";
     }
-
     ///////////////////////////////////////////////////Authentication Session///////////////////////////////////////////////
     //authenticate
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -80,7 +99,6 @@ public class ApiController {
                 ////Return back a token as a response,
                 ///This serve as an auhourization for the user
                 UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticateRequest.getStaffid());
-                System.out.println(userDetails.getUsername());
                 if (userDetails != null) {
                     jwt = jwtUtils.generateToken(userDetails, userdata.get(1));
                     HttpHeaders headers = new HttpHeaders();
@@ -164,6 +182,7 @@ public class ApiController {
             Gson gson = builder.create();
             String json = gson.toJson(studentInformationResponseEntity);
             System.out.println("[Controller]: Retrieving information--> Response sent");
+            System.out.println(json);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/json;charset=UTF-8");
             return ResponseEntity.ok().headers(headers).contentLength(json.length()).body(json);
@@ -496,30 +515,44 @@ public class ApiController {
 
 
     //////////////////////////////////////////////////////////////////////////////////
-    ///////Retrieve information sessions.this method returns a string of sessions////
+    ///////Retrieve classes.this method returns a string of classess////
     //this method return string in json format////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
-    @RequestMapping(value = "retrieveclasses", method = RequestMethod.GET)
+    @RequestMapping(value = "retrieveclasses", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> retrieveClassess(@RequestAttribute String schoolid) throws MyException {
-        ArrayList<String> list = webService.retrieveClasses(schoolid);
-        String string = list.toString();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "text/plain; charset=UTF-8");
-        System.out.println("[Controller]: class sent");
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(string.length())
-                .body(string);
+        if (schoolid!=null){
+            ArrayList<ClassModel> list = webService.retrieveClasses(schoolid);
+            if (!list.isEmpty()){
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Content-Type", "application/json; charset=UTF-8");
+                System.out.println("[Controller]: class sent");
+                GsonBuilder builder = new GsonBuilder();
+                builder.serializeNulls();
+                builder.setPrettyPrinting();
+                Gson gson = builder.create();
+                String listdata = gson.toJson(list);
+                System.out.println(listdata);
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(listdata);
+            }else{
+                return ResponseEntity.unprocessableEntity().body("Failed to process data");
+            }
+
+        }else{
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+
     }
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
-    /////retrieve information Session end /////////////////
+    /////retrieve classess end /////////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////////////////
-    //////////////////This Method retrieve Score Session /////////////////////
+    //////////////////This Method retrieve Session /////////////////////
     //////////////////////////////////////////////////////////////////////////
     @RequestMapping(value = "retrievesession", method = RequestMethod.GET)
     public ResponseEntity<?> retrieveSession() throws MyException {
@@ -535,7 +568,7 @@ public class ApiController {
     }
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
-    /////retrieve score session Session end ///////////////
+    /////retrieve  session Session end ///////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
@@ -899,7 +932,17 @@ public class ApiController {
             return ResponseEntity.badRequest().body("Invalid request");
         }
     }
-    @RequestMapping(value = "signattendance/{qrdata}")
+    @
+
+//////////////////////////////////////////ATTENDANCE END////////////////////////////////////////////////////////
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////MOBILE ENDPOINT/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ RequestMapping(value = "signattendance/{qrdata}")
     public ResponseEntity<?> signAttendance(@PathVariable String qrdata) throws MyException {
         //From the qrdata ,information is in this format studentid,schoolid,session,term
         if (qrdata!=null){
@@ -915,13 +958,239 @@ public class ApiController {
             }else {
                 return ResponseEntity.unprocessableEntity().body("Invalid Qr code");
             }
-            
+
         }else {
             return  ResponseEntity.badRequest().body("Invalid request");
         }
     }
+    @RequestMapping(value = "addstaff",method = RequestMethod.POST)
+    public ResponseEntity<?> addStaff(@RequestBody AddStaffModel addStaffModel, @RequestAttribute String schoolid) throws MyException {
+        System.out.println("Unprocessable");
+        if (addStaffModel!=null&&schoolid!=null){
+            int result=webService.addStaff(addStaffModel,schoolid);
+            if (result==1){
+                System.out.println(result);
+                return ResponseEntity.ok().build();
+            } else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+
+    }
+    @RequestMapping(value = "retrievestaff",method = RequestMethod.GET)
+    public ResponseEntity<?> getStaff(@RequestAttribute String schoolid){
+        if (schoolid!=null){
+            ArrayList<User> result=webService.getStaffs(schoolid);
+            if (result!=null){
+                System.out.println(result);
+                return ResponseEntity.ok().body(result);
+            } else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+    }
+    @RequestMapping(value = "deleteStaff/{staffid}",method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteStaff(@RequestAttribute String schoolid,@PathVariable String staffid){
+        System.out.println("Unprocessable");
+        if (schoolid!=null&&staffid!=null){
+            int result=webService.deleteStaffs(schoolid,staffid);
+            if (result==1){
+                System.out.println(result);
+                return ResponseEntity.ok().body(result);
+            } else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+
+    }
+
+    @RequestMapping(value = "registeration",method = RequestMethod.POST)
+    public ResponseEntity<?> mobileRegisteration(@RequestBody RegisterationModel registerationModel) throws MyException {
+        //registerationModel here is for mobile registeration
+        if (registerationModel!=null){
+            int result=webService.mobileRegisteration(registerationModel);
+            if (result==1){
+                System.out.println(result);
+                return ResponseEntity.ok().build();
+            }else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+
+    }
+
+    @RequestMapping(value = "addclass", method = RequestMethod.POST)
+    public ResponseEntity<?> addClasss(@RequestBody AddClassModel clas, @RequestAttribute String schoolid) throws MyException {
+        if (clas!=null&&schoolid!=null){
+            boolean result=webService.addClass(clas,schoolid);
+            if (result){
+                return ResponseEntity.ok("Success");
+            }else{
+                return ResponseEntity.unprocessableEntity().body("unable to process request");
+            }
+        }else{
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+    }
+    @RequestMapping(value = "deleteclass/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteClasss(@PathVariable String id, @RequestAttribute String schoolid) throws MyException {
+        System.out.println(id);
+        System.out.println(schoolid);
+        if (id!=null&&schoolid!=null){
+            boolean result=webService.deleteClass(id,schoolid);
+            if (result){
+                return ResponseEntity.ok("Success");
+            }else{
+                return ResponseEntity.unprocessableEntity().body("unable to process request");
+            }
+        }else{
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+    }
+
+    @RequestMapping(value = "retrievesubcriptioninfo",method = RequestMethod.GET)
+    public ResponseEntity<?> retrieveSubscriptionInfo(@RequestAttribute String schoolid) throws MyException, ParseException {
+        System.out.println(schoolid);
+        if (schoolid!=null){
+            User usersubscription=webService.retrieveSubscriptionInfo(schoolid);
+            if (usersubscription!=null){
+                GsonBuilder builder=new GsonBuilder();
+                builder.setPrettyPrinting();
+                builder.serializeNulls();
+                Gson gson=builder.create();
+                String json=gson.toJson(usersubscription);
+                return ResponseEntity.ok(json);
+            } else{
+                return ResponseEntity.unprocessableEntity().body("Registeration failed");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
+
+    }
+    @RequestMapping(value = "contactus",method = RequestMethod.GET)
+    public ResponseEntity<?> ContactUs() throws MyException {
+        Optional<Contact> contact=contactRepo.findById("1");
+        contact.orElseThrow(()->new MyException("An error occured"));
+        return ResponseEntity.ok(contact);
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////MOBILE ENDPOINT END/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//////////////////////////////////////////ATTENDANCE END////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////PayTack webhook/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @RequestMapping( value ="subscriptioninfo", method = RequestMethod.POST)
+    public ResponseEntity<?> SubcriptionInformation(@RequestHeader("X-Paystack-Signature") String token,@RequestBody String requestBody) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, JSONException {
+        System.out.println(token);
+        System.out.println(requestBody);
+        if (token!=null&&requestBody!=null){
+
+            //first you verify that this request came from paystack
+
+
+
+            String key = "sk_test_b07ae8c4b15a9438d3c748a7386d4f0107036357"; //replace with your paystack secret_key
+
+
+
+            String rawJson =requestBody;
+
+            JSONObject body = new JSONObject(rawJson);
+
+            String result = "";
+
+            String HMAC_SHA512 = "HmacSHA512";
+
+            String xpaystackSignature = token; //put in the request's header value for x-paystack-signature
+
+
+
+            byte [] byteKey = key.getBytes("UTF-8");
+
+            SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
+
+            Mac sha512_HMAC = Mac.getInstance(HMAC_SHA512);
+
+            sha512_HMAC.init(keySpec);
+
+            byte [] mac_data = sha512_HMAC.
+
+                    doFinal(body.toString().getBytes("UTF-8"));
+
+            result = DatatypeConverter.printHexBinary(mac_data);
+
+            if(result.toLowerCase().equals(xpaystackSignature)) {
+
+                // you can trust the event, it came from paystack
+
+                // respond with the http 200 response immediately before attempting to process the response
+
+                //retrieve the request body, and deliver value to the customer
+
+                String event=body.getString("event");
+                System.out.println(event);
+                if (event.equals("charge.success")) {
+                    System.out.println(body.get("event"));
+                    System.out.println(body.getJSONObject("data").getString("amount"));
+                    System.out.println(body.getJSONObject("data").getString("created_at"));
+                    System.out.println(body.getJSONObject("data").optJSONObject("authorization").getString("last4"));
+                    System.out.println(body.getJSONObject("data").optJSONObject("authorization").getString("card_type"));
+                    System.out.println(body.getJSONObject("data").optJSONObject("customer").getString("email"));
+                    System.out.println(body.getJSONObject("data").optJSONObject("customer").getString("customer_code"));
+                    System.out.println(body.getJSONObject("data").getString("reference"));
+
+                    String amountpaid = body.getJSONObject("data").getString("amount");
+                    String created_at = body.getJSONObject("data").getString("created_at");
+                    String last4 = body.getJSONObject("data").optJSONObject("authorization").getString("last4");
+                    String card_type = body.getJSONObject("data").optJSONObject("authorization").getString("card_type");
+                    String customer_email = body.getJSONObject("data").optJSONObject("customer").getString("email");
+                    String customer_code = body.getJSONObject("data").optJSONObject("customer").getString("customer_code");
+                    String reference=body.getJSONObject("data").getString("reference");
+                    Date paid_at=new Date(System.currentTimeMillis());
+                    String next_payment_date= DateUtils.addDays(paid_at,30).toString();
+                    System.out.println(next_payment_date);
+                    int response = webService.updateSubscription(amountpaid, paid_at.toString(), created_at, last4, card_type, customer_code, reference, next_payment_date, customer_email);
+                    System.out.println(response);
+                    if (response == 1) {
+                        return ResponseEntity.ok().build();
+                    } else {
+                        return ResponseEntity.ok().build();
+                    }
+
+                }else{
+                    return ResponseEntity.ok().build();
+                }
+            }else{
+                System.out.println("ignore");
+                // this isn't from Paystack, ignore it
+                return ResponseEntity.ok().build();
+            }
+
+        } else{
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////PayTack webhook END/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

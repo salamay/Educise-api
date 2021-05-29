@@ -43,14 +43,11 @@ public class MyUserDetails  implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        //This indicate if the subcription has expired
-
         return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-
         return true;
     }
     @Override

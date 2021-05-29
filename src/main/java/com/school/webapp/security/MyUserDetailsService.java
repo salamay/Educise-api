@@ -24,8 +24,10 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //The staff id and school id is gotten from the username variable,in order to prevent
         //user from tampering with another user's data
+
         List<String> staffid= Arrays.asList(username.split(","));
         Optional<User> user=myRepository.findByusernameAndEmail(staffid.get(0),staffid.get(1));
+        System.out.println(user);
         user.orElseThrow( ()->new UsernameNotFoundException("username not found "+username) );
         System.out.println("Username: "+user.get().getUsername());
         System.out.println("Role: "+user.get().getRole());

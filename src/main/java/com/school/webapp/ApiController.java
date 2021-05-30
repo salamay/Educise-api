@@ -2,10 +2,9 @@ package com.school.webapp;
 
 
 import com.school.webapp.RegisterTeacher.TeachernamesResponseEntity;
-import com.school.webapp.Repository.Contact;
-import com.school.webapp.Repository.ContactRepo;
-import com.school.webapp.Repository.User;
+import com.school.webapp.Repository.*;
 import com.school.webapp.RequestModel.*;
+import com.school.webapp.WebAppService.EduciseEmailService;
 import com.school.webapp.WebAppService.MyException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,7 +15,6 @@ import com.school.webapp.WebAppService.Information.StudentandParent.StudentInfor
 import com.school.webapp.RegisterTeacher.RegisterTeacherRequestEntity;
 import com.school.webapp.RegisterTeacher.RegisterTeacherResponse;
 import com.school.webapp.WebAppService.Registration.RegistrationModel;
-import com.school.webapp.Repository.BookHistory;
 import com.school.webapp.ResponseModel.JwtResponse;
 import com.school.webapp.ResponseModel.JwtUtils;
 import com.school.webapp.WebAppService.RetrievNameFromSession.RetrieveNameResponse;
@@ -79,7 +77,10 @@ public class ApiController {
     private WebService webService;
     @Autowired
     private ContactRepo contactRepo;
-
+    @Autowired
+    private EduciseEmailService educiseEmailService;
+    @Autowired
+    private MyRepository myRepository;
     @RequestMapping(value = "/hello")
     public String hello() {
         return "Rejhd";
@@ -796,7 +797,7 @@ public class ApiController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @RequestMapping(value = "savebook", method = RequestMethod.POST)
-    public ResponseEntity<?> saveBooktoStore(@RequestBody BookEntity book, @RequestAttribute String schoolid) {
+    public ResponseEntity<?> saveBooktoStore(@RequestBody BookEntity book, @RequestAttribute String schoolid) throws MyException {
         if (book != null) {
             BookEntity result = webService.saveBook(book, schoolid);
             if (result != null) {
@@ -824,7 +825,7 @@ public class ApiController {
 
     //Find all book
     @RequestMapping(value = "findallbook", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findAllBook(@RequestAttribute String schoolid) {
+    public ResponseEntity<?> findAllBook(@RequestAttribute String schoolid) throws MyException {
         final ArrayList<BookEntity> allBooks = webService.findAllBooks(schoolid);
         if (allBooks != null && !allBooks.isEmpty()) {
             return ResponseEntity.ok().body(allBooks);
@@ -836,7 +837,7 @@ public class ApiController {
 
     //Search Book
     @RequestMapping(value = "searchbook/{bookname}/{session}/{term}", method = RequestMethod.GET)
-    public ResponseEntity<?> searchBook(@PathVariable String bookname, @PathVariable String session, @PathVariable String term, @RequestAttribute String schoolid) {
+    public ResponseEntity<?> searchBook(@PathVariable String bookname, @PathVariable String session, @PathVariable String term, @RequestAttribute String schoolid) throws MyException {
         System.out.println("[Controller]:getting debtors-->\r\n bookname: " + bookname + "\r\n session: " + session + "\r\n term: " + term);
         if (!bookname.isEmpty() && !session.isEmpty() && !term.isEmpty()) {
             ArrayList<BookEntity> resultbooks = webService.searchBook(bookname, session, term, schoolid);
@@ -917,7 +918,7 @@ public class ApiController {
     ////////////////////////////////////////ATTENDANCE///////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @RequestMapping(value = "getattendance/{clas}/{session}/{term}/{daytime}/{gender}/{week}")
-    public ResponseEntity<?> getAttendance(@PathVariable String clas, @PathVariable String session,@PathVariable String term,@PathVariable String daytime,@PathVariable String gender,@RequestAttribute String schoolid,@PathVariable String week) {
+    public ResponseEntity<?> getAttendance(@PathVariable String clas, @PathVariable String session,@PathVariable String term,@PathVariable String daytime,@PathVariable String gender,@RequestAttribute String schoolid,@PathVariable String week) throws MyException {
         if (clas != null && session != null&& term!=null&&daytime!=null&&gender!=null&&schoolid!=null&&week!=null) {
             Object attendance = webService.getAttendance(clas, session,term,daytime,gender,schoolid,week);
             GsonBuilder builder = new GsonBuilder();
@@ -965,7 +966,6 @@ public class ApiController {
     }
     @RequestMapping(value = "addstaff",method = RequestMethod.POST)
     public ResponseEntity<?> addStaff(@RequestBody AddStaffModel addStaffModel, @RequestAttribute String schoolid) throws MyException {
-        System.out.println("Unprocessable");
         if (addStaffModel!=null&&schoolid!=null){
             int result=webService.addStaff(addStaffModel,schoolid);
             if (result==1){
@@ -981,7 +981,7 @@ public class ApiController {
 
     }
     @RequestMapping(value = "retrievestaff",method = RequestMethod.GET)
-    public ResponseEntity<?> getStaff(@RequestAttribute String schoolid){
+    public ResponseEntity<?> getStaff(@RequestAttribute String schoolid) throws MyException {
         if (schoolid!=null){
             ArrayList<User> result=webService.getStaffs(schoolid);
             if (result!=null){
@@ -996,7 +996,7 @@ public class ApiController {
         }
     }
     @RequestMapping(value = "deleteStaff/{staffid}",method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteStaff(@RequestAttribute String schoolid,@PathVariable String staffid){
+    public ResponseEntity<?> deleteStaff(@RequestAttribute String schoolid,@PathVariable String staffid) throws MyException {
         System.out.println("Unprocessable");
         if (schoolid!=null&&staffid!=null){
             int result=webService.deleteStaffs(schoolid,staffid);
@@ -1020,6 +1020,9 @@ public class ApiController {
             int result=webService.mobileRegisteration(registerationModel);
             if (result==1){
                 System.out.println(result);
+                String emailVerificationToken=jwtUtils.generateTokenForEmailVerification(registerationModel.getEmail());
+                //Schoolid is the subject for the token
+                educiseEmailService.sendSimpleMessage(registerationModel.getSchoolid(),"Account activation","click on the link below to verify your email http://localhost:8080/verify/"+emailVerificationToken);
                 return ResponseEntity.ok().build();
             }else{
                 return ResponseEntity.unprocessableEntity().body("Registeration failed");
@@ -1030,7 +1033,25 @@ public class ApiController {
         }
 
     }
+    @RequestMapping(value = "verify/{emailtoken}",method = RequestMethod.POST)
+    public ResponseEntity<?> verifyEmail(@PathVariable String emailtoken) throws MyException {
+        //registerationModel here is for mobile registeration
+        if (emailtoken!=null&&jwtUtils.validateTokenForVerification(emailtoken)){
+            String schoolid=jwtUtils.extractEmailForVerification(emailtoken);
+            System.out.println(schoolid);
+            int result=myRepository.verifyAccount(schoolid);
+            if (result==1){
+                System.out.println(result);
+                return ResponseEntity.ok("Verification successfull");
+            }else{
+                return ResponseEntity.unprocessableEntity().body("Unable to verify");
+            }
+        }else {
+            System.out.println("Unprocessable");
+            return ResponseEntity.badRequest().body("Bad request");
+        }
 
+    }
     @RequestMapping(value = "addclass", method = RequestMethod.POST)
     public ResponseEntity<?> addClasss(@RequestBody AddClassModel clas, @RequestAttribute String schoolid) throws MyException {
         if (clas!=null&&schoolid!=null){

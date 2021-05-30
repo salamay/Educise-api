@@ -54,4 +54,24 @@ public class JwtUtils {
           final String username=extractUsername(token);
           return (username.equals(userDetails.getUsername())&&! isTokenExpired(token));
     }
+    public String extractEmailForVerification(String token){
+        return extractClaim(token,Claims::getSubject);
+    }
+
+    public String generateTokenForEmailVerification(String schoolid){
+        Map<String,Object> claims=new HashMap<>();
+        return CreateTokenForEmailVerification(claims,schoolid);
+    }
+    private String CreateTokenForEmailVerification( Map<String,Object> claims,String schoolid){
+        return Jwts.builder().addClaims(claims).setSubject(schoolid)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*24))
+                .signWith(SignatureAlgorithm.HS256,SECRET_KEY).compact();
+    }
+    public Boolean validateTokenForVerification(String token){
+
+        final String schoolid=extractEmailForVerification(token);
+        return (! isTokenExpired(token));
+    }
+
 }

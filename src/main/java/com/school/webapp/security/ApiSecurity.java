@@ -34,7 +34,8 @@ public class ApiSecurity extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests()
                 .antMatchers("/authenticate").permitAll()
                 .antMatchers("/hello").permitAll().
-                antMatchers("/registeration").permitAll()
+                antMatchers("/registeration").permitAll().
+                antMatchers("/verify/**").permitAll()
                 .antMatchers("/retrievestaff").hasAnyRole("TEACHER","BURSARY","ADMIN")
                 .antMatchers("/addstaff").hasAnyRole("ADMIN")
                 .antMatchers("/addclass").hasAnyRole("ADMIN")

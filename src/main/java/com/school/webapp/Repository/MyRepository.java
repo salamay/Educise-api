@@ -16,8 +16,8 @@ public interface MyRepository extends CrudRepository<User,Integer> {
 
     @Transactional
     @Modifying
-    @Query(value = "insert into user (id,username,password,schoolid,role,locked_status,email,amount) values(?1,?2,?3,?4,?5,?6,?7,?8)",nativeQuery = true)
-    int registerUser(String id, String username, String password, String schoolid, String role, int lockedstatus,String email,String amount);
+    @Query(value = "insert into user (id,username,password,schoolid,role,locked_status,email,amount,verification) values(?1,?2,?3,?4,?5,?6,?7,?8,?9)",nativeQuery = true)
+    int registerUser(String id, String username, String password, String schoolid, String role, int lockedstatus,String email,String amount,String verification);
 
 
     @Query(value = "select * from user where schoolid=?1",nativeQuery = true)
@@ -52,4 +52,16 @@ public interface MyRepository extends CrudRepository<User,Integer> {
     //get subcription info only for admin
     @Query(value = "select * from user where schoolid=?1 and role=?2",nativeQuery = true)
     User getCustomerSubcriptionInfo(String schoolid,String role);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update user set verification=1 where schoolid=?1",nativeQuery = true)
+    int verifyAccount(String schoolid);
+
+
+    @Query(value = "select * from user where schoolid=?1 and role=?2",nativeQuery = true)
+    User checkSubscription(String schoolid,String role);
+
+    @Query(value = "select * from user where schoolid=?1 and role=?2",nativeQuery = true)
+    User checkVerification(String schoolid,String role);
 }

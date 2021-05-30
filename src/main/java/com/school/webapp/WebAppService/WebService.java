@@ -76,6 +76,10 @@ public class WebService {
 
 //Register Student
     public String RegisterStudent(RegistrationModel registrationModel, MultipartFile studentpicture, MultipartFile fatherpicture, MultipartFile motherpicture, MultipartFile otherpicture, String schoolid) throws SQLException, MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         String result;
         result=register.Register(registrationModel,studentpicture,fatherpicture,motherpicture,otherpicture,schoolid);
         System.out.println("[Service]: "+result);
@@ -89,16 +93,28 @@ public class WebService {
 
     ////////////////////////////Register Teacher////////////////////////////////////////////
     public String registerTeacher(RegisterTeacherRequestEntity registerTeacherRequestEntity, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService]-->[Registering teacher]-->Proceeding to Database");
         return  new RegisterTeacher().Registerteacher(registerTeacherRequestEntity,schoolid);
     }
 
     public RegisterTeacherRequestEntity retrieveTeacherInformation( String schoolid,String teaherid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService]-->[Retrieving teacher Information]-->Proceeding to Database");
         return new RetrieveTeacherInformation().getTeacherInformation(schoolid,teaherid);
     }
 
     public ArrayList<TeachernamesResponseEntity> getTeachersName(String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService]-->[Retrieving teacher names]-->Proceeding to Database");
         return new RetrieveTeacherName().getTeachersName(schoolid);
     }
@@ -106,6 +122,10 @@ public class WebService {
 
     //////////////////////////This method get the Scores////////////////////////////////////////////////////////
     public ArrayList<Scores> getScores(getStudentScoreRequestEntity getStudentScoreRequestEntity,String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService] getting student score--> Proceeding to Database");
         System.out.println("[WebService]-->name:"+getStudentScoreRequestEntity.getName());
         System.out.println("[WebService]--> table:"+getStudentScoreRequestEntity.getTable());
@@ -115,6 +135,7 @@ public class WebService {
     }
     //update Subject
     public Scores updateSubject(UpdateSubjectRequestEntity updateSubjectRequestEntity) throws MyException {
+
         System.out.println("[WebService] Updating subject--> Proceeding to Database");
         return new UpdateSubject().InsertSubject(updateSubjectRequestEntity);
     }
@@ -122,6 +143,10 @@ public class WebService {
     ////////////////////////////////////////Insert Subject//////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
     public Scores insertSubject(String subject, String session, String studentname, String term, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService]-->Inserting subject-->Proceeding to Database");
          return new InsertSubject().insertSubject(subject,session,studentname,term,schoolid);
     }
@@ -186,6 +211,10 @@ public class WebService {
     ///This method receive information sessions
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<ClassModel> retrieveClasses(String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService] Retrieving Classess--> Proceeding to Database");
             ArrayList<ClassModel> classList=new RetrieveClass().retrieve(schoolid);
                 System.out.println("[WebService]: classes retrieved");
@@ -194,6 +223,10 @@ public class WebService {
     }
     ////////////////////////END/////////////////////////////////////////////////////////////////////////
     public boolean addClass(AddClassModel clas, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         return new AddClass().add(clas,schoolid);
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -213,6 +246,10 @@ public class WebService {
     ///THis method Retrieve List of names from class
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<RetrieveNameResponse> RetrieveName(String classname, String sessionselected, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService] Retrieving student names--> Proceeding to Database");
         ArrayList<RetrieveNameResponse> list=new RetrieveName().retrieveName(classname,sessionselected,schoolid);
         return list;
@@ -254,32 +291,50 @@ public class WebService {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Getting school fee///////////////////////////////////////////////////////////
     public ArrayList<getSchoolFeeResponseEntity> getSchoolFees(String clas, String term, String year, String tag, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[Webservice]:getting school fee-->Proceeding to database");
         return new GetSchoolFee().getFee(clas,term,year,tag,schoolid);
     }
 
     public ArrayList<getSchoolFeeResponseEntity> getSchoolFeesWithoutTerm(String clas, String session, String tag, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
         System.out.println("[Webservice]:getting school fee without term-->Proceeding to database");
         return new getSchoolfeeWithoutTerm().getSchoolFeeWithoutTermFiltering(clas,session,tag,schoolid);
     }
 
     /////////////////////////////////////////////Save term to schoolfee table////////////////////////////////////////////////////
     public getSchoolFeeResponseEntity saveterm(String studentid, String term, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[Webservice]:Saving term-->Proceeding to database");
         return new SaveTerm().Save(studentid,term,schoolid);
     }
 
     public getSchoolFeeResponseEntity saveSchoolFee(SaveSchoolFeeRequestEntity saveSchoolFeeRequestEntity, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[Webservice]:  Proceeding to Database");
         return new SaveSchoolFee().saveStudentnameToSchoolFee(saveSchoolFeeRequestEntity,schoolid);
     }
 
     public getSchoolFeeResponseEntity saveDataToSchoolFeeTable(String studentid, String column, String entity, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
         System.out.println("[Webservice]:Saving data to schoolfee table-->Proceeding to database");
         return new SaveDataSchoolFeeTable().saveDataToTable(studentid,column,entity,schoolid);
     }
 
     public boolean deleteSchoolFee(String id, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
         System.out.println("[Webservice]:Deleting schoolfee from schoolfee table-->Proceeding to database");
         return new DeleteSchoolFee().deleteSchoolFee(id,schoolid);
     }
@@ -287,6 +342,10 @@ public class WebService {
     ///////////////////////////////////SAVE TERM TO SCHOOLFEE TABLE END///////////////////////////////////////////////////////////
 
    public ArrayList<getSchoolFeeResponseEntity> getDebtors(String clas, String term, String year, int minimumfee, String tag, String schoolid) throws MyException {
+       //check subscription status
+       checkSubscriptionStatus(schoolid);
+       //Check verification status
+       checkVerificationStatus(schoolid);
         System.out.println("[Webservice]:getting debtors-->Proceeding to database");
         return new getDebtors().getDebtorsList(clas,term,year,minimumfee,tag,schoolid);
     }
@@ -299,7 +358,11 @@ public class WebService {
 /////////////////////////////////////////////////////////////BOOK SESSION///////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Save book
-    public BookEntity saveBook(BookEntity book, String schoolid) {
+    public BookEntity saveBook(BookEntity book, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService]:saving books-->Proceeding to database");
         //This set the schoolid
         book.setSchoolid(schoolid);
@@ -315,14 +378,22 @@ public class WebService {
         new DeleteBook().delete(id);
     }
     //Find all books
-    public ArrayList<BookEntity> findAllBooks(String schoolid) {
+    public ArrayList<BookEntity> findAllBooks(String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService]:finding books-->Proceeding to database");
         ArrayList<BookEntity> books=new ArrayList<>();
         bookRepository.getAllBook(schoolid).forEach(books::add);
         return books;
     }
     //search book
-    public ArrayList<BookEntity> searchBook(String bookname, String session, String term,String schoolid) {
+    public ArrayList<BookEntity> searchBook(String bookname, String session, String term,String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[Controller]:Searching books-->\r\n bookname: "+bookname+"\r\n session: "+session+"\r\n term: "+term);
         System.out.println("[WebService]:Searching books-->Proceeding to database");
         ArrayList<BookEntity> books=new ArrayList<>();
@@ -331,6 +402,10 @@ public class WebService {
     }
     //sell book
     public void sellBook(String bookid ,String schoolid, String buyer, BookEntity bookEntity,String session) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         new SellBook().SellBook(bookid,schoolid,buyer,bookEntity,session);
     }
     //get booksold history
@@ -346,6 +421,10 @@ public class WebService {
 
     //Edit book
     public BookEntity editBook(EditBookRequest editBookRequest, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         System.out.println("[WebService]:Editing book-->Proceeding to database");
         return new EditBook().edit(editBookRequest,schoolid);
     }
@@ -358,12 +437,20 @@ public class WebService {
     ////////////////////////////////////////////////////////ATTENDANCE/////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Object getAttendance(String clas, String session, String term,String daytime,String gender,String schoolid,String week) {
+    public Object getAttendance(String clas, String session, String term,String daytime,String gender,String schoolid,String week) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         ArrayList<Attendance> attendance=attendanceRepository.findAttendance(clas,session,term,daytime,gender,schoolid,week);
         return attendance;
     }
 
     public boolean signAttendance(String studentid,String schoolid,String session,String term) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         return  attendanceManager.signAttendanceForAStudent(studentid,schoolid,session,term);
     }
 
@@ -379,6 +466,7 @@ public int mobileRegisteration(RegisterationModel registerationModel) throws MyE
     checkIfEmailExist(registerationModel.getEmail());
         //check if school id already exist
         checkIfSchoolidAlreadyExist(registerationModel.getSchoolid());
+
         //check if username already exist
         checkIfUsernameExist(registerationModel.getStaffid());
     String uuid=UUID.randomUUID().toString();
@@ -388,23 +476,35 @@ public int mobileRegisteration(RegisterationModel registerationModel) throws MyE
     //User have to pay an amount that corresponds to the number of student
     int amounttopay=Integer.parseInt(registerationModel.getNumberofstudent())*1000;
 
-    return myRepository.registerUser(uuid,registerationModel.getStaffid(),registerationModel.getPassword(),registerationModel.getSchoolid(),role,lockedstatus,registerationModel.getEmail(),String.valueOf(amounttopay));
+    return myRepository.registerUser(uuid,registerationModel.getStaffid(),registerationModel.getPassword(),registerationModel.getSchoolid(),role,lockedstatus,registerationModel.getEmail(),String.valueOf(amounttopay),"0");
 
 }
 
     public boolean deleteClass(String id, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
         return new DeleteClass().deleteClass(id,schoolid);
     }
 
-    public ArrayList<User> getStaffs(String schoolid) {
+    public ArrayList<User> getStaffs(String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
         return myRepository.getStaffs(schoolid);
     }
 
-    public int deleteStaffs(String schoolid, String staffid) {
+    public int deleteStaffs(String schoolid, String staffid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         return myRepository.deleteStaffs(staffid,schoolid);
     }
 
     public int addStaff(AddStaffModel addStaffModel, String schoolid) throws MyException {
+        //check subscription status
+        checkSubscriptionStatus(schoolid);
+        //Check verification status
+        checkVerificationStatus(schoolid);
         //check if username already exist
         checkIfUsernameExist(addStaffModel.getUsername());
         return myRepository.addUser(UUID.randomUUID().toString(),addStaffModel.getUsername(),addStaffModel.getPassword(),schoolid,addStaffModel.getRole(),1);
@@ -483,6 +583,37 @@ public int mobileRegisteration(RegisterationModel registerationModel) throws MyE
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////Webhook end/////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    //Check for subscription status
+
+    public void checkSubscriptionStatus(String schoolid) throws MyException {
+        User user=myRepository.checkSubscription(schoolid,"ROLE_ADMIN");
+        if (user.getSubscription_status()!=null){
+            if(user.getSubscription_status().equals("active")){
+
+            }else{
+                throw new MyException("Your subscription has expired");
+            }
+        }else{
+            throw new MyException("Your subscription has expired");
+        }
+
+    }
+    public void checkVerificationStatus(String schoolid) throws MyException {
+        User user=myRepository.checkVerification(schoolid,"ROLE_ADMIN");
+        System.out.println(user.getSchoolid());
+        if (user.getVerification()!=null){
+            if(user.getVerification().equals("1")){
+
+            }else{
+                throw new MyException("Verify your account");
+            }
+        }else{
+            throw new MyException("Verify your account");
+        }
+
+    }
 
 
 }

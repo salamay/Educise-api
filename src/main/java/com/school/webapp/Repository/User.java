@@ -14,6 +14,7 @@ public class User {
     private String schoolid;
     private String password;
     private int locked_status;
+    private String verification;
     private String role;
     private String email;
     private String amount;
@@ -167,5 +168,13 @@ public class User {
 
     public void setSubscription_status(String subscription_status) {
         this.subscription_status = subscription_status;
+    }
+
+    public String getVerification() {
+        return verification;
+    }
+
+    public void setVerification(String verification) {
+        this.verification = verification;
     }
 }
